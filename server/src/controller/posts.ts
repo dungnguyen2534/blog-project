@@ -10,7 +10,7 @@ interface PostBody {
 
 export const getPosts: RequestHandler = async (req, res) => {
   try {
-    const allPosts = await PostModel.find().exec();
+    const allPosts = await PostModel.find().sort({ _id: -1 }).exec();
     res.status(200).json(allPosts);
   } catch (error) {
     res.status(500).json({ error });

@@ -4,7 +4,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <header className="secondary-color border-b-[1px] py-3">
+    <header className="sticky top-0  secondary-color border-b-[1px] py-3">
       <div className="container flex relative">
         {/* Logo goes here */}
         <Link

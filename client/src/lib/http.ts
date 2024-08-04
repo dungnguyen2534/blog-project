@@ -1,3 +1,5 @@
+import env from "@/validation/env-validation";
+
 type customOptions = RequestInit & { baseURL?: string | undefined };
 
 class HttpError extends Error {
@@ -18,7 +20,7 @@ const request = async <Response>(
 ) => {
   const baseURL =
     options?.baseURL === undefined
-      ? process.env.NEXT_PUBLIC_SERVER_URL
+      ? env.NEXT_PUBLIC_SERVER_URL
       : options.baseURL;
 
   const baseHeaders = {

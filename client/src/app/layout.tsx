@@ -17,7 +17,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className="scrollbar-thin scrollbar-thumb-neutral-500 scrollbar-track-transparent">
       <body className={`${inter.className} primary-color`}>
         <ThemeProvider
           attribute="class"

@@ -3,29 +3,33 @@
 import FormWrapper from "@/components/form/FormWrapper";
 import FormInput from "@/components/form/FormInput";
 import { Button } from "@/components/ui/button";
-import { requiredString } from "@/validation/input-validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const createPostSchema = z.object({
-  title: requiredString("Title"),
-  body: requiredString("Body"),
-});
-
-type createPostValues = z.infer<typeof createPostSchema>;
+import { createPostBody } from "@/validation/schema/post";
+import PostsAPI from "@/api/post";
+import { redirect, useRouter } from "next/navigation";
 
 export default function NewPostPage() {
-  const form = useForm<createPostValues>({
-    resolver: zodResolver(createPostSchema),
+  const form = useForm<createPostBody>({
+    resolver: zodResolver(createPostBody),
     defaultValues: {
       title: "",
       body: "",
     },
   });
 
-  function onSubmit(values: createPostValues) {
-    console.log(values);
+  const router = useRouter();
+
+  async function onSubmit(values: createPostBody) {
+    try {
+      const res = await PostsAPI.createPost(values);
+      console.log(res);
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert(error);
+    }
   }
 
   const { errors, isSubmitting } = form.formState;
@@ -61,7 +65,7 @@ export default function NewPostPage() {
           placeholder="Your post body"
         />
         <Button disabled={isSubmitting} type="submit">
-          Submit
+          Publish
         </Button>
       </FormWrapper>
     </>
