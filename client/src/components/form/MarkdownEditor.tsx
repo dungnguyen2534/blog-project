@@ -1,3 +1,6 @@
+"use client";
+
+import MdEditor from "react-markdown-editor-lite";
 import { Control } from "react-hook-form";
 import {
   FormControl,
@@ -6,27 +9,25 @@ import {
   FormItem,
   FormLabel,
 } from "../ui/form";
-import { Input } from "../ui/input";
+import MarkdownRenderer from "../MarkdownRenderer";
+import "react-markdown-editor-lite/lib/index.css";
 
-interface FormInputProps {
+interface MarkdownEditorProps {
   controller: Control<any>;
   label?: string;
   name: string;
-  type?: string;
   placeholder?: string;
   description?: string;
   className?: string;
 }
 
-export default function FormInput({
+export default function MarkdownEditor({
   controller,
   label,
   name,
-  type,
   placeholder,
   description,
-  className,
-}: FormInputProps) {
+}: MarkdownEditorProps) {
   return (
     <FormField
       control={controller}
@@ -35,11 +36,12 @@ export default function FormInput({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input
-              className={className}
-              type={type}
+            <MdEditor
+              value={field.value}
+              style={{ height: "50vh" }}
+              renderHTML={(text) => <MarkdownRenderer>{text}</MarkdownRenderer>}
+              onChange={({ text }) => field.onChange(text)}
               placeholder={placeholder}
-              {...field}
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

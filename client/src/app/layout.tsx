@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import "./globals.css";
 import Navbar from "@/components/Navbar";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +20,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="scrollbar-thin scrollbar-thumb-neutral-500 scrollbar-track-transparent">
+      className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-500">
       <body className={`${inter.className} primary-color`}>
         <ThemeProvider
           attribute="class"

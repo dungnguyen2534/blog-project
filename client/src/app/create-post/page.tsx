@@ -7,7 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { createPostBody } from "@/validation/schema/post";
 import PostsAPI from "@/api/post";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import MarkdownEditor from "@/components/form/MarkdownEditor";
+import LoadingButton from "@/components/LoadingButton";
 
 export default function NewPostPage() {
   const form = useForm<createPostBody>({
@@ -23,7 +25,6 @@ export default function NewPostPage() {
   async function onSubmit(values: createPostBody) {
     try {
       const res = await PostsAPI.createPost(values);
-      console.log(res);
       router.push("/");
       router.refresh();
     } catch (error) {
@@ -36,7 +37,7 @@ export default function NewPostPage() {
 
   let errorMessage = "";
   if (errors.title && errors.body) {
-    errorMessage = "Both title and body are required";
+    errorMessage = "Both title and post content are required";
   } else if (errors.body) {
     errorMessage = "Body is required";
   } else if (errors.title) {
@@ -46,7 +47,7 @@ export default function NewPostPage() {
   return (
     <>
       {(errors.title || errors.body) && (
-        <p className="font-semibold text-red-600 px-4 py-4 bg-red-600 bg-opacity-15  rounded-md mb-3">
+        <p className="mb-3 rounded-md bg-red-600 bg-opacity-15 px-4 py-4 font-semibold text-red-600">
           {errorMessage}
         </p>
       )}
@@ -55,18 +56,19 @@ export default function NewPostPage() {
         <FormInput
           controller={form.control}
           name="title"
-          label="Title:"
-          placeholder="Your post title"
+          placeholder="Your new post title here..."
+          className="p-10 pl-3 text-4xl font-bold"
         />
-        <FormInput
+        <MarkdownEditor
           controller={form.control}
           name="body"
-          label="Body:"
-          placeholder="Your post body"
+          placeholder="Let write something awesome!"
         />
-        <Button disabled={isSubmitting} type="submit">
-          Publish
-        </Button>
+        <LoadingButton
+          text="Publish"
+          loadingText="Publishing..."
+          loading={isSubmitting}
+        />
       </FormWrapper>
     </>
   );
