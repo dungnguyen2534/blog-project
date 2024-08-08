@@ -2,7 +2,6 @@
 
 import FormWrapper from "@/components/form/FormWrapper";
 import FormInput from "@/components/form/FormInput";
-import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { createPostBody } from "@/validation/schema/post";
@@ -57,7 +56,8 @@ export default function NewPostPage() {
           controller={form.control}
           name="title"
           placeholder="Your new post title here..."
-          className="p-10 pl-3 text-4xl font-bold"
+          className="p-10 pl-3 text-4xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0"
+          autoComplete="off"
         />
         <MarkdownEditor
           controller={form.control}

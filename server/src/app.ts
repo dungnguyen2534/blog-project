@@ -2,8 +2,11 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import postsRouter from "./routes/posts";
+import usersRouter from "./routes/users";
 import env from "./env";
 import morgan from "morgan";
+import errorHandler from "./middlewares/errorHandler";
+import createHttpError from "http-errors";
 
 const app = express();
 
@@ -16,6 +19,11 @@ app.use(
   })
 );
 
+app.use("/users", usersRouter);
+
 app.use("/posts", postsRouter);
+
+app.use((req, res, next) => next(createHttpError(404, "404 Not found")));
+app.use(errorHandler);
 
 export default app;

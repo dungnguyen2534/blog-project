@@ -8,12 +8,12 @@ interface PostBody {
   body: string;
 }
 
-export const getPosts: RequestHandler = async (req, res) => {
+export const getPosts: RequestHandler = async (req, res, next) => {
   try {
     const allPosts = await PostModel.find().sort({ _id: -1 }).exec();
     res.status(200).json(allPosts);
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 };
 
@@ -22,7 +22,7 @@ export const createPost: RequestHandler<
   unknown,
   PostBody,
   unknown
-> = async (req, res) => {
+> = async (req, res, next) => {
   const { title, body } = req.body;
 
   try {
@@ -36,6 +36,6 @@ export const createPost: RequestHandler<
     });
     res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 };

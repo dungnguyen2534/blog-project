@@ -18,7 +18,7 @@ export default function LoadingButton({
   return (
     <Button disabled={loading} type={type}>
       {loading && <LoaderCircle className="mr-2 animate-spin" />}
-      {loading ? loadingText : text}
+      {loading && loadingText ? loadingText : text}
     </Button>
   );
 }

@@ -13,6 +13,7 @@ interface FormInputProps {
   label?: string;
   name: string;
   type?: string;
+  autoComplete?: "on" | "off";
   placeholder?: string;
   description?: string;
   className?: string;
@@ -25,6 +26,7 @@ export default function FormInput({
   type,
   placeholder,
   description,
+  autoComplete,
   className,
 }: FormInputProps) {
   return (
@@ -39,6 +41,7 @@ export default function FormInput({
               className={className}
               type={type}
               placeholder={placeholder}
+              autoComplete={autoComplete}
               {...field}
             />
           </FormControl>
