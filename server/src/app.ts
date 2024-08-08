@@ -7,6 +7,10 @@ import env from "./env";
 import morgan from "morgan";
 import errorHandler from "./middlewares/errorHandler";
 import createHttpError from "http-errors";
+import session from "express-session";
+import sessionConfig from "./config/session";
+import passport from "passport";
+import "./config/passport-signin";
 
 const app = express();
 
@@ -19,8 +23,10 @@ app.use(
   })
 );
 
-app.use("/users", usersRouter);
+app.use(session(sessionConfig));
+app.use(passport.authenticate("session"));
 
+app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
 
 app.use((req, res, next) => next(createHttpError(404, "404 Not found")));

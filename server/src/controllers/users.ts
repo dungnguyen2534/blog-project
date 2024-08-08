@@ -20,7 +20,7 @@ export const signup: RequestHandler<
     const existedUsername = await UserModel.exists({ username }).collation({
       locale: "en",
       strength: 2,
-    }); // case-insensitive search, e.g. "John" and "john" are the same
+    });
 
     if (existedUsername) {
       return res.status(409).json({ message: "Username already exists" });
@@ -35,11 +35,14 @@ export const signup: RequestHandler<
       password: hashedPassword,
     });
 
-    // turn to plain object to remove sensitive data before sending to client
     const newUser = result.toObject();
     delete newUser.password;
 
-    res.status(201).json(newUser);
+    // req.login provided by passport, login after signup
+    req.login(newUser, (err) => {
+      if (err) throw err;
+      res.status(201).json(newUser);
+    });
   } catch (error) {
     next(error);
   }
