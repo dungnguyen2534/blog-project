@@ -20,9 +20,6 @@ const userSchema = new Schema(
       type: String,
       select: false,
     },
-    name: {
-      type: String,
-    },
     about: {
       type: String,
     },

@@ -47,3 +47,30 @@ export const signup: RequestHandler<
     next(error);
   }
 };
+
+export const getAuthenticUser: RequestHandler = async (req, res, next) => {
+  const authenticatedUser = req.user;
+
+  try {
+    if (!authenticatedUser) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await UserModel.findById(authenticatedUser._id)
+      .select("+email")
+      .exec();
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signout: RequestHandler = (req, res) => {
+  //not async so don't need to use next, the err will automatically forward to the error handler
+
+  req.logout((err) => {
+    if (err) throw err;
+    res.sendStatus(200);
+  });
+};

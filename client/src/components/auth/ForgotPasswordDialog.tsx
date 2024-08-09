@@ -33,7 +33,7 @@ export default function ForgotPasswordDialog({
     defaultValues: { email: "", newPassword: "", otp: "" },
   });
 
-  function onSubmit(values: ForgotPasswordBody) {}
+  function onSubmit(input: ForgotPasswordBody) {}
 
   const { errors, isSubmitting } = form.formState;
 

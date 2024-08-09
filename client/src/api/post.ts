@@ -2,8 +2,8 @@ import http from "@/lib/http";
 import { createPostBody, Post } from "@/validation/schema/post";
 
 const PostsAPI = {
-  async createPost(values: createPostBody) {
-    const res = await http.post<Post>("/posts", values);
+  async createPost(input: createPostBody) {
+    const res = await http.post<Post>("/posts", input);
     return res.payload;
   },
   async getPosts() {

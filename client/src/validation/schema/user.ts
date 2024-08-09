@@ -5,7 +5,6 @@ export const userSchema = z.object({
   username: z.string(),
   email: z.string().email(),
   password: z.string(),
-  name: z.string(),
   about: z.string(),
   profilePicUrl: z.string().url(),
   googleId: z.string(),

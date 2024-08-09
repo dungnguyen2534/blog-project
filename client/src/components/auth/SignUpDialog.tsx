@@ -18,6 +18,7 @@ import GoogleButton from "./GoogleButton";
 import GithubButton from "./GithubButton";
 import EmailInput from "../form/EmailInput";
 import OTPInput from "../form/OTPInput";
+import UserAPI from "@/api/user";
 
 interface SignUpDialogProps {
   show: boolean;
@@ -35,7 +36,15 @@ export default function SignUpDialog({
     defaultValues: { email: "", username: "", password: "", otp: "" },
   });
 
-  function onSubmit(values: SignUpBody) {}
+  async function onSubmit(input: SignUpBody) {
+    try {
+      const newUser = await UserAPI.signup(input);
+      alert(JSON.stringify(newUser));
+    } catch (error) {
+      alert(error);
+      console.log(error);
+    }
+  }
 
   const { errors, isSubmitting } = form.formState;
 
