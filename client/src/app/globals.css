@@ -166,7 +166,7 @@
 
 .editor-container .custom-html-style a,
 .editor-container .custom-html-style a:hover {
-  @apply text-base font-medium text-blue-500 no-underline;
+  @apply text-base font-medium text-blue-500 dark:text-blue-500 no-underline;
 }
 
 .editor-container .custom-html-style blockquote {
