@@ -1,0 +1,54 @@
+import { Control } from "react-hook-form";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+
+interface EmailInputProps {
+  controller: Control<any>;
+  autoComplete?: "on" | "off";
+  description?: string;
+  className?: string;
+}
+
+export default function EmailInput({
+  controller,
+  description,
+  autoComplete,
+  className,
+}: EmailInputProps) {
+  return (
+    <FormField
+      control={controller}
+      name="email"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Email</FormLabel>
+          <div className="flex gap-1 items-center">
+            <FormControl>
+              <Input
+                className={`${className} rounded-tr-none rounded-br-none`}
+                type="email"
+                placeholder="Your email address"
+                autoComplete={autoComplete || "on"}
+                {...field}
+              />
+            </FormControl>
+            <Button
+              variant="secondary"
+              type="button"
+              className="rounded-tl-none rounded-bl-none ">
+              Get OTP
+            </Button>
+          </div>
+          <FormDescription className="text-xs">{description}</FormDescription>
+        </FormItem>
+      )}
+    />
+  );
+}

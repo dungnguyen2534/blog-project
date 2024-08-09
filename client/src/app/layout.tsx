@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
+import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,8 +30,10 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <Navbar />
-          <main className="container py-4">{children}</main>
+          <AuthDialogsProvider>
+            <Navbar />
+            <main className="container py-4">{children}</main>
+          </AuthDialogsProvider>
         </ThemeProvider>
       </body>
     </html>

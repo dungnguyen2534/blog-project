@@ -7,6 +7,7 @@ interface LoadingButtonProps {
   text: string;
   loadingText?: string;
   type?: "button" | "submit" | "reset";
+  className?: string;
 }
 
 export default function LoadingButton({
@@ -14,9 +15,10 @@ export default function LoadingButton({
   text,
   loadingText,
   type,
+  className,
 }: LoadingButtonProps) {
   return (
-    <Button disabled={loading} type={type}>
+    <Button className={className} disabled={loading} type={type}>
       {loading && <LoaderCircle className="mr-2 animate-spin" />}
       {loading && loadingText ? loadingText : text}
     </Button>
