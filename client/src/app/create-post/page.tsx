@@ -23,7 +23,7 @@ export default function NewPostPage() {
 
   async function onSubmit(values: createPostBody) {
     try {
-      const res = await PostsAPI.createPost(values);
+      await PostsAPI.createPost(values);
       router.push("/");
       router.refresh();
     } catch (error) {

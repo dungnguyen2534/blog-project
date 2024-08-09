@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 import FormWrapper from "../form/FormWrapper";
 import { useForm } from "react-hook-form";
 import { SignInBody } from "@/validation/schema/user";
@@ -16,9 +17,11 @@ import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
 import GoogleButton from "./GoogleButton";
 import GithubButton from "./GithubButton";
-import EmailInput from "../form/EmailInput";
-import OTPInput from "../form/OTPInput";
 import UserAPI from "@/api/user";
+import useAuth from "@/hooks/useAuth";
+import user from "@/api/user";
+import { ToManyRequestError, UnauthorizedError } from "@/lib/http-errors";
+import { error } from "console";
 
 interface SignInDialogProps {
   show: boolean;
@@ -38,13 +41,32 @@ export default function SignInDialog({
     defaultValues: { username: "", password: "" },
   });
 
-  async function onSubmit(input: SignInBody) {
+  const { mutateUser } = useAuth();
+  const { toast } = useToast();
+
+  async function onSubmit(credentials: SignInBody) {
     try {
-      const user = await UserAPI.signin(input);
-      alert("Hello " + user.username);
+      const user = await UserAPI.signin(credentials);
+      mutateUser(user);
+      setShow(false);
     } catch (error) {
-      alert(error);
-      console.log(error);
+      if (error instanceof UnauthorizedError) {
+        toast({
+          title: "Invalid credentials",
+          description: "Please check your credentials and try again",
+        });
+      } else if (error instanceof ToManyRequestError) {
+        toast({
+          title: "You're trying too often!",
+          description: "Please try again later",
+        });
+      } else {
+        console.error(error);
+        toast({
+          title: "An error occurred!",
+          description: "Please try again later",
+        });
+      }
     }
   }
 
@@ -68,6 +90,7 @@ export default function SignInDialog({
             controller={form.control}
             name="username"
             placeholder="Your username"
+            errorDescription={errors.username?.message}
           />
 
           <FormInput
@@ -79,6 +102,7 @@ export default function SignInDialog({
             alternative
             alternativeText="Forgot password?"
             alternativeAction={onForgotPasswordClick}
+            errorDescription={errors.password?.message}
           />
 
           <LoadingButton

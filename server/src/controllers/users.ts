@@ -1,12 +1,7 @@
 import { RequestHandler } from "express";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
-
-interface SignupBody {
-  username: string;
-  email: string;
-  password: string;
-}
+import { SignupBody } from "../validation/users";
 
 export const signup: RequestHandler<
   unknown,
@@ -23,15 +18,16 @@ export const signup: RequestHandler<
     });
 
     if (existedUsername) {
-      return res.status(409).json({ message: "Username already exists" });
+      return res.status(409).json({ message: "Username already taken" });
     }
+
+    // handle existed email later when implementing email verification
 
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const result = await UserModel.create({
       email,
       username,
-      name: username, // default name is username, user can change it later
       password: hashedPassword,
     });
 

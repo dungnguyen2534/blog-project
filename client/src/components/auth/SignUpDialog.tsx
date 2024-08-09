@@ -19,6 +19,9 @@ import GithubButton from "./GithubButton";
 import EmailInput from "../form/EmailInput";
 import OTPInput from "../form/OTPInput";
 import UserAPI from "@/api/user";
+import useAuth from "@/hooks/useAuth";
+import { BadRequestError, ConflictError } from "@/lib/http-errors";
+import { useToast } from "../ui/use-toast";
 
 interface SignUpDialogProps {
   show: boolean;
@@ -33,16 +36,28 @@ export default function SignUpDialog({
 }: SignUpDialogProps) {
   const form = useForm<SignUpBody>({
     resolver: zodResolver(SignUpBody),
-    defaultValues: { email: "", username: "", password: "", otp: "" },
+    defaultValues: { email: "", username: "", password: "", otp: undefined },
   });
+
+  const { mutateUser } = useAuth();
+  const { toast } = useToast();
 
   async function onSubmit(input: SignUpBody) {
     try {
       const newUser = await UserAPI.signup(input);
-      alert(JSON.stringify(newUser));
+      mutateUser(newUser);
+      setShow(false);
     } catch (error) {
-      alert(error);
-      console.log(error);
+      if (error instanceof ConflictError || error instanceof BadRequestError) {
+        toast({
+          title: error.message,
+        });
+      } else {
+        toast({
+          title: "An error occurred!",
+          description: "Please try again later",
+        });
+      }
     }
   }
 
@@ -50,7 +65,7 @@ export default function SignUpDialog({
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogContent className="w-96 py-8 px-auto">
+      <DialogContent className="w-96 py-5 px-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Sign up</DialogTitle>
           <DialogDescription>
@@ -61,13 +76,17 @@ export default function SignUpDialog({
           form={form}
           submitFunction={onSubmit}
           className="w-full m-auto">
-          <EmailInput controller={form.control} />
+          <EmailInput
+            controller={form.control}
+            errorDescription={errors.email?.message}
+          />
           <FormInput
             label="Username"
             controller={form.control}
             name="username"
-            placeholder="No spaces or special characters"
+            placeholder="Only letters, numbers, and underscores"
             description="Your unique display name, you can change it later"
+            errorDescription={errors.username?.message}
           />
           <FormInput
             label="Password"
@@ -75,9 +94,14 @@ export default function SignUpDialog({
             name="password"
             type="password"
             placeholder="At least 6 characters"
+            errorDescription={errors.password?.message}
           />
 
-          <OTPInput name="otp" controller={form.control} />
+          <OTPInput
+            name="otp"
+            controller={form.control}
+            errorDescription={errors.otp?.message}
+          />
 
           <LoadingButton
             className="w-full mt-1"

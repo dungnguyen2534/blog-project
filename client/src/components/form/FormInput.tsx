@@ -17,6 +17,7 @@ interface FormInputProps {
   autoComplete?: "on" | "off";
   placeholder?: string;
   description?: string;
+  errorDescription?: string;
   className?: string;
   alternative?: boolean;
   alternativeText?: string;
@@ -30,6 +31,7 @@ export default function FormInput({
   type,
   placeholder,
   description,
+  errorDescription,
   autoComplete,
   className,
   alternative,
@@ -56,11 +58,15 @@ export default function FormInput({
             <Button
               onClick={alternativeAction}
               variant="link"
+              type="button"
               className="absolute -top-[11px] -right-4 mt-1 text-xs text-blue-500">
               {alternativeText}
             </Button>
           )}
-          <FormDescription className="text-xs">{description}</FormDescription>
+          <FormDescription
+            className={errorDescription ? "text-xs !text-red-600" : "text-xs"}>
+            {errorDescription || description}
+          </FormDescription>
         </FormItem>
       )}
     />

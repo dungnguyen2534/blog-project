@@ -41,7 +41,7 @@ export default function ForgotPasswordDialog({
     <Dialog open={show} onOpenChange={setShow}>
       <DialogContent className="w-96 py-8 px-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Forgot password</DialogTitle>
+          <DialogTitle className="text-2xl">Password recover</DialogTitle>
           <DialogDescription>
             Use the form below to reset your password
           </DialogDescription>
@@ -53,16 +53,22 @@ export default function ForgotPasswordDialog({
           <EmailInput
             controller={form.control}
             description="The email you used to create your account"
+            errorDescription={errors.email?.message}
           />
           <FormInput
             label="New password"
             controller={form.control}
-            name="password"
+            name="newPassword"
             type="password"
             placeholder="At least 6 characters"
+            errorDescription={errors.newPassword?.message}
           />
 
-          <OTPInput name="otp" controller={form.control} />
+          <OTPInput
+            name="otp"
+            controller={form.control}
+            errorDescription={errors.otp?.message}
+          />
 
           <LoadingButton
             className="w-full mt-1"

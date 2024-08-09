@@ -70,7 +70,7 @@
 
 @layer components {
   .markdown {
-    @apply prose prose-neutral dark:prose-invert prose-a:text-blue-600 prose-blockquote:p-[0] prose-blockquote:pl-4 prose-th:text-start dark:prose-blockquote:border-l-4 dark:prose-blockquote:border-l-neutral-700 prose-pre:bg-neutral-800 dark:prose-pre:bg-neutral-950 prose-a:no-underline;
+    @apply prose prose-neutral dark:prose-invert prose-a:text-blue-500  prose-blockquote:p-[0] prose-blockquote:pl-4 prose-th:text-start dark:prose-blockquote:border-l-4 dark:prose-blockquote:border-l-neutral-700 prose-pre:bg-neutral-800 dark:prose-pre:bg-neutral-950 prose-a:no-underline;
   }
 
   .primary-color {
@@ -93,6 +93,10 @@
 
 .rc-md-editor .navigation-nav .button-wrap .button {
   @apply dark:text-neutral-300 dark:hover:text-white;
+}
+
+.rc-md-editor .navigation-nav .button-wrap .button.button-type-underline {
+  @apply hidden;
 }
 
 .rc-md-editor .navigation-nav .drop-wrap {
@@ -162,7 +166,7 @@
 
 .editor-container .custom-html-style a,
 .editor-container .custom-html-style a:hover {
-  @apply text-base font-medium text-blue-600 no-underline dark:text-blue-600;
+  @apply text-base font-medium text-blue-500 no-underline;
 }
 
 .editor-container .custom-html-style blockquote {

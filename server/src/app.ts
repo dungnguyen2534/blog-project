@@ -20,6 +20,7 @@ app.use(morgan("dev"));
 app.use(
   cors({
     origin: env.CLIENT_URL,
+    credentials: true,
   })
 );
 

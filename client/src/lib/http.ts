@@ -1,4 +1,11 @@
 import env from "@/validation/env-validation";
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+  ToManyRequestError,
+  UnauthorizedError,
+} from "./http-errors";
 
 type customOptions = RequestInit & { baseURL?: string | undefined };
 
@@ -41,9 +48,17 @@ const request = async <Response>(
     },
     body,
     method,
+    credentials: "include",
   });
 
-  const payload: Response = await res.json();
+  const contentType = res.headers.get("content-type");
+  let payload: Response;
+
+  if (contentType && contentType.includes("application/json")) {
+    payload = await res.json();
+  } else {
+    payload = (await res.text()) as unknown as Response;
+  }
 
   const data = {
     status: res.status,
@@ -51,7 +66,25 @@ const request = async <Response>(
   };
 
   if (!res.ok) {
-    throw new HttpError(data);
+    const errorMsg =
+      payload && typeof payload === "object" && "message" in payload
+        ? (payload.message as string)
+        : "An error occurred";
+
+    switch (res.status) {
+      case 400:
+        throw new BadRequestError(errorMsg);
+      case 401:
+        throw new UnauthorizedError(errorMsg);
+      case 404:
+        throw new NotFoundError(errorMsg);
+      case 409:
+        throw new ConflictError(errorMsg);
+      case 429:
+        throw new ToManyRequestError(errorMsg);
+      default:
+        throw new HttpError(data);
+    }
   }
 
   return data;
@@ -91,5 +124,3 @@ const http = {
 };
 
 export default http;
-
-// I did not write this myself :)

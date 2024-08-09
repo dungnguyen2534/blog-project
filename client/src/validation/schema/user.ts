@@ -11,22 +11,48 @@ export const userSchema = z.object({
   githubId: z.string(),
 });
 
+const usernameSchema = z
+  .string()
+  .min(3, "Username must be at least 3 characters")
+  .max(20, "Username must be at most 20 characters")
+  .regex(
+    /^[a-zA-Z0-9_]*$/,
+    "Username must only contain letters, numbers, and underscores"
+  );
+
+const emailSchema = z.string().email();
+
+const passwordSchema = z
+  .string()
+  .min(6, "Password must be at least 6 characters")
+  .regex(/^(?!.* )/, "Password must not contain spaces");
+
+const otpSchema = z.string().refine(
+  (val) => {
+    const num = Number(val);
+    return !isNaN(num) && num >= 100000 && num <= 999999;
+  },
+  {
+    message: "OTP must be a 6-digit number",
+  }
+);
+
 export const SignUpBody = z.object({
-  username: z.string().min(3),
-  email: z.string().email(),
-  password: z.string().min(6),
-  otp: z.string().length(6),
+  username: usernameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  otp: otpSchema,
 });
 
 export const SignInBody = z.object({
-  username: z.string().min(3),
-  password: z.string().min(6),
+  username: usernameSchema,
+  password: passwordSchema,
 });
 
 export const ForgotPasswordBody = z.object({
-  email: z.string().email(),
-  newPassword: z.string().min(6),
-  otp: z.string().length(6),
+  email: emailSchema,
+  newPassword: passwordSchema,
+  otp: otpSchema,
 });
 
 export type User = z.infer<typeof userSchema>;

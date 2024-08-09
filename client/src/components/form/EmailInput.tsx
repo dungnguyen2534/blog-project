@@ -13,12 +13,14 @@ interface EmailInputProps {
   controller: Control<any>;
   autoComplete?: "on" | "off";
   description?: string;
+  errorDescription?: string;
   className?: string;
 }
 
 export default function EmailInput({
   controller,
   description,
+  errorDescription,
   autoComplete,
   className,
 }: EmailInputProps) {
@@ -46,7 +48,10 @@ export default function EmailInput({
               Get OTP
             </Button>
           </div>
-          <FormDescription className="text-xs">{description}</FormDescription>
+          <FormDescription
+            className={errorDescription ? "!text-red-600 text-xs" : "text-xs"}>
+            {errorDescription || description}
+          </FormDescription>
         </FormItem>
       )}
     />
