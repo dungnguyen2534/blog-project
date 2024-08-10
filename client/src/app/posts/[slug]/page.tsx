@@ -1,4 +1,3 @@
-import post from "@/api/post";
 import PostsAPI from "@/api/post";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { NotFoundError } from "@/lib/http-errors";

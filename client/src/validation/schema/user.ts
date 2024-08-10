@@ -1,16 +1,5 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
-  _id: z.string(),
-  username: z.string(),
-  email: z.string().email(),
-  password: z.string(),
-  about: z.string(),
-  profilePicUrl: z.string().url(),
-  googleId: z.string(),
-  githubId: z.string(),
-});
-
 const usernameSchema = z
   .string()
   .min(3, "Username must be at least 3 characters")
@@ -36,6 +25,16 @@ const otpSchema = z.string().refine(
     message: "OTP must be a 6-digit number",
   }
 );
+
+export const userSchema = z.object({
+  _id: z.string(),
+  username: usernameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+  about: z.string(),
+  profilePicUrl: z.string().url(),
+  createdAt: z.string(),
+});
 
 export const SignUpBody = z.object({
   username: usernameSchema,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { userSchema } from "./user";
 
 export const postSchema = z.object({
   _id: z.string(),
@@ -7,13 +8,14 @@ export const postSchema = z.object({
   title: z.string(),
   body: z.string(),
   summary: z.string(),
+  author: userSchema,
   createdAt: z.string(),
   updatedAt: z.string(),
 });
 
 export const createPostBody = z.object({
   title: z.string().min(1),
-  summary: z.string(),
+  summary: z.string().optional(),
   body: z.string().min(1),
 });
 

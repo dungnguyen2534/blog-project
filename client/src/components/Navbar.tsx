@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ModeToggle } from "./ui/mode-toggle";
@@ -16,12 +15,14 @@ import { Button } from "./ui/button";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import useAuth from "@/hooks/useAuth";
 import UserAPI from "@/api/user";
-import { FaUserCog } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useToast } from "./ui/use-toast";
+import UserAvatar from "./UserAvatar";
+import { User } from "@/validation/schema/user";
+import user from "@/api/user";
 
 export default function Navbar() {
-  const { user, isValidatingUser } = useAuth();
+  const { user, mutateUser, isValidatingUser } = useAuth();
 
   // skeleton to prevent SignOutView showing up when user is still being validated(when refreshing the page)
   let callToActions;
@@ -33,13 +34,13 @@ export default function Navbar() {
       </div>
     );
   } else if (user) {
-    callToActions = <SignedInView username={user.username} />;
+    callToActions = <SignedInView user={user} mutateUser={mutateUser} />;
   } else {
     callToActions = <SignedOutView />;
   }
 
   return (
-    <header className="sticky top-0 secondary-color border-b-[1px] py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
+    <header className="z-50 sticky top-0 secondary-color border-b-[1px] py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
       <div className="container flex relative">
         <Link
           href={"/"}
@@ -71,10 +72,14 @@ function SignedOutView({}) {
   );
 }
 
-function SignedInView({ username }: { username: string }) {
-  const { mutateUser } = useAuth();
-  const { toast } = useToast();
+interface SignedInViewProps {
+  user: User;
+  mutateUser: (user: User | undefined) => void;
+}
+
+function SignedInView({ user, mutateUser }: SignedInViewProps) {
   const pathname = usePathname();
+  const { toast } = useToast();
 
   async function handleSignout() {
     try {
@@ -90,27 +95,21 @@ function SignedInView({ username }: { username: string }) {
 
   return (
     <>
-      {!(pathname === "/create-post") && (
+      {!(pathname === "/posts/create-post") && (
         <Button asChild variant="outline" className="border-2">
-          <Link href="/create-post">Create post</Link>
+          <Link href="/posts/create-post">Create post</Link>
         </Button>
       )}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger>
-          <Avatar>
-            <AvatarImage src="" alt={`${username} avatar`} />
-            <AvatarFallback>
-              <FaUserCog
-                size={26}
-                className="ml-1 text-neutral-700 dark:text-neutral-200"
-              />
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar username={user.username} profilePicUrl="" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>{`@${username}`}</DropdownMenuLabel>
+          <DropdownMenuLabel>{`@${user.username}`}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href={"users/" + user.username}>Profile</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignout}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
