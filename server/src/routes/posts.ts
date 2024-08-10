@@ -6,13 +6,17 @@ import requireAuth from "../middlewares/requireAuth";
 
 const router = express.Router();
 
-router.get("/", PostsController.getPosts);
-
 router.post(
   "/",
   requireAuth,
   validateRequest(PostSchema),
   PostsController.createPost
 );
+
+router.get("/", PostsController.getPostList);
+
+router.get("/slugs", PostsController.getSlugs);
+
+router.get("/:slugId", PostsController.getPost);
 
 export default router;

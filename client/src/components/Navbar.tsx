@@ -39,7 +39,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 secondary-color border-b-[1px] py-3">
+    <header className="sticky top-0 secondary-color border-b-[1px] py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
       <div className="container flex relative">
         <Link
           href={"/"}

@@ -19,6 +19,7 @@ interface MarkdownEditorProps {
   placeholder?: string;
   description?: string;
   className?: string;
+  height?: string;
 }
 
 export default function MarkdownEditor({
@@ -27,6 +28,7 @@ export default function MarkdownEditor({
   name,
   placeholder,
   description,
+  height,
 }: MarkdownEditorProps) {
   return (
     <FormField
@@ -38,7 +40,7 @@ export default function MarkdownEditor({
           <FormControl>
             <MdEditor
               value={field.value}
-              style={{ height: "50vh" }}
+              style={{ height: height || "50vh" }}
               renderHTML={(text) => <MarkdownRenderer>{text}</MarkdownRenderer>}
               onChange={({ text }) => field.onChange(text)}
               placeholder={placeholder}

@@ -1,5 +1,5 @@
 import { Post } from "@/validation/schema/post";
-import MarkdownRenderer from "./MarkdownRenderer";
+import PostEntry from "./PostEntry";
 
 interface PostList {
   posts: Post[];
@@ -7,12 +7,13 @@ interface PostList {
 
 export default function PostsList({ posts }: PostList) {
   return (
-    <div>
+    <div className="flex flex-col gap-5 xl:w-4/6 m-auto">
       {posts.map((post) => (
-        <div key={post._id}>
-          <div key={post._id}>{post.title}</div>
-          <MarkdownRenderer>{post.body}</MarkdownRenderer>
-        </div>
+        <PostEntry
+          key={post._id}
+          {...post}
+          slug={`${post.slug}-${post.slugId}`}
+        />
       ))}
     </div>
   );

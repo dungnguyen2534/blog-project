@@ -17,4 +17,4 @@ export function slugify(title: string) {
   return slug;
 }
 
-// make unique SEO friendly URLs: "Zq2rmJyEFZgHHlpS/some-random-title"
+// to make unique SEO friendly URLs: "some-random-title-Zq2rmJyEFZgHHlpS"
