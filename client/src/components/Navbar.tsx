@@ -81,7 +81,6 @@ function SignedInView({ username }: { username: string }) {
       await UserAPI.signout();
       mutateUser(undefined);
     } catch (error) {
-      console.log(error);
       toast({
         title: "Error",
         description: "Failed to sign out",

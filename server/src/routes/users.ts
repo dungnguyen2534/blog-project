@@ -3,6 +3,7 @@ import * as UserController from "../controllers/users";
 import passport from "passport";
 import validateRequest from "../middlewares/validateRequest";
 import { signupSchema } from "../validation/users";
+import requireAuth from "../middlewares/requireAuth";
 
 const router = express.Router();
 
@@ -14,6 +15,6 @@ router.post("/signin", passport.authenticate("local"), (req, res) => {
 
 router.post("/signout", UserController.signout);
 
-router.get("/me", UserController.getAuthenticUser);
+router.get("/me", requireAuth, UserController.getAuthenticatedUser);
 
 export default router;

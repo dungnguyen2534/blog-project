@@ -44,7 +44,7 @@ export const signup: RequestHandler<
   }
 };
 
-export const getAuthenticUser: RequestHandler = async (req, res, next) => {
+export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
   const authenticatedUser = req.user;
 
   try {

@@ -2,20 +2,7 @@ import { RequestHandler } from "express";
 import { slugify, shortid } from "../utils/slug-generator";
 import { ObjectId } from "mongodb";
 import PostModel from "../models/post";
-
-interface PostBody {
-  title: string;
-  body: string;
-}
-
-export const getPosts: RequestHandler = async (req, res, next) => {
-  try {
-    const allPosts = await PostModel.find().sort({ _id: -1 }).exec();
-    res.status(200).json(allPosts);
-  } catch (error) {
-    next(error);
-  }
-};
+import { PostBody } from "../validation/posts";
 
 export const createPost: RequestHandler<
   unknown,
@@ -35,6 +22,15 @@ export const createPost: RequestHandler<
       body,
     });
     res.status(201).json(newPost);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPosts: RequestHandler = async (req, res, next) => {
+  try {
+    const allPosts = await PostModel.find().sort({ _id: -1 }).exec();
+    res.status(200).json(allPosts);
   } catch (error) {
     next(error);
   }
