@@ -22,7 +22,7 @@ export default function OTPInput({
   errorDescription,
 }: OTPInputProps) {
   return (
-    <div className="flex flex-col items-center my-3">
+    <div className="flex flex-col items-center my-1">
       <FormField
         control={controller}
         name={name}

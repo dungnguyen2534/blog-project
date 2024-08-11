@@ -47,7 +47,7 @@ export default function FormInput({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input
-              className={className}
+              className={`${className} text-base`}
               type={type || "text"}
               placeholder={placeholder}
               autoComplete={autoComplete || "on"}

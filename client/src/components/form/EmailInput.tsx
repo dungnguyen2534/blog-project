@@ -34,7 +34,7 @@ export default function EmailInput({
           <div className="flex gap-1 items-center">
             <FormControl>
               <Input
-                className={`${className} rounded-tr-none rounded-br-none`}
+                className={`${className} rounded-tr-none rounded-br-none text-base`}
                 type="email"
                 placeholder="Your email address"
                 autoComplete={autoComplete || "on"}

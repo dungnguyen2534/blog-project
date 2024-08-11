@@ -74,63 +74,63 @@ export default function SignInDialog({
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogContent className="w-96 py-8 px-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Sign in</DialogTitle>
-          <DialogDescription>
-            Enter your credentials below to sign in
-          </DialogDescription>
-        </DialogHeader>
-        <FormWrapper
-          form={form}
-          submitFunction={onSubmit}
-          className="w-full m-auto">
-          <FormInput
-            label="Username"
-            controller={form.control}
-            name="username"
-            placeholder="Your username"
-            errorDescription={errors.username?.message}
-          />
+      <DialogContent className="border-0 sm:border-[1px] rounded-md w-[100dvw] h-[100dvh] sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col mb:justify-center">
+        <div className="mt-16 sm:mt-0">
+          <DialogHeader className="mb-8 sm:mb-3">
+            <DialogTitle className="text-2xl">Sign in</DialogTitle>
+            <DialogDescription>
+              Enter your credentials below to sign in
+            </DialogDescription>
+          </DialogHeader>
+          <FormWrapper
+            form={form}
+            submitFunction={onSubmit}
+            className="w-full m-auto">
+            <FormInput
+              label="Username"
+              controller={form.control}
+              name="username"
+              placeholder="Your username"
+              errorDescription={errors.username?.message}
+            />
 
-          <FormInput
-            label="Password"
-            controller={form.control}
-            name="password"
-            type="password"
-            placeholder="Your password"
-            alternative
-            alternativeText="Forgot password?"
-            alternativeAction={onForgotPasswordClick}
-            errorDescription={errors.password?.message}
-          />
+            <FormInput
+              label="Password"
+              controller={form.control}
+              name="password"
+              type="password"
+              placeholder="Your password"
+              alternative
+              alternativeText="Forgot password?"
+              alternativeAction={onForgotPasswordClick}
+              errorDescription={errors.password?.message}
+            />
 
-          <LoadingButton
-            className="w-full mt-1"
-            text="Sign in"
-            loadingText="Signing in..."
-            loading={isSubmitting}
-          />
-        </FormWrapper>
-        <div className="text-center text-sm">
-          Don&apos;t have an account?
-          <button
-            onClick={onSignUpClick}
-            className="text-blue-500 ml-1 underline">
-            Sign up
-          </button>
-        </div>
-        <div className="text-xs uppercase text-center relative py-2">
-          <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-neutral-950 px-2">
-            Or continue with
-          </span>
-          <hr />
-        </div>
-        <DialogFooter>
-          <div className="flex gap-3 w-full justify-between">
-            <GoogleButton /> <GithubButton />
+            <LoadingButton
+              className="w-full mt-1"
+              text="Sign in"
+              loadingText="Signing in..."
+              loading={isSubmitting}
+            />
+          </FormWrapper>
+          <div className="text-center text-sm mt-5">
+            Don&apos;t have an account?
+            <button
+              onClick={onSignUpClick}
+              className="text-blue-500 ml-1 underline">
+              Sign up
+            </button>
+            <div className="text-xs uppercase text-center relative py-7">
+              <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-neutral-950 px-2">
+                Or continue with
+              </span>
+              <hr />
+            </div>
+            <div className="flex gap-3 w-full justify-between">
+              <GoogleButton /> <GithubButton />
+            </div>
           </div>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -16,9 +16,7 @@ const PostsAPI = {
   },
   async getPost(slug: string) {
     const slugId = slug.split("-").pop(); // only need slug id to fetch
-    const res = await http.get<Post>(`/posts/${slugId}`, {
-      cache: "force-cache",
-    });
+    const res = await http.get<Post>(`/posts/${slugId}`);
     return res.payload;
   },
 };
