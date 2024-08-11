@@ -15,6 +15,7 @@ interface TextFieldProps {
   name: string;
   autoComplete?: "on" | "off";
   placeholder?: string;
+  limit?: number;
   description?: string;
   errorDescription?: string;
   className?: string;
@@ -29,6 +30,7 @@ export default function TextField({
   label,
   name,
   placeholder,
+  limit,
   description,
   errorDescription,
   className,
@@ -46,9 +48,12 @@ export default function TextField({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Textarea
-              className={`${className} ${resizable ? "" : "resize-none"}`}
+              className={`${className} ${
+                resizable ? "" : "resize-none"
+              } text-base`}
               placeholder={placeholder}
               {...field}
+              maxLength={limit}
             />
           </FormControl>
           {alternative && (

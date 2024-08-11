@@ -25,9 +25,9 @@ export function formatDate(dateString: string) {
   if (date.toDateString() === currentDate.toDateString()) {
     if (diffInHours < 1) {
       const diffInMinutes = differenceInMinutes(currentDate, date);
-      return `${diffInMinutes} minutes ago`;
+      return `${formattedDate} (${diffInMinutes} minutes ago)`;
     }
-    return `${diffInHours} hours ago`;
+    return `${formattedDate} (${diffInHours} hours ago)`;
   } else {
     const startYesterday = startOfYesterday();
     const endYesterday = endOfYesterday();
@@ -37,7 +37,7 @@ export function formatDate(dateString: string) {
     }
 
     const diffInDays = differenceInDays(currentDate, date);
-    if (diffInDays >= 1 && diffInDays <= 31) {
+    if (diffInDays >= 1 && diffInDays <= 7) {
       return `${formattedDate} (${diffInDays + 1} days ago)`;
     } else if (dateYear !== currentYear) {
       return `${formattedDate} ${dateYear}`;

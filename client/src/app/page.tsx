@@ -6,7 +6,7 @@ export default async function Home() {
   const posts = await PostsAPI.getPostList();
 
   return (
-    <>
+    <main className="p-3 sm:container sm:py-4">
       {posts?.length === 0 ? (
         <div className="flex flex-col gap-2 items-center justify-center mt-48">
           <PiSmileyMeltingFill
@@ -18,6 +18,6 @@ export default async function Home() {
       ) : (
         <PostList posts={posts} />
       )}
-    </>
+    </main>
   );
 }

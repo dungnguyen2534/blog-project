@@ -41,7 +41,7 @@ export default function Navbar() {
 
   return (
     <header className="z-50 sticky top-0 secondary-color border-b-[1px] py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
-      <div className="container flex relative">
+      <div className="px-3 sm:container flex relative">
         <Link
           href={"/"}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-black">

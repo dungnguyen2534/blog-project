@@ -16,15 +16,18 @@ const passwordSchema = z
   .min(6, "Password must be at least 6 characters")
   .regex(/^(?!.* )/, "Password must not contain spaces");
 
-const otpSchema = z.string().refine(
-  (val) => {
-    const num = Number(val);
-    return !isNaN(num) && num >= 100000 && num <= 999999;
-  },
-  {
-    message: "OTP must be a 6-digit number",
-  }
-);
+const otpSchema = z
+  .string()
+  .optional()
+  .refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= 100000 && num <= 999999;
+    },
+    {
+      message: "OTP must be a 6-digit number",
+    }
+  );
 
 export const signupSchema = z.object({
   body: z.object({

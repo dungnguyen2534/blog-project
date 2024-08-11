@@ -39,7 +39,7 @@ export default function ForgotPasswordDialog({
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogContent className="border-0 sm:border-[1px] rounded-md w-[100dvw] h-[100dvh] sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col mb:justify-center">
+      <DialogContent className="border-0 sm:border-[1px] rounded-md w-dvw h-dvh sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col mb:justify-center">
         <div className="mt-16 sm:mt-0">
           <DialogHeader className="mb-8 sm:mb-3">
             <DialogTitle className="text-2xl">Password recover</DialogTitle>

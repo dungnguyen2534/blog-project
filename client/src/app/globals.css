@@ -70,7 +70,7 @@
 
 @layer components {
   .markdown {
-    @apply prose prose-neutral dark:prose-invert prose-a:text-blue-500  prose-blockquote:p-[0] prose-blockquote:pl-4 prose-th:text-start dark:prose-blockquote:border-l-4 dark:prose-blockquote:border-l-neutral-700 prose-pre:bg-neutral-800 dark:prose-pre:bg-neutral-950 prose-a:no-underline;
+    @apply prose prose-neutral dark:prose-invert dark:text-neutral-100 prose-h2:mb-4 prose-h2:mt-0 prose-h2:font-extrabold prose-h3:mb-3 prose-h3:mt-0 prose-h3:font-extrabold prose-h4:mb-2 prose-h4:mt-2 prose-h4:font-bold prose-h5:font-semibold  prose-h6:font-medium prose-a:text-blue-500  prose-blockquote:p-[0] prose-blockquote:pl-4 prose-th:text-start dark:prose-blockquote:border-l-4 dark:prose-blockquote:border-l-neutral-700 prose-pre:bg-neutral-800 dark:prose-pre:bg-neutral-950 prose-a:no-underline;
   }
 
   .primary-color {
@@ -111,6 +111,10 @@
   @apply dark:hover:bg-neutral-400;
 }
 
+.rc-md-editor .navigation-nav .drop-wrap .header-list > :first-child {
+  @apply hidden;
+}
+
 .rc-md-editor .editor-container .sec-md,
 .rc-md-editor .editor-container .section {
   @apply border-r-2 dark:border-neutral-700;
@@ -132,17 +136,20 @@
   @apply bg-white dark:bg-neutral-900;
 }
 
-.editor-container .custom-html-style h1 {
-  @apply text-4xl font-extrabold;
-}
 .editor-container .custom-html-style h2 {
-  @apply text-2xl font-bold;
+  @apply text-2xl font-extrabold mb-4 mt-0;
 }
 .editor-container .custom-html-style h3 {
-  @apply text-xl font-semibold;
+  @apply text-xl font-extrabold mb-3 mt-0;
 }
 .editor-container .custom-html-style h4 {
+  @apply font-bold mb-2 mt-0;
+}
+.editor-container .custom-html-style h5 {
   @apply font-semibold;
+}
+.editor-container .custom-html-style h6 {
+  @apply font-medium;
 }
 
 .editor-container .custom-html-style hr {

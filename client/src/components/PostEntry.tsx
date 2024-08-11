@@ -20,7 +20,7 @@ export default function PostEntry({
   createdAt,
 }: PostEntryProps) {
   return (
-    <article className="flex flex-col gap-5 secondary-color p-4 rounded-md shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-800">
+    <article className="flex flex-col gap-2 secondary-color p-4 rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
       <Link
         href={"users/" + author.username}
         className="flex gap-2 items-center">
@@ -36,9 +36,9 @@ export default function PostEntry({
       </Link>
 
       <Link href={`posts/${slug}`} className="flex flex-col gap-2">
-        <h2 className="text-2xl font-bold">{title}</h2>
+        <h2 className="text-lg sm:text-2xl font-bold">{title}</h2>
         {summary && (
-          <p className="line-clamp-3 text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="line-clamp-3 break-words text-sm text-neutral-600 dark:text-neutral-400">
             {summary}
           </p>
         )}

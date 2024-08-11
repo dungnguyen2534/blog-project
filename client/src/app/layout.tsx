@@ -33,7 +33,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           <AuthDialogsProvider>
             <Navbar />
-            <main className="container py-4">{children}</main>
+            <main>{children}</main>
             <Toaster />
           </AuthDialogsProvider>
         </ThemeProvider>

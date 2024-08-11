@@ -16,15 +16,18 @@ const passwordSchema = z
   .min(6, "Password must be at least 6 characters")
   .regex(/^(?!.* )/, "Password must not contain spaces");
 
-const otpSchema = z.string().refine(
-  (val) => {
-    const num = Number(val);
-    return !isNaN(num) && num >= 100000 && num <= 999999;
-  },
-  {
-    message: "OTP must be a 6-digit number",
-  }
-);
+const otpSchema = z
+  .string()
+  .optional() // this here not make the field optional, add this to make the message of the refine show up instead of "required"
+  .refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= 100000 && num <= 999999;
+    },
+    {
+      message: "OTP must be a 6-digit number",
+    }
+  );
 
 export const userSchema = z.object({
   _id: z.string(),

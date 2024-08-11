@@ -65,7 +65,7 @@ export default function SignUpDialog({
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogContent className="border-0 sm:border-[1px] rounded-md w-[100dvw] h-[100dvh] sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col justify-center">
+      <DialogContent className="border-0 sm:border-[1px] rounded-md w-dvw h-dvh sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col justify-center">
         <div>
           <DialogHeader className="mb-3">
             <DialogTitle className="text-2xl">Sign up</DialogTitle>
@@ -85,7 +85,7 @@ export default function SignUpDialog({
               label="Username"
               controller={form.control}
               name="username"
-              placeholder="Only letters, numbers, and underscores"
+              placeholder="Letters, numbers, and underscores"
               description="Your unique display name, you can change it later"
               errorDescription={errors.username?.message}
             />

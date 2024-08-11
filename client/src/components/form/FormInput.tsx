@@ -15,6 +15,7 @@ interface FormInputProps {
   name: string;
   type?: string;
   autoComplete?: "on" | "off";
+  limit?: number;
   placeholder?: string;
   description?: string;
   errorDescription?: string;
@@ -30,6 +31,7 @@ export default function FormInput({
   name,
   type,
   placeholder,
+  limit,
   description,
   errorDescription,
   autoComplete,
@@ -51,6 +53,7 @@ export default function FormInput({
               type={type || "text"}
               placeholder={placeholder}
               autoComplete={autoComplete || "on"}
+              maxLength={limit}
               {...field}
             />
           </FormControl>
