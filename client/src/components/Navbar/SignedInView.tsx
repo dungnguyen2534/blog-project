@@ -1,0 +1,71 @@
+"use client";
+
+import Link from "next/link";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import UserAvatar from "../UserAvatar";
+import UserAPI from "@/api/user";
+import { User } from "@/validation/schema/user";
+import { usePathname } from "next/navigation";
+import { useToast } from "../ui/use-toast";
+import MobileDropdown from "./MobileDropdown";
+
+interface SignedInViewProps {
+  user: User;
+  mutateUser: (user: User | undefined) => void;
+}
+
+export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
+  const pathname = usePathname();
+  const { toast } = useToast();
+
+  async function handleSignout() {
+    try {
+      await UserAPI.signout();
+      mutateUser(undefined);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+      });
+    }
+  }
+
+  return (
+    <>
+      {!(pathname === "/posts/create-post") && (
+        <Button asChild variant="outline" className="hidden sm:block border-2">
+          <Link href="/posts/create-post">Create post</Link>
+        </Button>
+      )}
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger>
+          <UserAvatar
+            className="h-12 w-12 sm:w-10 sm:h-10"
+            username={user.username}
+            profilePicUrl=""
+          />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-[30vh] sm:w-auto">
+          <DropdownMenuItem className="text-lg sm:text-base" asChild>
+            <Link href={"/users/" + user.username}>@{user.username}</Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <MobileDropdown />
+          <DropdownMenuItem
+            onClick={handleSignout}
+            className="text-lg sm:text-base">
+            Sign out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+}

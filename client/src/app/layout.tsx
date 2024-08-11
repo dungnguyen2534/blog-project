@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Navbar/Navbar";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
