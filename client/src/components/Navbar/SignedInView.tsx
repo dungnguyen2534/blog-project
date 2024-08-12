@@ -15,7 +15,7 @@ import UserAPI from "@/api/user";
 import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
-import MobileDropdown from "./MobileDropdown";
+import MobileDropdownContent from "./MobileDropdownContent";
 
 interface SignedInViewProps {
   user: User;
@@ -58,7 +58,7 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
             <Link href={"/users/" + user.username}>@{user.username}</Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <MobileDropdown />
+          <MobileDropdownContent />
           <DropdownMenuItem
             onClick={handleSignout}
             className="text-lg sm:text-base">

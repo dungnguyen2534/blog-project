@@ -1,6 +1,6 @@
 import { User } from "@/validation/schema/user";
 import Link from "next/link";
-import UserAvatar from "./UserAvatar";
+import UserAvatar from "../UserAvatar";
 import { formatDate } from "@/lib/utils";
 
 interface PostEntryProps {

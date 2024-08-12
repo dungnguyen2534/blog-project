@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 
-export default function MobileDropdown() {
+export default function MobileDropdownContent() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 

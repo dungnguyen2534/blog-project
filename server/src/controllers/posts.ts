@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
-import { slugify, shortid } from "../utils/slug-generator";
-import { ObjectId } from "mongodb";
+import { slugify } from "../utils/slug-generator";
 import PostModel from "../models/post";
 import { PostBody } from "../validation/posts";
 import createHttpError from "http-errors";
 import assertIsDefined from "../utils/assertIsDefined";
+import { nanoid } from "nanoid";
 
 export const createPost: RequestHandler<
   unknown,
@@ -18,11 +18,8 @@ export const createPost: RequestHandler<
   try {
     assertIsDefined(authenticatedUser);
 
-    const _id = new ObjectId();
     const newPost = await PostModel.create({
-      _id,
-      slugId: shortid(_id),
-      slug: slugify(title),
+      slug: slugify(title) + "-" + nanoid(9),
       title,
       summary,
       body,
@@ -48,9 +45,9 @@ export const getPostList: RequestHandler = async (req, res, next) => {
 
 export const getSlugs: RequestHandler = async (req, res, next) => {
   try {
-    const result = await PostModel.find().select("+slugId +slug").exec();
+    const result = await PostModel.find().select("slug").exec();
 
-    const slugs = result.map((slug) => slug.slug + "-" + slug.slugId);
+    const slugs = result.map((post) => post.slug);
     res.status(200).json(slugs);
   } catch (error) {
     next(error);
@@ -58,10 +55,10 @@ export const getSlugs: RequestHandler = async (req, res, next) => {
 };
 
 export const getPost: RequestHandler = async (req, res, next) => {
-  const { slugId } = req.params;
+  const { slug } = req.params;
 
   try {
-    const post = await PostModel.findOne({ slugId }).populate("author").exec();
+    const post = await PostModel.findOne({ slug }).populate("author").exec();
 
     if (!post) throw createHttpError(404, "Post not found");
 

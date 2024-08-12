@@ -7,7 +7,7 @@ const PostsAPI = {
     return res.payload;
   },
   async getPostList() {
-    const res = await http.get<Post[]>("/posts", { cache: "no-cache" });
+    const res = await http.get<Post[]>("/posts");
     return res.payload;
   },
   async getSlugs() {
@@ -15,8 +15,7 @@ const PostsAPI = {
     return res.payload;
   },
   async getPost(slug: string) {
-    const slugId = slug.split("-").pop(); // only need slug id to fetch
-    const res = await http.get<Post>(`/posts/${slugId}`);
+    const res = await http.get<Post>(`/posts/${slug}`);
     return res.payload;
   },
 };

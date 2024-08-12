@@ -18,7 +18,7 @@ export default function Navbar() {
     callToActions = (
       <div className="flex items-center gap-2">
         <Skeleton className="hidden sm:block h-10 w-[117px]" />
-        <Skeleton className="h-10 w-10 rounded-md" />
+        <Skeleton className="h-12 w-12  sm:h-10 sm:w-10 rounded-md" />
       </div>
     );
   } else if (user) {

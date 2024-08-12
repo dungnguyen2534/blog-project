@@ -3,7 +3,6 @@ import { userSchema } from "./user";
 
 export const postSchema = z.object({
   _id: z.string(),
-  slugId: z.string(),
   slug: z.string(),
   title: z.string(),
   body: z.string(),

@@ -17,6 +17,6 @@ router.get("/", PostsController.getPostList);
 
 router.get("/slugs", PostsController.getSlugs);
 
-router.get("/:slugId", PostsController.getPost);
+router.get("/:slug", PostsController.getPost);
 
 export default router;

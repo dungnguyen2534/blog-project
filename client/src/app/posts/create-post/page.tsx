@@ -15,7 +15,6 @@ import TextField from "@/components/form/TextField";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { type } from "os";
 
 export default function NewPostPage() {
   const form = useForm<createPostBody>({
@@ -36,8 +35,8 @@ export default function NewPostPage() {
 
   async function onSubmit(values: createPostBody) {
     try {
-      const { slug, slugId } = await PostsAPI.createPost(values);
-      router.push("/posts/" + slug + "-" + slugId);
+      const { slug } = await PostsAPI.createPost(values);
+      router.push("/posts/" + slug);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({

@@ -2,11 +2,6 @@ import { InferSchemaType, model, Schema } from "mongoose";
 
 const postSchema = new Schema(
   {
-    slugId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     slug: {
       type: String,
       required: true,
