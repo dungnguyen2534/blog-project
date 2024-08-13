@@ -1,9 +1,9 @@
 import useSWR from "swr";
 import PostsAPI from "@/api/post";
 
-export default function usePostLoader() {
+export default function usePostListLoader() {
   const { data, isLoading, error } = useSWR(
-    "posts",
+    "post_list",
     async () => await PostsAPI.getPostList(),
     {
       revalidateOnMount: true,
@@ -14,7 +14,7 @@ export default function usePostLoader() {
 
   return {
     posts: data || [],
-    isLoadingPosts: isLoading,
-    isPostsLoadingError: error,
+    isLoadingPostList: isLoading,
+    isLoadingPostListError: error,
   };
 }

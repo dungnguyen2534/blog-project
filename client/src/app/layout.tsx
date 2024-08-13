@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/Navbar/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
@@ -23,7 +23,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400">
+      className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400 scroll-smooth">
       <body className={`${inter.className} primary-color`}>
         <NextTopLoader height={1} showSpinner={false} />
         <ThemeProvider
@@ -33,7 +33,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           <AuthDialogsProvider>
             <Navbar />
-            <main>{children}</main>
+            {children}
             <Toaster />
           </AuthDialogsProvider>
         </ThemeProvider>

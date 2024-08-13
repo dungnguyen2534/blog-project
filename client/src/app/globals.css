@@ -80,6 +80,10 @@
   .secondary-color {
     @apply bg-white dark:bg-neutral-900;
   }
+
+  .secondary-container {
+    @apply secondary-color rounded-md max-w-3xl m-auto;
+  }
 }
 
 /* Custom markdown editor */

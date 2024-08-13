@@ -34,14 +34,15 @@ export default function SignedOutView() {
         <div className="h-10 sm:hidden">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger>
-              <button
+              {/* div instead of button because of hydration error */}
+              <div
                 className="relative h-12 w-12 dark:bg-neutral-950 border-[1px] rounded-md transition-colors dark:hover:bg-stone-800 hover:bg-stone-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-stone-500"
                 aria-label="Open menu">
                 <IoReorderThreeOutline
                   size={40}
                   className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 />
-              </button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem className="text-lg" onClick={showSignIn}>

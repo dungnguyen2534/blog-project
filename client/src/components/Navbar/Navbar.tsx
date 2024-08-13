@@ -7,7 +7,6 @@ import useAuth from "@/hooks/useAuth";
 import { SiStoryblok } from "react-icons/si";
 import SignedOutView from "./SignedOutView";
 import SignedInView from "./SignedInView";
-import { useState } from "react";
 
 export default function Navbar() {
   const { user, mutateUser, isValidatingUser } = useAuth();
@@ -29,7 +28,7 @@ export default function Navbar() {
 
   return (
     <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-1 pt-2 sm:py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
-      <div className="px-3 sm:container flex items-center relative">
+      <div className="container px-2 sm:px-8  flex items-center relative">
         <Link
           href={"/"}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-black flex items-center">

@@ -25,15 +25,24 @@ export function formatDate(dateString: string) {
   if (date.toDateString() === currentDate.toDateString()) {
     if (diffInHours < 1) {
       const diffInMinutes = differenceInMinutes(currentDate, date);
-      return `${formattedDate} (${diffInMinutes} minutes ago)`;
+      if (diffInMinutes < 1) {
+        return `${formattedDate} (Just now)`;
+      } else {
+        return `${formattedDate} (${diffInMinutes + 1} minutes ago)`;
+      }
+    } else {
+      if (diffInHours === 1) {
+        return `${formattedDate} (An hour ago)`;
+      } else {
+        return `${formattedDate} (${diffInHours + 1} hours ago)`;
+      }
     }
-    return `${formattedDate} (${diffInHours} hours ago)`;
   } else {
     const startYesterday = startOfYesterday();
     const endYesterday = endOfYesterday();
 
     if (date >= startYesterday && date <= endYesterday) {
-      return `${formattedDate} (Yesterday)`;
+      return `${formattedDate} (1 day ago)`;
     }
 
     const diffInDays = differenceInDays(currentDate, date);

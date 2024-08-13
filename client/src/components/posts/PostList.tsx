@@ -1,35 +1,27 @@
 "use client";
 
+import EmptyPostList from "./EmptyPostList";
 import PostEntry from "./PostEntry";
-import { PiSmileyMeltingFill } from "react-icons/pi";
-import usePostLoader from "@/hooks/usePostLoader";
+import usePostListLoader from "@/hooks/usePostListLoader";
 
 export default function PostsList() {
-  const { posts, isLoadingPosts, isPostsLoadingError: error } = usePostLoader();
+  const {
+    posts,
+    isLoadingPostList,
+    isLoadingPostListError: error,
+  } = usePostListLoader();
 
   return (
-    <div className="flex flex-col gap-3 xl:w-7/12 m-auto">
-      {!error && !isLoadingPosts && posts.length === 0 && (
-        <EmptyPostList errorText="No one has posted yet, be the first!" />
+    <div className="flex flex-col gap-3 m-auto">
+      {!error && !isLoadingPostList && posts.length === 0 && (
+        <EmptyPostList text="No one has posted yet, be the first!" />
       )}
 
-      {error && <EmptyPostList errorText="Failed to load posts" />}
+      {error && <EmptyPostList text="Failed to load posts" />}
 
       {posts.map((post) => (
-        <PostEntry key={post._id} {...post} slug={post.slug} />
+        <PostEntry key={post._id} {...post} />
       ))}
-    </div>
-  );
-}
-
-function EmptyPostList({ errorText }: { errorText: string }) {
-  return (
-    <div className="flex flex-col gap-2 items-center justify-center mt-48">
-      <PiSmileyMeltingFill
-        size={80}
-        className="text-neutral-700 dark:text-white"
-      />
-      <h1 className="font-medium">{errorText}</h1>
     </div>
   );
 }

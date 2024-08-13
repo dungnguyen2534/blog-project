@@ -54,7 +54,7 @@ export default function NewPostPage() {
   }
 
   return (
-    <main className="p-3 sm:container sm:py-4">
+    <main className="container px-1 sm:px-8 py-2 sm:py-4">
       <FormWrapper form={form} submitFunction={onSubmit}>
         <FormInput
           controller={form.control}
