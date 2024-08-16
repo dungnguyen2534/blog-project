@@ -31,10 +31,17 @@ const request = async <Response>(
       : options.baseURL;
 
   const baseHeaders = {
-    "Content-Type": "application/json",
+    ...options?.headers,
+    ...(options?.body instanceof FormData
+      ? {}
+      : { "Content-Type": "application/json" }),
   };
 
-  const body = options?.body ? JSON.stringify(options.body) : undefined;
+  const body = options?.body
+    ? options.body instanceof FormData
+      ? options.body
+      : JSON.stringify(options.body)
+    : undefined;
 
   const fullUrl = url.startsWith("/")
     ? `${baseURL}${url}`
@@ -116,7 +123,7 @@ const http = {
 
   delete<Response>(
     url: string,
-    body: any,
+    body?: any,
     options?: Omit<customOptions, "body"> | undefined
   ) {
     return request<Response>("DELETE", url, { ...options, body });

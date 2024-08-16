@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { createPostBody } from "@/validation/schema/post";
 import PostsAPI from "@/api/post";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import MarkdownEditor from "@/components/form/MarkdownEditor";
 import LoadingButton from "@/components/LoadingButton";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,6 +15,7 @@ import TextField from "@/components/form/TextField";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RxQuestionMarkCircled } from "react-icons/rx";
+import { extractImageUrls } from "@/lib/utils";
 
 export default function NewPostPage() {
   const form = useForm<createPostBody>({
@@ -23,19 +24,22 @@ export default function NewPostPage() {
       title: "",
       summary: "",
       body: "",
+      images: [],
     },
   });
+
+  const router = useRouter();
+  const { toast } = useToast();
 
   const { isSubmitting } = form.formState;
   const title = form.watch("title");
   const body = form.watch("body");
 
-  const router = useRouter();
-  const { toast } = useToast();
-
   async function onSubmit(values: createPostBody) {
+    const images = extractImageUrls(values.body);
+
     try {
-      const { slug } = await PostsAPI.createPost(values);
+      const { slug } = await PostsAPI.createPost({ ...values, images });
       router.push("/posts/" + slug);
     } catch (error) {
       if (error instanceof UnauthorizedError) {

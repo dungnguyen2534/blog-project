@@ -17,7 +17,7 @@ export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
       className="markdown max-w-full"
       remarkPlugins={[
         remarkGfm,
-        [remarkToc, { maxDepth: 3, tight: true, prefix: "user-content-" }],
+        [remarkToc, { tight: true, prefix: "user-content-", maxDepth: 4 }], // 4 because h1 is not allowed
       ]}
       rehypePlugins={[
         rehypeSlug,
@@ -29,7 +29,16 @@ export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
         ],
         [addClasses, { "h2,h3,h4,h5,h6": "snap-start scroll-mt-20" }],
       ]}
-      components={{}}>
+      components={{
+        img: (props) => (
+          <span className="flex justify-center max-w-full m-auto">
+            <a href={props.src} target="_blank" rel="noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img {...props} className="rounded-sm" alt={props.alt ?? ""} />
+            </a>
+          </span>
+        ),
+      }}>
       {children}
     </Markdown>
   );

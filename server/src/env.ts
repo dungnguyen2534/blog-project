@@ -4,6 +4,7 @@ const env = cleanEnv(process.env, {
   PORT: port(),
   MONGODB_URI: str(),
   CLIENT_URL: str(),
+  SERVER_URL: str(),
   SESSION_SECRET: str(),
 });
 

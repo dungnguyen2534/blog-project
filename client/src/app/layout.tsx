@@ -6,6 +6,8 @@ import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { Suspense } from "react";
+import { NavigationEvents } from "./NavigationEvents";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,6 +37,10 @@ export default function RootLayout({
             <Navbar />
             {children}
             <Toaster />
+            <Suspense fallback={null}>
+              {/* Wrap in Suspense because useSearchParams() causes client-side rendering up to the closest Suspense */}
+              <NavigationEvents />
+            </Suspense>
           </AuthDialogsProvider>
         </ThemeProvider>
       </body>

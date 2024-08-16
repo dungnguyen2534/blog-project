@@ -50,13 +50,13 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
     .replace(/\[(.*?)\]\(#(.*?)\)/gm, "[$1](#user-content-$2)");
 
   return (
-    <article className="secondary-container sm:mt-4 sm:py-7 p-3">
+    <article className="secondary-container sm:my-4 sm:py-7 p-3">
       <div className="max-w-prose m-auto flex flex-col gap-2 overflow-hidden break-words">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black my-2">{post.title}</h1>
           <Link
             href={"/users/" + post.author.username}
-            className="flex gap-2 items-center mt-5">
+            className="flex gap-2 items-center mt-5 mb-3">
             <UserAvatar username={post.author.username} profilePicUrl="" />
             <div className="flex flex-col justify-center">
               <span className="text-sm">{post.author.username}</span>

@@ -20,7 +20,7 @@ export default function PostEntry({
   createdAt,
 }: PostEntryProps) {
   return (
-    <article className="secondary-container p-2 sm:p-4 w-full flex flex-col gap-2 rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
+    <article className="secondary-container px-2 py-3 sm:p-4 w-full flex flex-col gap-2 rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
       <Link
         href={"/users/" + author.username}
         className="flex gap-2 items-center">

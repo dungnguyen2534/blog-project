@@ -11,6 +11,9 @@ import {
 } from "../ui/form";
 import MarkdownRenderer from "../MarkdownRenderer";
 import "react-markdown-editor-lite/lib/index.css";
+import PostsAPI from "@/api/post";
+import { useToast } from "../ui/use-toast";
+import React from "react";
 
 interface MarkdownEditorProps {
   controller: Control<any>;
@@ -30,6 +33,19 @@ export default function MarkdownEditor({
   description,
   height,
 }: MarkdownEditorProps) {
+  const { toast } = useToast();
+
+  async function uploadInPostImage(image: File) {
+    try {
+      const res = await PostsAPI.uploadInPostImage(image);
+      return res.imageUrl;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while uploading the image",
+      });
+    }
+  }
   return (
     <FormField
       control={controller}
@@ -44,6 +60,8 @@ export default function MarkdownEditor({
               renderHTML={(text) => <MarkdownRenderer>{text}</MarkdownRenderer>}
               onChange={({ text }) => field.onChange(text)}
               placeholder={placeholder}
+              onImageUpload={uploadInPostImage}
+              imageAccept=".png, .jpg, .jpeg"
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

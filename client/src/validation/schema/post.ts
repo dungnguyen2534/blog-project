@@ -16,6 +16,7 @@ export const createPostBody = z.object({
   title: z.string().min(1).max(150),
   summary: z.string().max(300).optional(),
   body: z.string().min(1),
+  images: z.array(z.string()),
 });
 
 export type Post = z.infer<typeof postSchema>;
