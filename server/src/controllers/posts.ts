@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { slugify } from "../utils/slug-generator";
+import { slugify } from "../utils/slugify";
 import PostModel from "../models/post";
 import TempImageModel from "../models/tempImage";
 import { PostBody } from "../validation/posts";
@@ -24,27 +24,36 @@ export const createPost: RequestHandler<
     assertIsDefined(authenticatedUser);
 
     if (images && images.length > 0) {
-      await TempImageModel.updateMany(
+      const imagesToUpdate = images.map((url) => new URL(url).pathname);
+      console.log("Pathnames to update:", imagesToUpdate);
+      const updateResult = await TempImageModel.updateMany(
         {
           userId: authenticatedUser._id,
-          fileName: { $in: images.map((url) => new URL(url).pathname) },
+          imagePath: { $in: imagesToUpdate },
         },
         { $set: { temporary: false } }
       );
+      console.log("Update result:", updateResult);
     }
 
     const unusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
     });
+    console.log("Unused images before deletion:", unusedImages);
 
-    for (const image of unusedImages) {
-      const imagePath = path.join(__dirname, "../..", image.imagePath);
-      fs.unlinkSync(imagePath);
+    if (unusedImages.length > 0) {
+      for (const image of unusedImages) {
+        const imagePath = path.join(__dirname, "../..", image.imagePath);
+        await fs.promises.unlink(imagePath);
+      }
+
+      const unusedImagesIds = unusedImages.map((image) => image._id);
+      await TempImageModel.deleteMany({ _id: { $in: unusedImagesIds } });
     }
 
-    const unusedImagesIds = unusedImages.map((image) => image._id);
-    await TempImageModel.deleteMany({ _id: { $in: unusedImagesIds } });
+    console.log("Images to update:", images);
+    console.log("Unused images before deletion:", unusedImages);
 
     const newPost = await PostModel.create({
       slug: slugify(title) + "-" + nanoid(9),
@@ -101,13 +110,17 @@ export const deleteUnusedImage: RequestHandler = async (req, res, next) => {
       temporary: true,
     });
 
-    for (const image of unusedImages) {
-      const imagePath = path.join(__dirname, "../..", image.imagePath);
-      fs.unlinkSync(imagePath);
-    }
+    if (unusedImages.length > 0) {
+      for (const image of unusedImages) {
+        const imagePath = path.join(__dirname, "../..", image.imagePath);
+        await fs.promises.unlink(imagePath);
+      }
 
-    const unusedImagesIds = unusedImages.map((image) => image._id);
-    await TempImageModel.deleteMany({ _id: { $in: unusedImagesIds } });
+      const unusedImagesIds = unusedImages.map((image) => image._id);
+      await TempImageModel.deleteMany({ _id: { $in: unusedImagesIds } });
+    } else {
+      return;
+    }
 
     res.sendStatus(204);
   } catch (error) {

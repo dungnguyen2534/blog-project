@@ -10,7 +10,9 @@ import createHttpError from "http-errors";
 import session from "express-session";
 import sessionConfig from "./config/session";
 import passport from "passport";
+import cron from "node-cron";
 import "./config/passport-signin";
+import UploadsCleanup from "./utils/UploadsCleanup";
 
 const app = express();
 
@@ -29,9 +31,10 @@ app.use(passport.authenticate("session"));
 
 app.use("/uploads/in-post-images", express.static("uploads/in-post-images"));
 
-app.use("/users", usersRouter);
+app.use("/auth", usersRouter);
 app.use("/posts", postsRouter);
 
+cron.schedule("0 */3 * * *", UploadsCleanup); // Every 3 hours
 app.use((req, res, next) => next(createHttpError(404, "404 Not found")));
 app.use(errorHandler);
 

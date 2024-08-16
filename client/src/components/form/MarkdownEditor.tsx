@@ -14,6 +14,7 @@ import "react-markdown-editor-lite/lib/index.css";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import React from "react";
+import { UnauthorizedError } from "@/lib/http-errors";
 
 interface MarkdownEditorProps {
   controller: Control<any>;
@@ -40,10 +41,17 @@ export default function MarkdownEditor({
       const res = await PostsAPI.uploadInPostImage(image);
       return res.imageUrl;
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while uploading the image",
-      });
+      if (error instanceof UnauthorizedError) {
+        toast({
+          title: "Unauthorized",
+          description: "You need to login to upload images",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An error occurred while uploading the image",
+        });
+      }
     }
   }
   return (

@@ -3,16 +3,16 @@ import { SignInBody, SignUpBody, User } from "@/validation/schema/user";
 
 const UserAPI = {
   signup: async (input: SignUpBody) => {
-    const res = await http.post<User>("/users/signup", input);
+    const res = await http.post<User>("/auth/signup", input);
     return res.payload;
   },
   signin: async (input: SignInBody) => {
-    const res = await http.post<User>("/users/signin", input);
+    const res = await http.post<User>("/auth/signin", input);
     return res.payload;
   },
-  signout: async () => await http.post("/users/signout"),
+  signout: async () => await http.post("/auth/signout"),
   getAuthenticatedUser: async () => {
-    const res = await http.get<User>("/users/me");
+    const res = await http.get<User>("/auth/me");
     return res.payload;
   },
 };
