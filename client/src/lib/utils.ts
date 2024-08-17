@@ -13,12 +13,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(dateString: string) {
+export function formatDate(dateString: string, showTimeDiff: boolean = true) {
   const date = new Date(dateString);
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const dateYear = date.getFullYear();
   const formattedDate = format(date, "MMM d");
+
+  if (!showTimeDiff) {
+    return formattedDate + ", " + dateYear;
+  }
 
   const diffInHours = differenceInHours(currentDate, date);
 

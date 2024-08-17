@@ -7,7 +7,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-// using react cache to make sure the post is only fetched once
 const getPost = cache(async (slug: string) => {
   try {
     return await PostsAPI.getPost(slug);

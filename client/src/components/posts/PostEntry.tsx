@@ -24,7 +24,7 @@ export default function PostEntry({
       <Link
         href={"/users/" + author.username}
         className="flex gap-2 items-center">
-        <UserAvatar username={author.username} profilePicUrl="" />
+        <UserAvatar username={author.username} />
         <div className="flex flex-col justify-center">
           <span className="text-sm">{author.username}</span>
           <time

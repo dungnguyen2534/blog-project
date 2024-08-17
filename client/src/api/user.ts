@@ -15,6 +15,10 @@ const UserAPI = {
     const res = await http.get<User>("/auth/me");
     return res.payload;
   },
+  getUser: async (username: string) => {
+    const res = await http.get<User>("/auth/users/" + username);
+    return res.payload;
+  },
 };
 
 export default UserAPI;

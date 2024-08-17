@@ -1,7 +1,12 @@
 import express from "express";
 import * as PostsController from "../controllers/posts";
 import validateRequest from "../middlewares/validateRequest";
-import { InPostImageSchema, PostSchema } from "../validation/posts";
+import {
+  createPostSchema,
+  deletePostSchema,
+  InPostImageSchema,
+  updatePostSchema,
+} from "../validation/posts";
 import requireAuth from "../middlewares/requireAuth";
 import { PostImages } from "../middlewares/imageUpload";
 
@@ -10,7 +15,7 @@ const router = express.Router();
 router.post(
   "/",
   requireAuth,
-  validateRequest(PostSchema),
+  validateRequest(createPostSchema),
   PostsController.createPost
 );
 
@@ -23,6 +28,20 @@ router.post(
 );
 
 router.delete("/images", PostsController.deleteUnusedImage);
+
+router.patch(
+  "/:postId",
+  requireAuth,
+  validateRequest(updatePostSchema),
+  PostsController.updatePost
+);
+
+router.delete(
+  "/:postId",
+  requireAuth,
+  validateRequest(deletePostSchema),
+  PostsController.deletePost
+);
 
 router.get("/", PostsController.getPostList);
 

@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
 import { SignupBody } from "../validation/users";
+import createHttpError from "http-errors";
 
 export const signup: RequestHandler<
   unknown,
@@ -44,6 +45,26 @@ export const signup: RequestHandler<
   }
 };
 
+export const signout: RequestHandler = (req, res) => {
+  req.logout((err) => {
+    if (err) throw err;
+    res.sendStatus(200);
+  });
+};
+
+export const getUser: RequestHandler = async (req, res, next) => {
+  const { username } = req.params;
+  try {
+    const user = await UserModel.findOne({ username }).select("+email").exec();
+
+    if (!user) throw createHttpError(404, "User not found");
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
   const authenticatedUser = req.user;
 
@@ -60,13 +81,4 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-export const signout: RequestHandler = (req, res) => {
-  //not async so don't need to use next, the err will automatically forward to the error handler
-
-  req.logout((err) => {
-    if (err) throw err;
-    res.sendStatus(200);
-  });
 };

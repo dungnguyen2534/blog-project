@@ -17,7 +17,9 @@ export default function PostsList() {
         <EmptyPostList text="No one has posted yet, be the first!" />
       )}
 
-      {error && <EmptyPostList text="Failed to load posts" />}
+      {error && posts.length === 0 && (
+        <EmptyPostList text="Failed to load posts" />
+      )}
 
       {posts.map((post) => (
         <PostEntry key={post._id} {...post} />

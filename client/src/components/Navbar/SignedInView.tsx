@@ -47,11 +47,7 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
       )}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger>
-          <UserAvatar
-            className="h-12 w-12 sm:w-10 sm:h-10"
-            username={user.username}
-            profilePicUrl=""
-          />
+          <UserAvatar username={user.username} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[30vh] sm:w-auto">
           <DropdownMenuItem className="text-lg sm:text-base" asChild>

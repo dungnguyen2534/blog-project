@@ -28,7 +28,7 @@ const PostsAPI = {
     return res.payload;
   },
   async getPost(slug: string) {
-    const res = await http.get<Post>(`/posts/${slug}`);
+    const res = await http.get<Post>("/posts/" + slug);
     return res.payload;
   },
 };

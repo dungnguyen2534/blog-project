@@ -1,31 +1,35 @@
 "use client";
 
-import FormWrapper from "@/components/form/FormWrapper";
-import FormInput from "@/components/form/FormInput";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { createPostBody, PostBodySchema } from "@/validation/schema/post";
 import PostsAPI from "@/api/post";
-import { useRouter } from "next/navigation";
+import FormInput from "@/components/form/FormInput";
+import FormWrapper from "@/components/form/FormWrapper";
 import MarkdownEditor from "@/components/form/MarkdownEditor";
+import TextField from "@/components/form/TextField";
 import LoadingButton from "@/components/LoadingButton";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
-import TextField from "@/components/form/TextField";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { RxQuestionMarkCircled } from "react-icons/rx";
 import { extractImageUrls } from "@/lib/utils";
+import { createPostBody, Post, PostBodySchema } from "@/validation/schema/post";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { RxQuestionMarkCircled } from "react-icons/rx";
 
-export default function NewPostPage() {
+interface UpdatePostPageProps {
+  post: Post;
+}
+
+export default function UpdatePost({ post }: UpdatePostPageProps) {
   const form = useForm<createPostBody>({
     resolver: zodResolver(PostBodySchema),
     defaultValues: {
-      title: "",
-      summary: "",
-      body: "",
-      images: [],
+      title: post.title,
+      summary: post.summary,
+      body: post.body,
+      images: post.images,
     },
   });
 
