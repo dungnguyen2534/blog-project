@@ -40,12 +40,13 @@ export const createPost: RequestHandler<
         { $set: { temporary: false } }
       );
     }
+
+    // delete unused images if there is any(when user post an image and change/delete before post)
     const unusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
     });
 
-    // delete unused images if there is any(when user post an image and change/delete before post)
     if (unusedImages.length > 0) {
       const unusedImagesPath = unusedImages.map((image) => image.imagePath);
 
@@ -213,7 +214,6 @@ export const getPost: RequestHandler = async (req, res, next) => {
 export const getSlugs: RequestHandler = async (req, res, next) => {
   try {
     const result = await PostModel.find().select("slug").exec();
-
     const slugs = result.map((post) => post.slug);
     res.status(200).json(slugs);
   } catch (error) {

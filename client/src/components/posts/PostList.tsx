@@ -22,7 +22,7 @@ export default function PostsList() {
       )}
 
       {posts.map((post) => (
-        <PostEntry key={post._id} {...post} />
+        <PostEntry key={post._id} post={post} />
       ))}
     </div>
   );

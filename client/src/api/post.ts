@@ -1,9 +1,17 @@
 import http from "@/lib/http";
-import { createPostBody, Post } from "@/validation/schema/post";
+import { createPostBody, Post, updatePostBody } from "@/validation/schema/post";
 
 const PostsAPI = {
   async createPost(values: createPostBody) {
     const res = await http.post<Post>("/posts", values);
+    return res.payload;
+  },
+  async updatePost(id: string, values: updatePostBody) {
+    const res = await http.patch<Post>("/posts/" + id, values);
+    return res.payload;
+  },
+  async deletePost(id: string) {
+    const res = await http.delete<Post>("/posts/" + id);
     return res.payload;
   },
   async uploadInPostImage(image: File) {

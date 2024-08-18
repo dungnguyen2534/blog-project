@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import PostsAPI from "@/api/post";
 import FormInput from "@/components/form/FormInput";
 import FormWrapper from "@/components/form/FormWrapper";
@@ -12,11 +13,11 @@ import { UnauthorizedError } from "@/lib/http-errors";
 import { extractImageUrls } from "@/lib/utils";
 import { createPostBody, Post, PostBodySchema } from "@/validation/schema/post";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { RxQuestionMarkCircled } from "react-icons/rx";
+import { BsMarkdown } from "react-icons/bs";
+import revalidateCachedData from "@/lib/revalidate";
 
 interface UpdatePostPageProps {
   post: Post;
@@ -45,7 +46,12 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
     const images = extractImageUrls(values.body);
 
     try {
-      const { slug } = await PostsAPI.createPost({ ...values, images });
+      const { slug } = await PostsAPI.updatePost(post._id, {
+        ...values,
+        images,
+      });
+
+      revalidateCachedData("/posts/" + slug);
       router.push("/posts/" + slug);
     } catch (error) {
       setIsSubmitting(false);
@@ -93,9 +99,9 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
         <div className="flex justify-between items-center flex-col sm:flex-row gap-2">
           <LoadingButton
             className="font-semibold w-full sm:w-36"
-            text="Publish"
+            text="Update"
             type="submit"
-            loadingText="Publishing..."
+            loadingText="Updating..."
             loading={isSubmitting}
             disabled={!title || !body}
           />
@@ -105,8 +111,8 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
               href="https://www.markdownguide.org/cheat-sheet/"
               target="_blank"
               rel="noopener noreferrer">
-              <RxQuestionMarkCircled size={22} />
-              Don&apos;t know how to write markdown?
+              <BsMarkdown size={22} />
+              Markdown cheat sheet
             </Link>
           </Button>
         </div>

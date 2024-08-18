@@ -13,10 +13,7 @@ export const signup: RequestHandler<
   try {
     const { username, email, password: rawPassword } = req.body;
 
-    const existedUsername = await UserModel.exists({ username }).collation({
-      locale: "en",
-      strength: 2,
-    });
+    const existedUsername = await UserModel.exists({ username });
 
     if (existedUsername) {
       return res.status(409).json({ message: "Username already taken" });

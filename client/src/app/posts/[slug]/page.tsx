@@ -1,11 +1,9 @@
 import PostsAPI from "@/api/post";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import UserAvatar from "@/components/UserAvatar";
 import { NotFoundError } from "@/lib/http-errors";
-import { formatDate } from "@/lib/utils";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import PostOptions from "@/components/posts/PostOptions";
 
 const getPost = cache(async (slug: string) => {
   try {
@@ -50,22 +48,10 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
 
   return (
     <article className="secondary-container sm:my-4 sm:py-7 p-3">
-      <div className="max-w-prose m-auto flex flex-col gap-2 overflow-hidden break-words">
+      <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black my-2">{post.title}</h1>
-          <Link
-            href={"/users/" + post.author.username}
-            className="flex gap-2 items-center mt-5 mb-3">
-            <UserAvatar username={post.author.username} profilePicUrl="" />
-            <div className="flex flex-col justify-center">
-              <span className="text-sm">{post.author.username}</span>
-              <time
-                className="text-xs text-neutral-500 dark:text-neutral-400"
-                dateTime={post.createdAt}>
-                {formatDate(post.createdAt)}
-              </time>
-            </div>
-          </Link>
+          <PostOptions post={post} author={post.author} />
         </header>
         <section>
           <MarkdownRenderer>{modifiedBody}</MarkdownRenderer>

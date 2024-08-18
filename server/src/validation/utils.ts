@@ -30,3 +30,32 @@ export const ImageSchema = z.custom<Express.Multer.File>(
     message: "Invalid image",
   }
 );
+
+export const emailSchema = z.string().email();
+
+export const usernameSchema = z
+  .string()
+  .min(3, "Username must be at least 3 characters")
+  .max(20, "Username must be at most 20 characters")
+  .regex(
+    /^[a-zA-Z0-9_]*$/,
+    "Username must only contain letters, numbers, and underscores"
+  );
+
+export const passwordSchema = z
+  .string()
+  .min(6, "Password must be at least 6 characters")
+  .regex(/^(?!.* )/, "Password must not contain spaces");
+
+export const otpSchema = z
+  .string()
+  .optional()
+  .refine(
+    (val) => {
+      const num = Number(val);
+      return !isNaN(num) && num >= 100000 && num <= 999999;
+    },
+    {
+      message: "OTP must be a 6-digit number",
+    }
+  );

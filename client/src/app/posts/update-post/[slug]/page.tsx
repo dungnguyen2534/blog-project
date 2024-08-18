@@ -2,7 +2,7 @@ import PostsAPI from "@/api/post";
 import { NotFoundError } from "@/lib/http-errors";
 import { Post } from "@/validation/schema/post";
 import { notFound } from "next/navigation";
-import UpdatePost from "./updatePost";
+import UpdatePost from "./UpdatePost";
 
 interface UpdatePostPageProps {
   params: { slug: string };
