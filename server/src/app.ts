@@ -30,6 +30,10 @@ app.use(session(sessionConfig));
 app.use(passport.authenticate("session"));
 
 app.use("/uploads/in-post-images", express.static("uploads/in-post-images"));
+app.use(
+  "/uploads/profile-pictures",
+  express.static("uploads/profile-pictures")
+);
 
 app.use("/auth", usersRouter);
 app.use("/posts", postsRouter);

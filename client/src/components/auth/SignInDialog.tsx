@@ -11,7 +11,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import FormWrapper from "../form/FormWrapper";
 import { useForm } from "react-hook-form";
-import { SignInBody } from "@/validation/schema/user";
+import { SignInBody, SignInBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
@@ -37,7 +37,7 @@ export default function SignInDialog({
   onForgotPasswordClick,
 }: SignInDialogProps) {
   const form = useForm<SignInBody>({
-    resolver: zodResolver(SignInBody),
+    resolver: zodResolver(SignInBodySchema),
     defaultValues: { username: "", password: "" },
   });
 

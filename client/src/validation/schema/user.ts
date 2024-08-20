@@ -35,29 +35,41 @@ export const userSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   about: z.string(),
-  profilePicUrl: z.string().url(),
+  profilePicPath: z.string().url(),
   createdAt: z.string(),
 });
 
-export const SignUpBody = z.object({
+export const SignUpBodySchema = z.object({
   username: usernameSchema,
   email: emailSchema,
   password: passwordSchema,
   otp: otpSchema,
 });
 
-export const SignInBody = z.object({
+export const SignInBodySchema = z.object({
   username: usernameSchema,
   password: passwordSchema,
 });
 
-export const ForgotPasswordBody = z.object({
+export const EditProfileBodySchema = z.object({
+  username: usernameSchema.optional(),
+  about: z.string().optional(),
+  profilePicture: z
+    .instanceof(File)
+    .refine((file) => file.size < 5000000, {
+      message: "Your profile image must be less than 5MB.",
+    })
+    .optional(),
+});
+
+export const ForgotPasswordBodySchema = z.object({
   email: emailSchema,
   newPassword: passwordSchema,
   otp: otpSchema,
 });
 
 export type User = z.infer<typeof userSchema>;
-export type SignUpBody = z.infer<typeof SignUpBody>;
-export type SignInBody = z.infer<typeof SignInBody>;
-export type ForgotPasswordBody = z.infer<typeof ForgotPasswordBody>;
+export type SignUpBody = z.infer<typeof SignUpBodySchema>;
+export type SignInBody = z.infer<typeof SignInBodySchema>;
+export type EditProfileBody = z.infer<typeof EditProfileBodySchema>;
+export type ForgotPasswordBody = z.infer<typeof ForgotPasswordBodySchema>;

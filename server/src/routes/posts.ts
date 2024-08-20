@@ -8,7 +8,7 @@ import {
   updatePostSchema,
 } from "../validation/posts";
 import requireAuth from "../middlewares/requireAuth";
-import { PostImages } from "../middlewares/imageUpload";
+import { ImageUploadFilter } from "../middlewares/imageUpload";
 
 const router = express.Router();
 
@@ -22,7 +22,7 @@ router.post(
 router.post(
   "/images",
   requireAuth,
-  PostImages.single("inPostImage"),
+  ImageUploadFilter.single("inPostImage"),
   validateRequest(InPostImageSchema),
   PostsController.uploadInPostImages
 );

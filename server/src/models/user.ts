@@ -23,7 +23,7 @@ const userSchema = new Schema(
     about: {
       type: String,
     },
-    profilePicURL: {
+    profilePicPath: {
       type: String,
     },
     googleId: {

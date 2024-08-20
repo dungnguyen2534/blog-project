@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import FormWrapper from "../form/FormWrapper";
 import { useForm } from "react-hook-form";
-import { ForgotPasswordBody } from "@/validation/schema/user";
+import {
+  ForgotPasswordBody,
+  ForgotPasswordBodySchema,
+} from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
@@ -29,7 +32,7 @@ export default function ForgotPasswordDialog({
   setShow,
 }: ForgotPasswordDialogProps) {
   const form = useForm<ForgotPasswordBody>({
-    resolver: zodResolver(ForgotPasswordBody),
+    resolver: zodResolver(ForgotPasswordBodySchema),
     defaultValues: { email: "", newPassword: "", otp: "" },
   });
 

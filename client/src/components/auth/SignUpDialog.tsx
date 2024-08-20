@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import FormWrapper from "../form/FormWrapper";
 import { useForm } from "react-hook-form";
-import { SignUpBody } from "@/validation/schema/user";
+import { SignUpBody, SignUpBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
@@ -35,7 +35,7 @@ export default function SignUpDialog({
   onSignInClick,
 }: SignUpDialogProps) {
   const form = useForm<SignUpBody>({
-    resolver: zodResolver(SignUpBody),
+    resolver: zodResolver(SignUpBodySchema),
     defaultValues: { email: "", username: "", password: "", otp: undefined },
   });
 

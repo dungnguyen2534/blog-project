@@ -16,6 +16,7 @@ import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import MobileDropdownContent from "./MobileDropdownContent";
+import env from "@/validation/env-validation";
 
 interface SignedInViewProps {
   user: User;
@@ -47,7 +48,10 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
       )}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger>
-          <UserAvatar username={user.username} />
+          <UserAvatar
+            username={user.username}
+            profilePicUrl={env.NEXT_PUBLIC_SERVER_URL + user.profilePicPath}
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[30vh] sm:w-auto">
           <DropdownMenuItem className="text-lg sm:text-base" asChild>

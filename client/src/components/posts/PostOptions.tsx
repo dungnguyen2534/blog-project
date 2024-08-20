@@ -33,6 +33,7 @@ import { useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
+import env from "@/validation/env-validation";
 
 interface PostOptionsProps {
   post: Post;
@@ -103,7 +104,12 @@ export default function PostOptions({
       <Link
         href={"/users/" + post.author.username}
         className="flex gap-2 items-center">
-        <UserAvatar username={post.author.username} profilePicUrl="" />
+        <UserAvatar
+          username={post.author.username}
+          profilePicUrl={
+            env.NEXT_PUBLIC_SERVER_URL + post.author.profilePicPath
+          }
+        />
         <div className="flex flex-col justify-center">
           <span className="text-sm">{post.author.username}</span>
           {postDate}
@@ -124,7 +130,7 @@ export default function PostOptions({
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-              <IoBookmarkOutline size={18} className="-ml-1" />
+              <IoBookmarkOutline size={20} className="-ml-1" />
               Bookmark
             </DropdownMenuItem>
             {isAuthor && (

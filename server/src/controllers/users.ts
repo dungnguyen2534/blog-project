@@ -1,8 +1,10 @@
 import { RequestHandler } from "express";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
-import { SignupBody } from "../validation/users";
+import { EditProfileBody, SignupBody } from "../validation/users";
 import createHttpError from "http-errors";
+import assertIsDefined from "../utils/assertIsDefined";
+import sharp from "sharp";
 
 export const signup: RequestHandler<
   unknown,
@@ -75,6 +77,57 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
       .exec();
 
     res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const editUserProfile: RequestHandler<
+  unknown,
+  unknown,
+  EditProfileBody,
+  unknown
+> = async (req, res, next) => {
+  const authenticatedUser = req.user;
+  const { username, about } = req.body;
+  const profilePicture = req.file;
+
+  try {
+    assertIsDefined(authenticatedUser);
+    const user = await UserModel.findById(authenticatedUser._id).exec();
+
+    if (user?.username !== username) {
+      const usernameExisted = await UserModel.exists({ username }).exec();
+      if (usernameExisted) {
+        throw createHttpError(409, "Username already taken");
+      }
+    }
+
+    let profilePicturePath: string | undefined = undefined;
+    if (profilePicture) {
+      profilePicturePath =
+        "/uploads/profile-pictures/" + authenticatedUser._id + ".png";
+
+      await sharp(profilePicture.buffer)
+        .resize(500, 500, { withoutEnlargement: true })
+        .toFile("./" + profilePicturePath);
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      authenticatedUser._id,
+      {
+        $set: {
+          ...(username && { username }),
+          ...(about && { about }),
+          ...(profilePicturePath && {
+            profilePicPath: profilePicturePath + "?lastupdated=" + Date.now(), // client will use the old cached image if the URL is the same, this force client to re-fetch the image
+          }),
+        },
+      },
+      { new: true } // return updated document
+    ).exec();
+
+    res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
   }

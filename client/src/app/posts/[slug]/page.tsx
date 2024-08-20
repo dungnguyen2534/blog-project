@@ -44,13 +44,15 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
     .replace(/^###\s/gm, "#### ")
     .replace(/^##\s/gm, "### ")
     .replace(/^#\s/gm, "## ")
-    .replace(/\[(.*?)\]\(#(.*?)\)/gm, "[$1](#user-content-$2)");
+    .replace(/\[(.*?)\]\(#(.*?)\)/gm, "[$1](#user-content-$2)"); // prefix header for table of contents
 
   return (
     <article className="secondary-container sm:my-4 sm:py-7 p-3">
       <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
         <header>
-          <h1 className="text-3xl sm:text-4xl font-black my-2">{post.title}</h1>
+          <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
+            {post.title}
+          </h1>
           <PostOptions post={post} author={post.author} />
         </header>
         <section>
