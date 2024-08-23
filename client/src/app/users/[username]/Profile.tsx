@@ -20,7 +20,7 @@ export default function Profile({ user }: ProfileProps) {
 
   return (
     <main className="secondary-container p-3 sm:my-4 sm:p-7">
-      <div className="relative flex gap-3 flex-col">
+      <div className="relative flex gap-3 flex-col items-center">
         {loggedInUser && (
           <div className="absolute -top-4 -right-4">
             {isLoggedInUser ? (
@@ -31,29 +31,19 @@ export default function Profile({ user }: ProfileProps) {
           </div>
         )}
 
-        <div className="flex items-center">
-          <UserAvatar
-            username={user.username}
-            profilePicUrl={env.NEXT_PUBLIC_SERVER_URL + user.profilePicPath}
-            className="h-24 w-24 sm:w-36 sm:h-36"
-          />
-          <div className="w-full sm:text-lg flex items-center gap-5 -ml-5">
-            <div className="flex flex-col items-center w-[45%] border-r-2">
-              0<span className="text-sm uppercase">POSTS</span>
-            </div>
-            <div className="flex flex-col items-center w-[45%]">
-              0<span className="text-sm uppercase">FOLLOWER</span>
-            </div>
-          </div>
-        </div>
+        <UserAvatar
+          username={user.username}
+          profilePicUrl={user.profilePicPath}
+          className="h-24 w-24 sm:w-36 sm:h-36"
+        />
 
-        <div className="flex flex-col">
+        <div className="flex flex-col text-center">
           <h1 className="text-3xl">{user.username}</h1>
 
-          {user.about && <p className="mt-3 mb-2">{user.about}</p>}
+          {user.about && <p className="mt-3">{user.about}</p>}
 
           <time
-            className="text-neutral-500 text-sm flex gap-1 items-center mt-2"
+            className="text-neutral-500 text-sm flex gap-1 items-center mt-4 justify-center"
             dateTime={user.createdAt}>
             <RiCake2Line size={20} className="mb-1" /> Joined on{" "}
             {formatDate(user.createdAt, false)}

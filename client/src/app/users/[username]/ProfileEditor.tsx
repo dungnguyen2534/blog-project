@@ -36,7 +36,7 @@ interface ProfileEditorProps {
 export default function ProfileEditor({ user }: ProfileEditorProps) {
   const defaultValues = {
     username: user.username,
-    about: user.about,
+    about: user.about || "",
     profilePicture: undefined,
   };
 
@@ -58,7 +58,7 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
     try {
       const updatedUser = await UserAPI.updateUser(values);
 
-      revalidateCachedData("/users/" + user.username);
+      revalidateCachedData("/users/" + user.username); // remove old user page from cache
       revalidateCachedData("/users/" + updatedUser.username);
 
       mutateUser(updatedUser);

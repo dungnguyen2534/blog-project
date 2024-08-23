@@ -50,7 +50,7 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
         <DropdownMenuTrigger>
           <UserAvatar
             username={user.username}
-            profilePicUrl={env.NEXT_PUBLIC_SERVER_URL + user.profilePicPath}
+            profilePicUrl={user.profilePicPath}
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[30vh] sm:w-auto">

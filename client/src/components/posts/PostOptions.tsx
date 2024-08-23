@@ -106,9 +106,7 @@ export default function PostOptions({
         className="flex gap-2 items-center">
         <UserAvatar
           username={post.author.username}
-          profilePicUrl={
-            env.NEXT_PUBLIC_SERVER_URL + post.author.profilePicPath
-          }
+          profilePicUrl={post.author.profilePicPath}
         />
         <div className="flex flex-col justify-center">
           <span className="text-sm">{post.author.username}</span>

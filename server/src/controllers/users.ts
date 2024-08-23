@@ -116,13 +116,13 @@ export const editUserProfile: RequestHandler<
     const updatedUser = await UserModel.findByIdAndUpdate(
       authenticatedUser._id,
       {
-        $set: {
-          ...(username && { username }),
-          ...(about && { about }),
-          ...(profilePicturePath && {
-            profilePicPath: profilePicturePath + "?lastupdated=" + Date.now(), // client will use the old cached image if the URL is the same, this force client to re-fetch the image
-          }),
-        },
+        ...(username && { username }),
+
+        ...(!about ? { $unset: { about } } : { about }),
+
+        ...(profilePicturePath && {
+          profilePicPath: profilePicturePath + "?lastupdated=" + Date.now(),
+        }),
       },
       { new: true } // return updated document
     ).exec();
