@@ -20,6 +20,13 @@ export const PostBodySchema = z.object({
   images: z.array(z.string()),
 });
 
+export const PostPageSchema = z.object({
+  posts: z.array(postSchema),
+  currentPage: z.number(),
+  totalPages: z.number(),
+});
+
 export type Post = z.infer<typeof postSchema>;
 export type createPostBody = z.infer<typeof PostBodySchema>;
 export type updatePostBody = z.infer<typeof PostBodySchema>;
+export type PostPage = z.infer<typeof PostPageSchema>;

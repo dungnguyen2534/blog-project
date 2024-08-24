@@ -5,6 +5,7 @@ import TempImageModel from "../models/tempImage";
 import {
   createPostBody,
   deletePostParams,
+  getPostsQuery,
   UpdatePostBody,
   updatePostParams,
 } from "../validation/posts";
@@ -185,13 +186,26 @@ export const deletePost: RequestHandler<
   }
 };
 
-export const getPostList: RequestHandler = async (req, res, next) => {
+export const getPostList: RequestHandler<
+  unknown,
+  unknown,
+  unknown,
+  getPostsQuery
+> = async (req, res, next) => {
+  const currentPage = parseInt(req.query.page || "1");
+  const limit = parseInt(req.query.limit || "10");
+
   try {
-    const allPosts = await PostModel.find()
+    const posts = await PostModel.find()
       .sort({ _id: -1 })
+      .skip((currentPage - 1) * limit)
+      .limit(limit)
       .populate("author")
       .exec();
-    res.status(200).json(allPosts);
+
+    const totalPages = Math.ceil((await PostModel.countDocuments()) / limit);
+
+    res.status(200).json({ posts, totalPages, currentPage });
   } catch (error) {
     next(error);
   }

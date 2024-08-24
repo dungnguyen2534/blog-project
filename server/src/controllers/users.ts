@@ -117,9 +117,7 @@ export const editUserProfile: RequestHandler<
       authenticatedUser._id,
       {
         ...(username && { username }),
-
         ...(!about ? { $unset: { about } } : { about }),
-
         ...(profilePicturePath && {
           profilePicPath: profilePicturePath + "?lastupdated=" + Date.now(),
         }),

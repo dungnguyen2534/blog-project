@@ -1,5 +1,10 @@
 import http from "@/lib/http";
-import { createPostBody, Post, updatePostBody } from "@/validation/schema/post";
+import {
+  createPostBody,
+  Post,
+  PostPage,
+  updatePostBody,
+} from "@/validation/schema/post";
 
 const PostsAPI = {
   async createPost(values: createPostBody) {
@@ -27,8 +32,8 @@ const PostsAPI = {
     const res = await http.delete("/posts/images");
     return res.payload;
   },
-  async getPostList() {
-    const res = await http.get<Post[]>("/posts");
+  async getPostList(url: string) {
+    const res = await http.get<PostPage>(url);
     return res.payload;
   },
   async getSlugs() {

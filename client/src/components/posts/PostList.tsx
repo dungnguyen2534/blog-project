@@ -1,29 +1,46 @@
 "use client";
 
-import EmptyPostList from "./EmptyPostList";
+import { useCallback, useRef } from "react";
 import PostEntry from "./PostEntry";
-import usePostListLoader from "@/hooks/usePostListLoader";
+import usePostsLoader from "@/hooks/usePostsLoader";
 
 export default function PostsList() {
-  const {
-    posts,
-    isLoadingPostList,
-    isLoadingPostListError: error,
-  } = usePostListLoader();
+  const { pages, isLoadingPage, pageToLoad, setPageToLoad } = usePostsLoader();
+
+  // put pageToLoad directly in the dependencies array will cause infinite loop because the callback mutate it
+  const pageToLoadRef = useRef(pageToLoad);
+  pageToLoadRef.current = pageToLoad;
+
+  // useCallback as a ref makes the useCallback be called when the ref shows up
+  const postRef = useCallback(
+    (postEntry: HTMLElement | null) => {
+      if (postEntry == null) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPageToLoad(pageToLoadRef.current + 1);
+          observer.unobserve(postEntry);
+        }
+      });
+
+      observer.observe(postEntry);
+    },
+    [setPageToLoad]
+  );
+
+  if (isLoadingPage) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col gap-3 m-auto">
-      {!error && !isLoadingPostList && posts.length === 0 && (
-        <EmptyPostList text="No one has posted yet, be the first!" />
+      {pages.map((page) =>
+        page.posts.map((post, index) => (
+          <PostEntry
+            key={post._id}
+            post={post}
+            ref={index === page.posts.length - 1 ? postRef : null}
+          />
+        ))
       )}
-
-      {error && posts.length === 0 && (
-        <EmptyPostList text="Failed to load posts" />
-      )}
-
-      {posts.map((post) => (
-        <PostEntry key={post._id} post={post} />
-      ))}
     </div>
   );
 }

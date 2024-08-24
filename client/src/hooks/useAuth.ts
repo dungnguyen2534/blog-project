@@ -6,7 +6,7 @@ export default function useAuth() {
     "authenticated_user",
     async () => await UserAPI.getAuthenticatedUser(),
     {
-      shouldRetryOnError: false,
+      errorRetryCount: 2,
     }
   );
 
