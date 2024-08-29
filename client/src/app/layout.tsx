@@ -38,7 +38,6 @@ export default function RootLayout({
             {children}
             <Toaster />
             <Suspense fallback={null}>
-              {/* Wrap in Suspense because useSearchParams() causes client-side rendering up to the closest Suspense */}
               <NavigationEvents />
             </Suspense>
           </AuthDialogsProvider>

@@ -11,8 +11,8 @@ import session from "express-session";
 import sessionConfig from "./config/session";
 import passport from "passport";
 import cron from "node-cron";
-import "./config/passport-signin";
 import UploadsCleanup from "./utils/UploadsCleanup";
+import "./config/passport-signin";
 
 const app = express();
 
@@ -38,7 +38,7 @@ app.use(
 app.use("/auth", usersRouter);
 app.use("/posts", postsRouter);
 
-cron.schedule("0 */3 * * *", UploadsCleanup); // Every 3 hours
+cron.schedule("0 0 * * *", UploadsCleanup); // Every day at midnight
 app.use((req, res, next) => next(createHttpError(404, "404 Not found")));
 app.use(errorHandler);
 

@@ -68,8 +68,13 @@ export const ForgotPasswordBodySchema = z.object({
   otp: otpSchema,
 });
 
+export const OnboardingBodySchema = z.object({
+  username: usernameSchema,
+});
+
 export type User = z.infer<typeof userSchema>;
 export type SignUpBody = z.infer<typeof SignUpBodySchema>;
 export type SignInBody = z.infer<typeof SignInBodySchema>;
 export type EditProfileBody = z.infer<typeof EditProfileBodySchema>;
 export type ForgotPasswordBody = z.infer<typeof ForgotPasswordBodySchema>;
+export type OnboardingBody = z.infer<typeof OnboardingBodySchema>;

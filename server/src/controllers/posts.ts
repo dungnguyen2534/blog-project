@@ -194,9 +194,13 @@ export const getPostList: RequestHandler<
 > = async (req, res, next) => {
   const currentPage = parseInt(req.query.page || "1");
   const limit = parseInt(req.query.limit || "10");
+  const authorId = req.query.authorId;
+
+  const filter = authorId ? { author: authorId } : {};
 
   try {
     const posts = await PostModel.find()
+      .where(filter)
       .sort({ _id: -1 })
       .skip((currentPage - 1) * limit)
       .limit(limit)
@@ -268,8 +272,7 @@ export const deleteUnusedImage: RequestHandler = async (req, res, next) => {
   const authenticatedUser = req.user;
 
   try {
-    if (!authenticatedUser) return;
-
+    assertIsDefined(authenticatedUser);
     const unusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
@@ -284,11 +287,10 @@ export const deleteUnusedImage: RequestHandler = async (req, res, next) => {
       }
 
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagesPath } });
+      res.sendStatus(200);
     } else {
-      return;
+      res.sendStatus(204);
     }
-
-    res.sendStatus(204);
   } catch (error) {
     next(error);
   }

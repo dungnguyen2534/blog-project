@@ -17,10 +17,7 @@ export default function UserAvatar({
 }: UserAvatarProps) {
   return (
     <Avatar className={className}>
-      <AvatarImage
-        src={env.NEXT_PUBLIC_SERVER_URL + profilePicUrl}
-        alt={`${username || "user"} avatar`}
-      />
+      <AvatarImage src={profilePicUrl} alt={`${username || "user"} avatar`} />
       <AvatarFallback className="overflow-hidden">
         <FaUser
           size="50%"

@@ -6,7 +6,9 @@ export default function useAuth() {
     "authenticated_user",
     async () => await UserAPI.getAuthenticatedUser(),
     {
-      errorRetryCount: 2,
+      onErrorRetry(err) {
+        if (err.status === 401) return;
+      },
     }
   );
 

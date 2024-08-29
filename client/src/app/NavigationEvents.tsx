@@ -1,30 +1,59 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import PostsAPI from "@/api/post";
-
-// The current version of the Next.js app router does not have any built-in way to listen to navigation events.
-// This is a workaround to delete unused images when navigating away from the create post page.
+import useAuth from "@/hooks/useAuth";
 
 export function NavigationEvents() {
+  const { user: authenticatedUser } = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // ref persists between renders so it can store prev pathname
-  const ref = useRef(pathname);
+  const pathRef = useRef(pathname);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // redirect user to onboarding page if they haven't set a username(social sign in)
+    if (
+      authenticatedUser &&
+      !authenticatedUser.username &&
+      pathname !== "/onboarding"
+    ) {
+      router.push(
+        "/onboarding?returnTo=" +
+          encodeURIComponent(
+            pathname + (searchParams?.size ? "?" + searchParams : "")
+          )
+      );
+    }
+
+    // delete unused images when user navigates away from create post page
     async function deleteUnusedImages() {
       await PostsAPI.deleteUnusedImages();
     }
 
-    if (ref.current == "/posts/create-post" && ref.current !== pathname) {
-      deleteUnusedImages();
+    window.addEventListener("beforeunload", deleteUnusedImages);
+    if (
+      pathRef.current === "/posts/create-post" &&
+      pathRef.current !== pathname
+    ) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(deleteUnusedImages, 1500);
     }
 
-    ref.current = pathname;
-  }, [pathname, searchParams]);
+    pathRef.current = pathname;
+
+    return () => {
+      window.removeEventListener("beforeunload", deleteUnusedImages);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [pathname, router, searchParams, authenticatedUser]);
 
   return null;
 }

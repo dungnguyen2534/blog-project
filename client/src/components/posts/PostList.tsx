@@ -3,9 +3,21 @@
 import { useCallback, useRef } from "react";
 import PostEntry from "./PostEntry";
 import usePostsLoader from "@/hooks/usePostsLoader";
+import EmptyPostList from "./EmptyPostList";
+import { User } from "@/validation/schema/user";
 
-export default function PostsList() {
-  const { pages, isLoadingPage, pageToLoad, setPageToLoad } = usePostsLoader();
+interface PostsListProps {
+  author?: User;
+}
+
+export default function PostsList({ author }: PostsListProps) {
+  const {
+    pages,
+    isLoadingPage,
+    pageToLoad,
+    isLoadingPageError,
+    setPageToLoad,
+  } = usePostsLoader(author?._id);
 
   // put pageToLoad directly in the dependencies array will cause infinite loop because the callback mutate it
   const pageToLoadRef = useRef(pageToLoad);
@@ -32,6 +44,35 @@ export default function PostsList() {
 
   return (
     <div className="flex flex-col gap-3 m-auto">
+      {!author && isLoadingPageError && (
+        <EmptyPostList text="Failed to load posts" className="mt-48" />
+      )}
+      {!author &&
+        !isLoadingPageError &&
+        !isLoadingPage &&
+        pages[0].posts.length === 0 && (
+          <EmptyPostList
+            text="No one has posted yet, be the first!"
+            className="mt-48"
+          />
+        )}
+
+      {author && isLoadingPageError && (
+        <EmptyPostList
+          text={`Failed to load ${author.username}'s posts`}
+          hideIcon
+        />
+      )}
+      {author &&
+        !isLoadingPageError &&
+        !isLoadingPage &&
+        pages[0].posts.length === 0 && (
+          <EmptyPostList
+            text={`${author.username} hasn't post anything yet...`}
+            hideIcon
+          />
+        )}
+
       {pages.map((page) =>
         page.posts.map((post, index) => (
           <PostEntry

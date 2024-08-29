@@ -3,6 +3,8 @@ import { Strategy as LocalStrategy } from "passport-local";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import env from "../env";
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -28,6 +30,37 @@ passport.use(
       done(error);
     }
   })
+);
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      callbackURL: env.SERVER_URL + "/auth/oauth2/redirect/google",
+      scope: ["profile"],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const existingUser = await User.findOne({
+          googleId: profile.id,
+        }).exec();
+
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+
+        const newUser = await User.create({
+          googleId: profile.id,
+          profilePicPath: profile.photos?.[0].value,
+        });
+
+        done(null, newUser);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
 );
 
 // store user id in the session

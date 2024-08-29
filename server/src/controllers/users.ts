@@ -5,6 +5,7 @@ import { EditProfileBody, SignupBody } from "../validation/users";
 import createHttpError from "http-errors";
 import assertIsDefined from "../utils/assertIsDefined";
 import sharp from "sharp";
+import env from "../env";
 
 export const signup: RequestHandler<
   unknown,
@@ -119,7 +120,8 @@ export const editUserProfile: RequestHandler<
         ...(username && { username }),
         ...(!about ? { $unset: { about } } : { about }),
         ...(profilePicturePath && {
-          profilePicPath: profilePicturePath + "?lastupdated=" + Date.now(),
+          profilePicPath:
+            env.SERVER_URL + profilePicturePath + "?lastupdated=" + Date.now(),
         }),
       },
       { new: true } // return updated document

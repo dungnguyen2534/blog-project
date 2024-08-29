@@ -17,10 +17,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
-import GoogleButton from "./GoogleButton";
-import GithubButton from "./GithubButton";
 import EmailInput from "../form/EmailInput";
 import OTPInput from "../form/OTPInput";
+import SocialSignin from "./SocialSignin";
 
 interface ForgotPasswordDialogProps {
   show: boolean;
@@ -87,9 +86,7 @@ export default function ForgotPasswordDialog({
             </span>
             <hr />
           </div>
-          <div className="flex gap-3 w-full justify-between">
-            <GoogleButton /> <GithubButton />
-          </div>
+          <SocialSignin />
         </div>
       </DialogContent>
     </Dialog>

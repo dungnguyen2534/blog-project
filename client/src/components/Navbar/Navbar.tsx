@@ -7,11 +7,12 @@ import useAuth from "@/hooks/useAuth";
 import { SiStoryblok } from "react-icons/si";
 import SignedOutView from "./SignedOutView";
 import SignedInView from "./SignedInView";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { user, mutateUser, isValidatingUser } = useAuth();
+  const pathname = usePathname();
 
-  // skeleton to prevent SignOutView showing up when user is still being validated(when refreshing the page)
   let callToActions;
   if (isValidatingUser) {
     callToActions = (
@@ -30,13 +31,13 @@ export default function Navbar() {
     <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-1 pt-2 sm:py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
       <div className="container px-2 sm:px-8  flex items-center relative">
         <Link
-          href={"/"}
+          href={pathname === "/onboarding" ? "" : "/"}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-black flex items-center">
           <SiStoryblok size={37} />
           <span className="-ml-[2px] text-4xl">LOG</span>
         </Link>
-
         <div className="flex justify-center items-center gap-3 ml-auto">
+          {pathname === "/onboarding" && <ModeToggle className="sm:hidden" />}
           <ModeToggle className="hidden sm:flex" />
           {callToActions}
         </div>

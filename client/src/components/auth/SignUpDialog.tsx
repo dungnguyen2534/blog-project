@@ -14,14 +14,13 @@ import { SignUpBody, SignUpBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
-import GoogleButton from "./GoogleButton";
-import GithubButton from "./GithubButton";
 import EmailInput from "../form/EmailInput";
 import OTPInput from "../form/OTPInput";
 import UserAPI from "@/api/user";
 import useAuth from "@/hooks/useAuth";
 import { BadRequestError, ConflictError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
+import SocialSignin from "./SocialSignin";
 
 interface SignUpDialogProps {
   show: boolean;
@@ -124,9 +123,7 @@ export default function SignUpDialog({
               </span>
               <hr />
             </div>
-            <div className="flex gap-3 w-full justify-between">
-              <GoogleButton /> <GithubButton />
-            </div>
+            <SocialSignin />
           </div>
         </div>
       </DialogContent>

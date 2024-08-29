@@ -16,7 +16,7 @@ import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import MobileDropdownContent from "./MobileDropdownContent";
-import env from "@/validation/env-validation";
+import PostsAPI from "@/api/post";
 
 interface SignedInViewProps {
   user: User;
@@ -29,6 +29,7 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
 
   async function handleSignout() {
     try {
+      await PostsAPI.deleteUnusedImages();
       await UserAPI.signout();
       mutateUser(undefined);
     } catch (error) {
@@ -41,31 +42,33 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
 
   return (
     <>
-      {!(pathname === "/posts/create-post") && (
+      {!(pathname === "/posts/create-post" || pathname === "/onboarding") && (
         <Button asChild variant="outline" className="hidden sm:block border-2">
           <Link href="/posts/create-post">Create post</Link>
         </Button>
       )}
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger>
-          <UserAvatar
-            username={user.username}
-            profilePicUrl={user.profilePicPath}
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-[30vh] sm:w-auto">
-          <DropdownMenuItem className="text-lg sm:text-base" asChild>
-            <Link href={"/users/" + user.username}>@{user.username}</Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <MobileDropdownContent />
-          <DropdownMenuItem
-            onClick={handleSignout}
-            className="text-lg sm:text-base">
-            Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {!(pathname === "/onboarding") && (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger>
+            <UserAvatar
+              username={user.username}
+              profilePicUrl={user.profilePicPath}
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[30vh] sm:w-auto">
+            <DropdownMenuItem className="text-lg sm:text-base" asChild>
+              <Link href={"/users/" + user.username}>@{user.username}</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <MobileDropdownContent />
+            <DropdownMenuItem
+              onClick={handleSignout}
+              className="text-lg sm:text-base">
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </>
   );
 }

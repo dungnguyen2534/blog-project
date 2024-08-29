@@ -3,7 +3,7 @@ import path from "path";
 import tempImageModel from "../models/tempImage";
 
 const UPLOADS_FOLDER = path.join(__dirname, "../../uploads/in-post-images");
-const FILE_AGE_THRESHOLD = 3 * 60 * 60 * 1000; // 3 hours
+const FILE_AGE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
 
 export default async function UploadsCleanup() {
   try {
