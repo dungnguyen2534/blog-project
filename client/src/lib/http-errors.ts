@@ -28,4 +28,4 @@ export class ConflictError extends HttpError {}
 /**
  * Status code: 429
  */
-export class ToManyRequestError extends HttpError {}
+export class TooManyRequestsError extends HttpError {}

@@ -17,7 +17,7 @@ import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
 import UserAPI from "@/api/user";
 import useAuth from "@/hooks/useAuth";
-import { ToManyRequestError, UnauthorizedError } from "@/lib/http-errors";
+import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import SocialSignin from "./SocialSignin";
 
 interface SignInDialogProps {
@@ -52,7 +52,7 @@ export default function SignInDialog({
           title: "Invalid credentials",
           description: "Please check your credentials and try again",
         });
-      } else if (error instanceof ToManyRequestError) {
+      } else if (error instanceof TooManyRequestsError) {
         toast({
           title: "You're trying too often!",
           description: "Please try again later",

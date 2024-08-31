@@ -8,13 +8,19 @@ import {
   updatePostSchema,
 } from "../validation/posts";
 import requireAuth from "../middlewares/requireAuth";
-import { ImageUploadFilter } from "../middlewares/imageUpload";
+import { ImageUploadFilter } from "../middlewares/imageUploadFilter";
+import {
+  createPostLimiter,
+  updatePostLimiter,
+  uploadImagesLimiter,
+} from "../middlewares/rate-limiter";
 
 const router = express.Router();
 
 router.post(
   "/",
   requireAuth,
+  createPostLimiter,
   validateRequest(createPostSchema),
   PostsController.createPost
 );
@@ -22,6 +28,7 @@ router.post(
 router.post(
   "/images",
   requireAuth,
+  uploadImagesLimiter,
   ImageUploadFilter.single("inPostImage"),
   validateRequest(InPostImageSchema),
   PostsController.uploadInPostImages
@@ -32,6 +39,7 @@ router.delete("/images", PostsController.deleteUnusedImage);
 router.patch(
   "/:postId",
   requireAuth,
+  updatePostLimiter,
   validateRequest(updatePostSchema),
   PostsController.updatePost
 );

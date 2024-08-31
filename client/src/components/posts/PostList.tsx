@@ -73,15 +73,16 @@ export default function PostsList({ author }: PostsListProps) {
           />
         )}
 
-      {pages.map((page) =>
-        page.posts.map((post, index) => (
-          <PostEntry
-            key={post._id}
-            post={post}
-            ref={index === page.posts.length - 1 ? postRef : null}
-          />
-        ))
-      )}
+      {!isLoadingPageError &&
+        pages.map((page) =>
+          page.posts.map((post, index) => (
+            <PostEntry
+              key={post._id}
+              post={post}
+              ref={index === page.posts.length - 1 ? postRef : null}
+            />
+          ))
+        )}
     </div>
   );
 }

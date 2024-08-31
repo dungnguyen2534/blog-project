@@ -1,11 +1,18 @@
 import { RequestHandler } from "express";
 import UserModel from "../models/user";
 import bcrypt from "bcrypt";
-import { EditProfileBody, SignupBody } from "../validation/users";
+import {
+  EditProfileBody,
+  EmailVerificationBody,
+  SignupBody,
+} from "../validation/users";
 import createHttpError from "http-errors";
 import assertIsDefined from "../utils/assertIsDefined";
 import sharp from "sharp";
 import env from "../env";
+import EmailVerificationToken from "../models/emailVerificationToken";
+import crypto from "crypto";
+import sendVerificationCode from "../utils/nodeMailer";
 
 export const signup: RequestHandler<
   unknown,
@@ -14,7 +21,7 @@ export const signup: RequestHandler<
   unknown
 > = async (req, res, next) => {
   try {
-    const { username, email, password: rawPassword } = req.body;
+    const { username, email, password: rawPassword, otp } = req.body;
 
     const existedUsername = await UserModel.exists({ username });
 
@@ -22,7 +29,16 @@ export const signup: RequestHandler<
       return res.status(409).json({ message: "Username already taken" });
     }
 
-    // handle existed email later when implementing email verification
+    const OTPCode = await EmailVerificationToken.findOne({
+      email,
+      otp,
+    }).exec();
+
+    if (!OTPCode) {
+      throw createHttpError(400, "Invalid or expired verification code");
+    } else {
+      await EmailVerificationToken.deleteOne();
+    }
 
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
@@ -40,6 +56,41 @@ export const signup: RequestHandler<
       if (err) throw err;
       res.status(201).json(newUser);
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOTP: RequestHandler<
+  unknown,
+  unknown,
+  EmailVerificationBody,
+  unknown
+> = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const existedEmail = await UserModel.exists({ email })
+      .collation({
+        locale: "en",
+        strength: 2,
+      })
+      .exec();
+
+    if (existedEmail) {
+      return createHttpError(409, "Email already taken");
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString(); // random 6 digits
+
+    await EmailVerificationToken.create({
+      email,
+      otp,
+    });
+
+    await sendVerificationCode(email, otp);
+
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }

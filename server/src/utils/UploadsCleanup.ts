@@ -5,7 +5,7 @@ import tempImageModel from "../models/tempImage";
 const UPLOADS_FOLDER = path.join(__dirname, "../../uploads/in-post-images");
 const FILE_AGE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
 
-export default async function UploadsCleanup() {
+export default async function uploadsCleanup() {
   try {
     const unusedImages = await tempImageModel.find({ temporary: true });
     for (const image of unusedImages) {

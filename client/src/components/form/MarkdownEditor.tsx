@@ -14,7 +14,7 @@ import "react-markdown-editor-lite/lib/index.css";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import React from "react";
-import { UnauthorizedError } from "@/lib/http-errors";
+import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 
 interface MarkdownEditorProps {
   controller: Control<any>;
@@ -45,6 +45,12 @@ export default function MarkdownEditor({
         toast({
           title: "Unauthorized",
           description: "You need to login to upload images",
+        });
+      } else if (error instanceof TooManyRequestsError) {
+        toast({
+          title: "Too many images",
+          description:
+            "You can only upload 60 images per hour, please try again later",
         });
       } else {
         toast({

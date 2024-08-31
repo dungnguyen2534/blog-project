@@ -2,19 +2,36 @@ import express from "express";
 import * as UserController from "../controllers/users";
 import passport from "passport";
 import validateRequest from "../middlewares/validateRequest";
-import { editProfileSchema, signupSchema } from "../validation/users";
+import {
+  editProfileSchema,
+  emailVerificationBodySchema,
+  signupSchema,
+} from "../validation/users";
 import requireAuth from "../middlewares/requireAuth";
-import { ImageUploadFilter } from "../middlewares/imageUpload";
+import { ImageUploadFilter } from "../middlewares/imageUploadFilter";
 import env from "../env";
 import setSessionReturnTo from "../middlewares/setSessionReturnTo";
+import { OTPRateLimiter, signinLimiter } from "../middlewares/rate-limiter";
 
 const router = express.Router();
 
 router.post("/signup", validateRequest(signupSchema), UserController.signup);
 
-router.post("/signin", passport.authenticate("local"), (req, res) => {
-  res.status(200).json(req.user);
-});
+router.post(
+  "/get-otp",
+  OTPRateLimiter,
+  validateRequest(emailVerificationBodySchema),
+  UserController.getOTP
+);
+
+router.post(
+  "/signin",
+  signinLimiter,
+  passport.authenticate("local"),
+  (req, res) => {
+    res.status(200).json(req.user);
+  }
+);
 
 // google signin
 router.get(
@@ -28,6 +45,21 @@ router.get(
   passport.authenticate("google", {
     successReturnToOrRedirect: env.CLIENT_URL,
     keepSessionInfo: true, // https://github.com/jaredhanson/passport/issues/919
+  })
+);
+
+// github signin
+router.get(
+  "/signin/github",
+  setSessionReturnTo,
+  passport.authenticate("github")
+);
+
+router.get(
+  "/oauth2/redirect/github",
+  passport.authenticate("github", {
+    successReturnToOrRedirect: env.CLIENT_URL,
+    keepSessionInfo: true,
   })
 );
 

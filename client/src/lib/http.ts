@@ -3,7 +3,7 @@ import {
   BadRequestError,
   ConflictError,
   NotFoundError,
-  ToManyRequestError,
+  TooManyRequestsError,
   UnauthorizedError,
 } from "./http-errors";
 
@@ -88,7 +88,7 @@ const request = async <Response>(
       case 409:
         throw new ConflictError(errorMsg);
       case 429:
-        throw new ToManyRequestError(errorMsg);
+        throw new TooManyRequestsError(errorMsg);
       default:
         throw new HttpError(data);
     }

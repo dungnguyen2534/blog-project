@@ -3,7 +3,11 @@ import { Strategy as LocalStrategy } from "passport-local";
 import User from "../models/user";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import {
+  Strategy as GoogleStrategy,
+  VerifyCallback,
+} from "passport-google-oauth20";
+import { Strategy as GithubStrategy, Profile } from "passport-github2";
 import env from "../env";
 
 passport.use(
@@ -13,8 +17,7 @@ passport.use(
         .select("+email +password")
         .exec();
 
-      // if user not found => return
-      // if user found, but no password, that means this user already signed up with social account => return
+      // if user found but no password, that means this user already signed up with social account => return
       if (!existingUser || !existingUser.password) {
         return done(null, false);
       }
@@ -63,12 +66,46 @@ passport.use(
   )
 );
 
-// store user id in the session
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+      callbackURL: env.SERVER_URL + "/auth/oauth2/redirect/github",
+      scope: ["profile"],
+    },
+    async (
+      accessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      done: VerifyCallback
+    ) => {
+      try {
+        const existingUser = await User.findOne({
+          githubId: profile.id,
+        }).exec();
+
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+
+        const newUser = await User.create({
+          githubId: profile.id,
+          profilePicPath: profile.photos?.[0].value,
+        });
+
+        done(null, newUser);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
+
 passport.serializeUser((user, done) => {
   done(null, user._id);
 });
 
-// attach user to req.user
 passport.deserializeUser(async (id: string, done) => {
   done(null, { _id: new mongoose.Types.ObjectId(id) });
 });
