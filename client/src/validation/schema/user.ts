@@ -64,7 +64,7 @@ export const EditProfileBodySchema = z.object({
 
 export const ForgotPasswordBodySchema = z.object({
   email: emailSchema,
-  newPassword: passwordSchema,
+  password: passwordSchema,
   otp: otpSchema,
 });
 

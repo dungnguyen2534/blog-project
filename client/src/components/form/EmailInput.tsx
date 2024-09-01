@@ -62,7 +62,7 @@ export default function EmailInput({
               disabled={disabled || loading}>
               <span
                 className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
-                  countDown && countDown > 0 ? "left-[13%] -translate-x-0" : ""
+                  countDown && countDown > 0 ? "left-[13%] translate-x-0" : ""
                 }`}>
                 {loading && <LoaderCircle className="mr-2 animate-spin" />}
                 {!loading &&

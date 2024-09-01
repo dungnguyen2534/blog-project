@@ -49,7 +49,7 @@ export default function SignInDialog({
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
-          title: "Invalid credentials",
+          title: "Invalid username or password",
           description: "Please check your credentials and try again",
         });
       } else if (error instanceof TooManyRequestsError) {
@@ -58,7 +58,6 @@ export default function SignInDialog({
           description: "Please try again later",
         });
       } else {
-        console.error(error);
         toast({
           title: "An error occurred!",
           description: "Please try again later",

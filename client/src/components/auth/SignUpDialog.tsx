@@ -37,13 +37,15 @@ export default function SignUpDialog({
 }: SignUpDialogProps) {
   const form = useForm<SignUpBody>({
     resolver: zodResolver(SignUpBodySchema),
-    defaultValues: { email: "", username: "", password: "", otp: undefined },
+    defaultValues: { email: "", username: "", password: "", otp: "" },
   });
 
   const { mutateUser } = useAuth();
   const { toast } = useToast();
 
   async function onSubmit(input: SignUpBody) {
+    setGetOTPSuccess(false);
+
     try {
       const newUser = await UserAPI.signup(input);
       mutateUser(newUser);
@@ -65,6 +67,7 @@ export default function SignUpDialog({
   const { trigger } = form;
   const { startCountDown, timeLeft } = useCountDown();
   const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [getOPTSuccess, setGetOTPSuccess] = useState(false);
 
   async function getOTP() {
     const validEmail = await trigger("email");
@@ -73,13 +76,14 @@ export default function SignUpDialog({
     setIsSendingOTP(true);
     try {
       await UserAPI.getOTP(form.getValues("email"));
+      setGetOTPSuccess(true);
+      toast({
+        title: "OTP sent!",
+        description: "Please check your email",
+      });
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        toast({
-          title: "Invalid email",
-          description: "Please enter a valid email address",
-        });
-      } else if (error instanceof ConflictError) {
+      setIsSendingOTP(false);
+      if (error instanceof ConflictError) {
         toast({
           title: "Email already exists!",
           description: "Please sign in instead",
@@ -91,9 +95,6 @@ export default function SignUpDialog({
         });
       }
     } finally {
-      toast({
-        title: "OTP sent to your email",
-      });
       setIsSendingOTP(false);
       startCountDown();
     }
@@ -151,6 +152,7 @@ export default function SignUpDialog({
               text="Sign up"
               loadingText="Signing up..."
               loading={isSubmitting}
+              disabled={!getOPTSuccess}
             />
           </FormWrapper>
           <div className="text-center text-sm mt-5">

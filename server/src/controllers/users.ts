@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import {
   EditProfileBody,
   EmailVerificationBody,
+  ResetPasswordBody,
   SignupBody,
 } from "../validation/users";
 import createHttpError from "http-errors";
@@ -13,53 +14,8 @@ import env from "../env";
 import EmailVerificationToken from "../models/emailVerificationToken";
 import crypto from "crypto";
 import sendVerificationCode from "../utils/nodeMailer";
-
-export const signup: RequestHandler<
-  unknown,
-  unknown,
-  SignupBody,
-  unknown
-> = async (req, res, next) => {
-  try {
-    const { username, email, password: rawPassword, otp } = req.body;
-
-    const existedUsername = await UserModel.exists({ username });
-
-    if (existedUsername) {
-      return res.status(409).json({ message: "Username already taken" });
-    }
-
-    const OTPCode = await EmailVerificationToken.findOne({
-      email,
-      otp,
-    }).exec();
-
-    if (!OTPCode) {
-      throw createHttpError(400, "Invalid or expired verification code");
-    } else {
-      await EmailVerificationToken.deleteOne();
-    }
-
-    const hashedPassword = await bcrypt.hash(rawPassword, 10);
-
-    const result = await UserModel.create({
-      email,
-      username,
-      password: hashedPassword,
-    });
-
-    const newUser = result.toObject();
-    delete newUser.password;
-
-    // req.login provided by passport, login after signup
-    req.login(newUser, (err) => {
-      if (err) throw err;
-      res.status(201).json(newUser);
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+import passwordResetToken from "../models/passwordResetToken";
+import { invalidateSessions } from "../utils/invalidateSessions";
 
 export const getOTP: RequestHandler<
   unknown,
@@ -96,6 +52,131 @@ export const getOTP: RequestHandler<
   }
 };
 
+export const signup: RequestHandler<
+  unknown,
+  unknown,
+  SignupBody,
+  unknown
+> = async (req, res, next) => {
+  try {
+    const { username, email, password: rawPassword, otp } = req.body;
+
+    const existedUsername = await UserModel.exists({ username });
+    if (existedUsername) {
+      return res.status(409).json({ message: "Username already taken" });
+    }
+
+    const OTPCode = await EmailVerificationToken.findOne({
+      email,
+      otp,
+    }).exec();
+
+    if (!OTPCode) {
+      throw createHttpError(400, "Invalid or expired verification code");
+    } else {
+      await EmailVerificationToken.deleteOne();
+    }
+
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+    const result = await UserModel.create({
+      email,
+      username,
+      password: hashedPassword,
+    });
+
+    const newUser = result.toObject();
+    delete newUser.password;
+
+    // req.login provided by passport, login after signup
+    req.login(newUser, (err) => {
+      if (err) throw err;
+      res.status(201).json(newUser);
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getResetPasswordOTP: RequestHandler<
+  unknown,
+  unknown,
+  EmailVerificationBody,
+  unknown
+> = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const existedEmail = await UserModel.exists({ email })
+      .collation({
+        locale: "en",
+        strength: 2,
+      })
+      .exec();
+
+    if (!existedEmail) {
+      throw createHttpError(404, "No user found with this email");
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString(); // random 6 digits
+    await passwordResetToken.create({
+      email,
+      otp,
+    });
+
+    await sendVerificationCode(email, otp);
+
+    res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword: RequestHandler<
+  unknown,
+  unknown,
+  ResetPasswordBody,
+  unknown
+> = async (req, res, next) => {
+  try {
+    const { email, password: rawPassword, otp } = req.body;
+
+    const user = await UserModel.findOne({ email }).exec();
+    if (!user) {
+      throw createHttpError(404, "No user found with this email");
+    }
+
+    const OTPCode = await passwordResetToken
+      .findOne({
+        email,
+        otp,
+      })
+      .exec();
+
+    if (!OTPCode) {
+      throw createHttpError(400, "Invalid or expired verification code");
+    } else {
+      await OTPCode.deleteOne();
+    }
+
+    await invalidateSessions(user._id.toString());
+
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+    user.email = email;
+    user.password = hashedPassword;
+    await user.save();
+
+    user.toObject();
+    delete user.password;
+
+    req.login(user, (err) => {
+      if (err) throw err;
+      res.status(200).json(user);
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const signout: RequestHandler = (req, res) => {
   req.logout((err) => {
     if (err) throw err;
@@ -107,9 +188,7 @@ export const getUser: RequestHandler = async (req, res, next) => {
   const { username } = req.params;
   try {
     const user = await UserModel.findOne({ username }).select("+email").exec();
-
     if (!user) throw createHttpError(404, "User not found");
-
     res.status(200).json(user);
   } catch (error) {
     next(error);

@@ -1,19 +1,26 @@
 import http from "@/lib/http";
 import {
   EditProfileBody,
+  ForgotPasswordBody,
   SignInBody,
   SignUpBody,
   User,
 } from "@/validation/schema/user";
 
 const UserAPI = {
+  getOTP: async (email: string) => await http.post("/auth/get-otp", { email }),
   signup: async (input: SignUpBody) => {
     const res = await http.post<User>("/auth/signup", input);
     return res.payload;
   },
-  getOTP: async (email: string) => await http.post("/auth/get-otp", { email }),
   signin: async (input: SignInBody) => {
     const res = await http.post<User>("/auth/signin", input);
+    return res.payload;
+  },
+  getResetPasswordOTP: async (email: string) =>
+    await http.post("/auth/get-reset-password-otp", { email }),
+  resetPassword: async (input: ForgotPasswordBody) => {
+    const res = await http.post<User>("/auth/reset-password", input);
     return res.payload;
   },
   signout: async () => await http.post("/auth/signout"),

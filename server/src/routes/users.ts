@@ -5,6 +5,7 @@ import validateRequest from "../middlewares/validateRequest";
 import {
   editProfileSchema,
   emailVerificationBodySchema,
+  resetPasswordSchema,
   signupSchema,
 } from "../validation/users";
 import requireAuth from "../middlewares/requireAuth";
@@ -15,14 +16,14 @@ import { OTPRateLimiter, signinLimiter } from "../middlewares/rate-limiter";
 
 const router = express.Router();
 
-router.post("/signup", validateRequest(signupSchema), UserController.signup);
-
 router.post(
   "/get-otp",
   OTPRateLimiter,
   validateRequest(emailVerificationBodySchema),
   UserController.getOTP
 );
+
+router.post("/signup", validateRequest(signupSchema), UserController.signup);
 
 router.post(
   "/signin",
@@ -61,6 +62,19 @@ router.get(
     successReturnToOrRedirect: env.CLIENT_URL,
     keepSessionInfo: true,
   })
+);
+
+router.post(
+  "/get-reset-password-otp",
+  OTPRateLimiter,
+  validateRequest(emailVerificationBodySchema),
+  UserController.getResetPasswordOTP
+);
+
+router.post(
+  "/reset-password",
+  validateRequest(resetPasswordSchema),
+  UserController.resetPassword
 );
 
 router.post("/signout", UserController.signout);

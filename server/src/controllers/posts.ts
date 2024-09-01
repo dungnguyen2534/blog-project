@@ -272,7 +272,8 @@ export const deleteUnusedImage: RequestHandler = async (req, res, next) => {
   const authenticatedUser = req.user;
 
   try {
-    assertIsDefined(authenticatedUser);
+    if (!authenticatedUser) return res.sendStatus(204);
+
     const unusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
