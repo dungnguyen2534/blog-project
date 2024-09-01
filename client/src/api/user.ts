@@ -11,12 +11,12 @@ const UserAPI = {
     const res = await http.post<User>("/auth/signup", input);
     return res.payload;
   },
+  getOTP: async (email: string) => await http.post("/auth/get-otp", { email }),
   signin: async (input: SignInBody) => {
     const res = await http.post<User>("/auth/signin", input);
     return res.payload;
   },
   signout: async () => await http.post("/auth/signout"),
-
   getAuthenticatedUser: async () => {
     const res = await http.get<User>("/auth/me");
     return res.payload;

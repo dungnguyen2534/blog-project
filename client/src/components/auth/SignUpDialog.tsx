@@ -21,6 +21,8 @@ import useAuth from "@/hooks/useAuth";
 import { BadRequestError, ConflictError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 import SocialSignin from "./SocialSignin";
+import useCountDown from "@/hooks/useCountDown";
+import { useState } from "react";
 
 interface SignUpDialogProps {
   show: boolean;
@@ -60,8 +62,44 @@ export default function SignUpDialog({
     }
   }
 
-  const { errors, isSubmitting } = form.formState;
+  const { trigger } = form;
+  const { startCountDown, timeLeft } = useCountDown();
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
 
+  async function getOTP() {
+    const validEmail = await trigger("email");
+    if (!validEmail) return;
+
+    setIsSendingOTP(true);
+    try {
+      await UserAPI.getOTP(form.getValues("email"));
+    } catch (error) {
+      if (error instanceof BadRequestError) {
+        toast({
+          title: "Invalid email",
+          description: "Please enter a valid email address",
+        });
+      } else if (error instanceof ConflictError) {
+        toast({
+          title: "Email already exists!",
+          description: "Please sign in instead",
+        });
+      } else {
+        toast({
+          title: "An error occurred!",
+          description: "Please try again later",
+        });
+      }
+    } finally {
+      toast({
+        title: "OTP sent to your email",
+      });
+      setIsSendingOTP(false);
+      startCountDown();
+    }
+  }
+
+  const { errors, isSubmitting } = form.formState;
   return (
     <Dialog open={show} onOpenChange={setShow}>
       <DialogContent className="border-0 sm:border-[1px] rounded-md w-dvw h-dvh sm:w-96 sm:h-auto py-5 px-auto overflow-auto flex flex-col justify-center">
@@ -79,6 +117,11 @@ export default function SignUpDialog({
             <EmailInput
               controller={form.control}
               errorDescription={errors.email?.message}
+              onEmailSubmit={getOTP}
+              btnText="Get OTP"
+              countDown={timeLeft}
+              disabled={timeLeft > 0}
+              loading={isSendingOTP}
             />
             <FormInput
               label="Username"

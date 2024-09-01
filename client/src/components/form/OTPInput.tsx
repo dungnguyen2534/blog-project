@@ -28,7 +28,7 @@ export default function OTPInput({
         name={name}
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="flex justify-center py-1 text-sm">
+            <FormLabel className="flex justify-center pt-1 text-sm">
               Check your email for the OTP code
             </FormLabel>
             <FormDescription
