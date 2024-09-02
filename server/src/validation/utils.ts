@@ -16,6 +16,11 @@ export const MongoIdSchema = z.string().refine((id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }, "Invalid ID");
 
+export const CommentBodySchema = z.object({
+  body: z.string().min(1),
+  images: z.array(z.string()),
+});
+
 export const ImageSchema = z.custom<Express.Multer.File>(
   async (file) => {
     if (!file) return true; // image is not required

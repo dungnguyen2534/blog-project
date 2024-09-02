@@ -154,13 +154,6 @@ export default function ForgotPasswordDialog({
               disabled={!getOTPSuccess}
             />
           </FormWrapper>
-          <div className="text-xs uppercase text-center relative py-7">
-            <span className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-neutral-950 px-2">
-              Or continue with
-            </span>
-            <hr />
-          </div>
-          <SocialSignin />
         </div>
       </DialogContent>
     </Dialog>

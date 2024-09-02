@@ -14,6 +14,8 @@ import {
   updatePostLimiter,
   uploadImagesLimiter,
 } from "../middlewares/rate-limiter";
+import deleteUnusedImage from "../utils/deleteUnusedImage";
+import postCommentsRouter from "./post-comments";
 
 const router = express.Router();
 
@@ -34,7 +36,7 @@ router.post(
   PostsController.uploadInPostImages
 );
 
-router.delete("/images", PostsController.deleteUnusedImage);
+router.delete("/images", deleteUnusedImage);
 
 router.patch(
   "/:postId",
@@ -56,5 +58,8 @@ router.get("/", PostsController.getPostList);
 router.get("/slugs", PostsController.getSlugs);
 
 router.get("/:slug", PostsController.getPost);
+
+// Comment routes
+router.use("/:postId/comments", postCommentsRouter);
 
 export default router;

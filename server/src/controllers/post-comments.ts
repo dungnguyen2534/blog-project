@@ -1,35 +1,37 @@
 import { RequestHandler } from "express";
-import { slugify } from "../utils/slugify";
-import PostModel from "../models/post";
-import TempImageModel from "../models/tempImage";
-import {
-  createPostBody,
-  deletePostParams,
-  getPostsQuery,
-  UpdatePostBody,
-  updatePostParams,
-} from "../validation/posts";
-import createHttpError from "http-errors";
 import assertIsDefined from "../utils/assertIsDefined";
+import path from "path";
+import fs from "fs";
+import {
+  CreateCommentBody,
+  CreateCommentParams,
+  DeleteCommentParams,
+  EditCommentBody,
+  EditCommentParams,
+  GetCommentsParams,
+  GetCommentsQuery,
+} from "../validation/comments";
+import TempImageModel from "../models/tempImage";
+import CommentModel from "../models/comment";
+import createHttpError from "http-errors";
 import { nanoid } from "nanoid";
 import sharp from "sharp";
 import env from "../env";
-import path from "path";
-import fs from "fs";
 
-export const createPost: RequestHandler<
+export const createComment: RequestHandler<
+  CreateCommentParams,
   unknown,
-  unknown,
-  createPostBody,
+  CreateCommentBody,
   unknown
 > = async (req, res, next) => {
-  const { title, summary, images, body } = req.body;
+  const { parentCommentId, body, images } = req.body;
+  const { postId } = req.params;
+
   const authenticatedUser = req.user;
 
   try {
     assertIsDefined(authenticatedUser);
 
-    // delete temporary status of new images
     let imagesPath;
     if (images.length > 0) {
       imagesPath = images.map((url) => new URL(url).pathname);
@@ -42,7 +44,6 @@ export const createPost: RequestHandler<
       );
     }
 
-    // delete unused images if there is any(when user post an image and change/delete before post)
     const unusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
@@ -59,45 +60,43 @@ export const createPost: RequestHandler<
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagesPath } });
     }
 
-    const newPost = await PostModel.create({
-      slug: slugify(title) + "-" + nanoid(9),
-      title,
+    const newComment = await CommentModel.create({
+      postId,
+      author: authenticatedUser._id,
+      parentCommentId,
       body,
       images: imagesPath,
-      summary,
-      author: authenticatedUser._id,
     });
 
-    res.status(201).json(newPost);
+    res.status(201).json(newComment);
   } catch (error) {
     next(error);
   }
 };
 
-export const updatePost: RequestHandler<
-  updatePostParams,
+export const editComment: RequestHandler<
+  EditCommentParams,
   unknown,
-  UpdatePostBody,
+  EditCommentBody,
   unknown
 > = async (req, res, next) => {
-  const { postId } = req.params;
-  const { title, summary, images, body } = req.body;
+  const { commentId } = req.params;
+  const { body, images } = req.body;
   const authenticatedUser = req.user;
 
   try {
     assertIsDefined(authenticatedUser);
 
-    const postToUpdate = await PostModel.findById(postId).exec();
-    if (!postToUpdate) throw createHttpError(404, "Post not found");
+    const commentToUpdate = await CommentModel.findById(commentId).exec();
+    if (!commentToUpdate) throw createHttpError(404, "Comment not found");
 
-    if (!authenticatedUser._id.equals(postToUpdate.author._id)) {
-      throw createHttpError(403, "You are not authorized to update this post");
+    if (!authenticatedUser._id.equals(commentToUpdate.author._id)) {
+      throw createHttpError(403, "You are not authorized to edit this comment");
     }
 
-    // check and delete any old unused images that not include in the update
     const newImages = images.map((url) => new URL(url).pathname);
 
-    const oldUnusedImages = postToUpdate.images.filter(
+    const oldUnusedImages = commentToUpdate.images.filter(
       (image) => !newImages.includes(image)
     );
 
@@ -111,7 +110,6 @@ export const updatePost: RequestHandler<
       });
     }
 
-    // delete temporary status of new images
     await TempImageModel.updateMany(
       {
         userId: authenticatedUser._id,
@@ -120,7 +118,6 @@ export const updatePost: RequestHandler<
       { $set: { temporary: false } }
     );
 
-    // delete new unused images if there is any(when user post an image and change/delete before post)
     const newUnusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
       temporary: true,
@@ -139,44 +136,45 @@ export const updatePost: RequestHandler<
       });
     }
 
-    postToUpdate.title = title;
-    postToUpdate.body = body;
-    postToUpdate.images = newImages;
-    postToUpdate.summary = summary;
+    commentToUpdate.body = body;
+    commentToUpdate.images = newImages;
 
-    await postToUpdate.save();
+    await commentToUpdate.save();
 
-    res.status(200).json(postToUpdate);
+    res.status(200).json(commentToUpdate);
   } catch (error) {
     next(error);
   }
 };
 
-export const deletePost: RequestHandler<
-  deletePostParams,
+export const deleteComment: RequestHandler<
+  DeleteCommentParams,
   unknown,
   unknown,
   unknown
 > = async (req, res, next) => {
   const authenticatedUser = req.user;
-  const { postId } = req.params;
+  const { commentId } = req.params;
 
   try {
     assertIsDefined(authenticatedUser);
 
-    const postToDelete = await PostModel.findById(postId).exec();
-    if (!postToDelete) throw createHttpError(404, "Post not found");
+    const commentToDelete = await CommentModel.findById(commentId).exec();
+    if (!commentToDelete) throw createHttpError(404, "Comment not found");
 
-    if (!authenticatedUser._id.equals(postToDelete.author._id)) {
-      throw createHttpError(403, "You are not authorized to delete this post");
+    if (!authenticatedUser._id.equals(commentToDelete.author._id)) {
+      throw createHttpError(
+        403,
+        "You are not authorized to delete this comment"
+      );
     }
 
-    for (const imagePath of postToDelete.images) {
+    for (const imagePath of commentToDelete.images) {
       const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
       await fs.promises.unlink(imagesPathToDelete);
     }
 
-    await postToDelete.deleteOne();
+    await commentToDelete.deleteOne();
 
     res.sendStatus(204);
   } catch (error) {
@@ -184,60 +182,34 @@ export const deletePost: RequestHandler<
   }
 };
 
-export const getPostList: RequestHandler<
+export const getCommentList: RequestHandler<
+  GetCommentsParams,
   unknown,
   unknown,
-  unknown,
-  getPostsQuery
+  GetCommentsQuery
 > = async (req, res, next) => {
   const currentPage = parseInt(req.query.page || "1");
-  const limit = parseInt(req.query.limit || "10");
-  const authorId = req.query.authorId;
-
-  const filter = authorId ? { author: authorId } : {};
+  const limit = parseInt(req.query.limit || "1");
+  const { postId } = req.params;
 
   try {
-    const posts = await PostModel.find()
-      .where(filter)
+    const comments = await CommentModel.find()
+      .where({ postId: postId })
       .sort({ _id: -1 })
       .skip((currentPage - 1) * limit)
       .limit(limit)
       .populate("author")
       .exec();
 
-    const totalPages = Math.ceil((await PostModel.countDocuments()) / limit);
+    const totalPages = Math.ceil((await CommentModel.countDocuments()) / limit);
 
-    res.status(200).json({ posts, totalPages, currentPage });
+    res.status(200).json({ comments, totalPages, currentPage });
   } catch (error) {
     next(error);
   }
 };
 
-export const getPost: RequestHandler = async (req, res, next) => {
-  const { slug } = req.params;
-
-  try {
-    const post = await PostModel.findOne({ slug }).populate("author").exec();
-
-    if (!post) throw createHttpError(404, "Post not found");
-
-    res.status(200).json(post);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getSlugs: RequestHandler = async (req, res, next) => {
-  try {
-    const result = await PostModel.find().select("slug").exec();
-    const slugs = result.map((post) => post.slug);
-    res.status(200).json(slugs);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const uploadInPostImages: RequestHandler = async (req, res, next) => {
+export const uploadInCommentImages: RequestHandler = async (req, res, next) => {
   const image = req.file;
   const authenticatedUser = req.user;
 
@@ -247,13 +219,14 @@ export const uploadInPostImages: RequestHandler = async (req, res, next) => {
 
     const fileName = nanoid();
     const imagePath =
-      "/uploads/in-post-images/" + fileName + path.extname(image.originalname);
+      "/uploads/in-comment-images/" +
+      fileName +
+      path.extname(image.originalname);
 
     await sharp(image.buffer)
       .resize(1920, undefined, { withoutEnlargement: true })
       .toFile("./" + imagePath);
 
-    // create a temporary image document to compare and delete unused image when create post
     await TempImageModel.create({
       imagePath,
       userId: authenticatedUser._id,
