@@ -48,7 +48,7 @@ export default function MarkdownEditor({
         });
       } else if (error instanceof TooManyRequestsError) {
         toast({
-          title: "Too many images",
+          title: "Too many images uploaded",
           description:
             "You can only upload 60 images per hour, please try again later",
         });

@@ -32,8 +32,8 @@ const PostsAPI = {
     const res = await http.delete("/posts/images");
     return res.payload;
   },
-  async getPostList(url: string) {
-    const res = await http.get<PostPage>(url);
+  async getPostList(url?: string) {
+    const res = await http.get<PostPage>(url || "/posts");
     return res.payload;
   },
   async getSlugs() {

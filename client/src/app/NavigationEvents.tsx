@@ -29,6 +29,11 @@ export function NavigationEvents() {
       );
     }
 
+    if (!authenticatedUser && pathname === "/onboarding") {
+      const returnTo = decodeURIComponent(searchParams?.get("returnTo") || "");
+      router.push(returnTo || "/");
+    }
+
     // delete unused images when user navigates away from create post page
     async function deleteUnusedImages() {
       await PostsAPI.deleteUnusedImages();

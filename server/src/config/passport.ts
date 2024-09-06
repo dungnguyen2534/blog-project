@@ -89,9 +89,16 @@ passport.use(
           return done(null, existingUser);
         }
 
+        const usernameExists = await User.exists({
+          username: profile.username,
+        });
+
         const newUser = await User.create({
           githubId: profile.id,
           profilePicPath: profile.photos?.[0].value,
+          ...(usernameExists
+            ? { $unset: { username: profile.username } }
+            : { username: profile.username }),
         });
 
         done(null, newUser);

@@ -191,7 +191,7 @@ export const getPostList: RequestHandler<
   getPostsQuery
 > = async (req, res, next) => {
   const currentPage = parseInt(req.query.page || "1");
-  const limit = parseInt(req.query.limit || "10");
+  const limit = parseInt(req.query.limit || "12");
   const authorId = req.query.authorId;
 
   const filter = authorId ? { author: authorId } : {};
@@ -205,7 +205,9 @@ export const getPostList: RequestHandler<
       .populate("author")
       .exec();
 
-    const totalPages = Math.ceil((await PostModel.countDocuments()) / limit);
+    const totalPages = Math.ceil(
+      (await PostModel.countDocuments(filter)) / limit
+    );
 
     res.status(200).json({ posts, totalPages, currentPage });
   } catch (error) {

@@ -3,6 +3,7 @@ import { NotFoundError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import Profile from "./Profile";
+import PostsAPI from "@/api/post";
 
 const getUser = cache(async (username: string) => {
   try {
@@ -34,6 +35,9 @@ export default async function UserProfilePage({
   params: { username },
 }: UserProfilePageProps) {
   const user = await getUser(username);
+  const firstPostPage = await PostsAPI.getPostList(
+    `/posts?authorId=${user._id}`
+  );
 
-  return <Profile user={user} />;
+  return <Profile user={user} userFirstPostPage={firstPostPage} />;
 }

@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import MarkdownEditor from "@/components/form/MarkdownEditor";
 import LoadingButton from "@/components/LoadingButton";
 import { useToast } from "@/components/ui/use-toast";
-import { UnauthorizedError } from "@/lib/http-errors";
+import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import TextField from "@/components/form/TextField";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,11 @@ export default function NewPostPage() {
         toast({
           title: "Unauthorized",
           description: "You need to login to create a post",
+        });
+      } else if (error instanceof TooManyRequestsError) {
+        toast({
+          title: "Too many posts created",
+          description: "You are creating too many posts, take a break",
         });
       } else {
         console.log(error);

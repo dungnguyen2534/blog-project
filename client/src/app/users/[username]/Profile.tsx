@@ -8,12 +8,14 @@ import { User } from "@/validation/schema/user";
 import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
 import PostsList from "@/components/posts/PostList";
+import { PostPage } from "@/validation/schema/post";
 
 interface ProfileProps {
   user: User;
+  userFirstPostPage: PostPage;
 }
 
-export default function Profile({ user }: ProfileProps) {
+export default function Profile({ user, userFirstPostPage }: ProfileProps) {
   const { user: loggedInUser } = useAuth();
 
   const isLoggedInUser = loggedInUser?._id === user._id;
@@ -54,7 +56,7 @@ export default function Profile({ user }: ProfileProps) {
       </main>
 
       <div className="container px-0 my-3">
-        <PostsList author={user} />
+        <PostsList author={user} firstPage={userFirstPostPage} />
       </div>
     </>
   );

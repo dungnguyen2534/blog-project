@@ -115,3 +115,10 @@ export const extractImageUrls = (markdown: string): string[] => {
   }
   return matches;
 };
+
+export function calculateReadingTime(text: string): number {
+  const words = text.split(/\s+/).length;
+  const readingTime = words / 238; // 238 is the average reading speed in words per minute
+
+  return Math.ceil(readingTime);
+}

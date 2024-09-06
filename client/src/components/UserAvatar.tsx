@@ -1,8 +1,6 @@
 import {} from "@radix-ui/react-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-
 import { FaUser } from "react-icons/fa";
-import env from "@/validation/env-validation";
 
 interface UserAvatarProps {
   username?: string;
@@ -16,7 +14,7 @@ export default function UserAvatar({
   profilePicUrl,
 }: UserAvatarProps) {
   return (
-    <Avatar className={className}>
+    <Avatar className={`${className} w-[2.4rem] h-[2.4rem]`}>
       <AvatarImage src={profilePicUrl} alt={`${username || "user"} avatar`} />
       <AvatarFallback className="overflow-hidden">
         <FaUser

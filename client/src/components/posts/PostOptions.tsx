@@ -14,9 +14,12 @@ import Link from "next/link";
 import { BsThreeDots } from "react-icons/bs";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDeleteForever } from "react-icons/md";
-import { IoBookmarkOutline } from "react-icons/io5";
 import UserAvatar from "../UserAvatar";
-import { formatDate, formatUpdatedDate } from "@/lib/utils";
+import {
+  calculateReadingTime,
+  formatDate,
+  formatUpdatedDate,
+} from "@/lib/utils";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
@@ -33,7 +36,8 @@ import { useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
-import env from "@/validation/env-validation";
+import { PiBookmarkSimpleBold } from "react-icons/pi";
+import { BiShareAlt } from "react-icons/bi";
 
 interface PostOptionsProps {
   post: Post;
@@ -54,6 +58,15 @@ export default function PostOptions({
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [show, setShow] = useState(false);
+
+  function handleCopyLink() {
+    navigator.clipboard.writeText(
+      `${window.location.origin}/posts/${post.slug}`
+    );
+    toast({
+      title: "Post link copied to clipboard",
+    });
+  }
 
   async function deletePost() {
     setIsDeleting(true);
@@ -109,27 +122,35 @@ export default function PostOptions({
           profilePicUrl={post.author.profilePicPath}
         />
         <div className="flex flex-col justify-center">
-          <span className="text-sm">{post.author.username}</span>
-          {postDate}
+          <span className="text-sm font-medium">{post.author.username}</span>
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            {postDate}
+            <span> • {calculateReadingTime(post.body)} min read </span>
+          </span>
         </div>
       </Link>
       <Dialog open={show} onOpenChange={setShow}>
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger>
-            <div
-              className={`w-fit p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors rounded-full -mr-2 ${
-                menuOnTop ? "-mt-7" : ""
-              }`}>
-              <BsThreeDots
-                size={20}
-                className="text-neutral-500 dark:text-neutral-400 "
-              />
-            </div>
-          </DropdownMenuTrigger>
+          <div
+            className={`text-neutral-500 dark:text-neutral-400 ${
+              menuOnTop ? "-mt-5" : ""
+            }`}>
+            <DropdownMenuTrigger>
+              <div className="rounded-full transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-100 p-2">
+                <BsThreeDots size={20} />
+              </div>
+            </DropdownMenuTrigger>
+          </div>
           <DropdownMenuContent>
             <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-              <IoBookmarkOutline size={20} className="-ml-1" />
+              <PiBookmarkSimpleBold size={22} className="-ml-[0.35rem]" />
               Bookmark
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer flex items-center gap-2"
+              onClick={handleCopyLink}>
+              <BiShareAlt size={22} className="-ml-1" />
+              Copy link
             </DropdownMenuItem>
             {isAuthor && (
               <>
