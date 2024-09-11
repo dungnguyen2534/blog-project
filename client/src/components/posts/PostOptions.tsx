@@ -76,8 +76,8 @@ export default function PostOptions({
       setShow(false);
 
       revalidateCachedData("/posts/" + post.slug);
-      router.push("/");
-      router.refresh();
+      router.push("/"); // TODO: return to where the post was deleted from
+      revalidateCachedData("/");
     } catch (error) {
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {

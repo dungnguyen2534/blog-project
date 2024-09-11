@@ -1,5 +1,7 @@
 import http from "@/lib/http";
 import {
+  Comment,
+  CreateCommentBody,
   createPostBody,
   Post,
   PostPage,
@@ -42,6 +44,19 @@ const PostsAPI = {
   },
   async getPost(slug: string) {
     const res = await http.get<Post>("/posts/" + slug);
+    return res.payload;
+  },
+  async createComment(postId: string, values: CreateCommentBody) {
+    const res = await http.post<Comment>(`/posts/${postId}/comments`, values);
+    return res.payload;
+  },
+  async uploadInCommentImage(postId: string, image: File) {
+    const formData = new FormData();
+    formData.append("inCommentImage", image);
+    const res = await http.post<{ imageUrl: string }>(
+      `/posts/${postId}/comments/images`,
+      formData
+    );
     return res.payload;
   },
 };

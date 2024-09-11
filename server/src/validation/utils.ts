@@ -4,8 +4,8 @@ import { z } from "zod";
 
 export const PostBodySchema = z.object({
   title: z.string().min(1).max(150, "Title should be less than 150 characters"),
-  body: z.string().min(1),
-  images: z.array(z.string()),
+  body: z.string().min(1, "Body is required"),
+  images: z.array(z.string()).optional(),
   summary: z
     .string()
     .max(300, "Summary should be less than 300 characters")
@@ -17,8 +17,8 @@ export const MongoIdSchema = z.string().refine((id) => {
 }, "Invalid ID");
 
 export const CommentBodySchema = z.object({
-  body: z.string().min(1),
-  images: z.array(z.string()),
+  body: z.string().min(1, "Comment body is required"),
+  images: z.array(z.string()).optional(),
 });
 
 export const ImageSchema = z.custom<Express.Multer.File>(
@@ -32,7 +32,7 @@ export const ImageSchema = z.custom<Express.Multer.File>(
     return result.ok;
   },
   {
-    message: "Invalid image",
+    message: "Invalid image type",
   }
 );
 

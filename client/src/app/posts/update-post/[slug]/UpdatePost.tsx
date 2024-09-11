@@ -51,7 +51,7 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
         images,
       });
 
-      revalidateCachedData("/posts/" + slug);
+      revalidateCachedData("/posts/" + post.slug);
       router.push("/posts/" + slug);
     } catch (error) {
       setIsSubmitting(false);

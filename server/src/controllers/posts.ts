@@ -16,6 +16,7 @@ import sharp from "sharp";
 import env from "../env";
 import path from "path";
 import fs from "fs";
+import CommentModel from "../models/comment";
 
 export const createPost: RequestHandler<
   unknown,
@@ -23,7 +24,7 @@ export const createPost: RequestHandler<
   createPostBody,
   unknown
 > = async (req, res, next) => {
-  const { title, summary, images, body } = req.body;
+  const { title, body, summary, images = [] } = req.body;
   const authenticatedUser = req.user;
 
   try {
@@ -49,18 +50,18 @@ export const createPost: RequestHandler<
     });
 
     if (unusedImages.length > 0) {
-      const unusedImagesPath = unusedImages.map((image) => image.imagePath);
+      const unusedImagePaths = unusedImages.map((image) => image.imagePath);
 
-      for (const imagePath of unusedImagesPath) {
-        const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagesPathToDelete);
+      for (const imagePath of unusedImagePaths) {
+        const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+        await fs.promises.unlink(imagePathToDelete);
       }
 
-      await TempImageModel.deleteMany({ imagePath: { $in: unusedImagesPath } });
+      await TempImageModel.deleteMany({ imagePath: { $in: unusedImagePaths } });
     }
 
     const newPost = await PostModel.create({
-      slug: slugify(title) + "-" + nanoid(9),
+      slug: slugify(title),
       title,
       body,
       images: imagesPath,
@@ -81,7 +82,7 @@ export const updatePost: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const { postId } = req.params;
-  const { title, summary, images, body } = req.body;
+  const { title, body, summary, images = [] } = req.body;
   const authenticatedUser = req.user;
 
   try {
@@ -103,8 +104,8 @@ export const updatePost: RequestHandler<
 
     if (oldUnusedImages.length > 0) {
       for (const imagePath of oldUnusedImages) {
-        const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagesPathToDelete);
+        const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+        await fs.promises.unlink(imagePathToDelete);
       }
       await TempImageModel.deleteMany({
         imagePath: { $in: oldUnusedImages },
@@ -139,6 +140,7 @@ export const updatePost: RequestHandler<
       });
     }
 
+    postToUpdate.slug = slugify(title);
     postToUpdate.title = title;
     postToUpdate.body = body;
     postToUpdate.images = newImages;
@@ -172,8 +174,26 @@ export const deletePost: RequestHandler<
     }
 
     for (const imagePath of postToDelete.images) {
-      const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-      await fs.promises.unlink(imagesPathToDelete);
+      const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+      await fs.promises.unlink(imagePathToDelete);
+    }
+
+    // cascade delete comments of the post
+    const comments = await CommentModel.find({
+      postId: postToDelete._id,
+    }).exec();
+    if (comments.length > 0) {
+      for (const comment of comments) {
+        for (const commentImagePath of comment.images) {
+          const imagePathToDelete = path.join(
+            __dirname,
+            "../..",
+            commentImagePath
+          );
+          await fs.promises.unlink(imagePathToDelete);
+        }
+      }
+      await CommentModel.deleteMany({ postId: postToDelete._id });
     }
 
     await postToDelete.deleteOne();
@@ -197,8 +217,7 @@ export const getPostList: RequestHandler<
   const filter = authorId ? { author: authorId } : {};
 
   try {
-    const posts = await PostModel.find()
-      .where(filter)
+    const posts = await PostModel.find(filter)
       .sort({ _id: -1 })
       .skip((currentPage - 1) * limit)
       .limit(limit)
@@ -220,7 +239,6 @@ export const getPost: RequestHandler = async (req, res, next) => {
 
   try {
     const post = await PostModel.findOne({ slug }).populate("author").exec();
-
     if (!post) throw createHttpError(404, "Post not found");
 
     res.status(200).json(post);
@@ -233,6 +251,7 @@ export const getSlugs: RequestHandler = async (req, res, next) => {
   try {
     const result = await PostModel.find().select("slug").exec();
     const slugs = result.map((post) => post.slug);
+
     res.status(200).json(slugs);
   } catch (error) {
     next(error);

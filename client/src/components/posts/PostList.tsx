@@ -49,7 +49,7 @@ export default function PostsList({ author, firstPage }: PostsListProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 m-auto">
+      <div className="flex flex-col gap-[0.35rem] sm:gap-2 m-auto">
         {!author && !firstPage && (
           <EmptyPostList text="Failed to load posts" className="mt-48" />
         )}
@@ -94,7 +94,7 @@ export default function PostsList({ author, firstPage }: PostsListProps) {
 
         {/* current page is the pageToLoad, totalPages from the ssr first page api call */}
         {pageToLoad < firstPage.totalPages && (
-          <PostListSkeleton skeletonCount={4} />
+          <PostListSkeleton skeletonCount={3} />
         )}
       </div>
     </>

@@ -24,11 +24,10 @@ export const createComment: RequestHandler<
   CreateCommentBody,
   unknown
 > = async (req, res, next) => {
-  const { parentCommentId, body, images } = req.body;
+  const { parentCommentId, body, images = [] } = req.body;
   const { postId } = req.params;
 
   const authenticatedUser = req.user;
-
   try {
     assertIsDefined(authenticatedUser);
 
@@ -81,7 +80,7 @@ export const editComment: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const { commentId } = req.params;
-  const { body, images } = req.body;
+  const { body, images = [] } = req.body;
   const authenticatedUser = req.user;
 
   try {
@@ -170,8 +169,26 @@ export const deleteComment: RequestHandler<
     }
 
     for (const imagePath of commentToDelete.images) {
-      const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-      await fs.promises.unlink(imagesPathToDelete);
+      const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+      await fs.promises.unlink(imagePathToDelete);
+    }
+
+    // cascade delete child comments
+    const childComments = await CommentModel.find({
+      parentCommentId: commentId,
+    }).exec();
+    if (childComments.length > 0) {
+      for (const comment of childComments) {
+        for (const commentImagePath of comment.images) {
+          const imagePathToDelete = path.join(
+            __dirname,
+            "../..",
+            commentImagePath
+          );
+          await fs.promises.unlink(imagePathToDelete);
+        }
+      }
+      await CommentModel.deleteMany({ parentCommentId: commentId });
     }
 
     await commentToDelete.deleteOne();
@@ -193,8 +210,7 @@ export const getCommentList: RequestHandler<
   const { postId } = req.params;
 
   try {
-    const comments = await CommentModel.find()
-      .where({ postId: postId })
+    const comments = await CommentModel.find({ postId: postId })
       .sort({ _id: -1 })
       .skip((currentPage - 1) * limit)
       .limit(limit)

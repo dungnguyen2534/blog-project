@@ -24,6 +24,8 @@ interface MarkdownEditorProps {
   description?: string;
   className?: string;
   height?: string;
+  showPreview?: boolean;
+  forComment?: { postId: string };
 }
 
 export default function MarkdownEditor({
@@ -33,13 +35,23 @@ export default function MarkdownEditor({
   placeholder,
   description,
   height,
+  showPreview = true,
+  forComment,
 }: MarkdownEditorProps) {
   const { toast } = useToast();
 
   async function uploadInPostImage(image: File) {
     try {
-      const res = await PostsAPI.uploadInPostImage(image);
-      return res.imageUrl;
+      if (forComment) {
+        const res = await PostsAPI.uploadInCommentImage(
+          forComment.postId,
+          image
+        );
+        return res.imageUrl;
+      } else {
+        const res = await PostsAPI.uploadInPostImage(image);
+        return res.imageUrl;
+      }
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
@@ -76,6 +88,7 @@ export default function MarkdownEditor({
               placeholder={placeholder}
               onImageUpload={uploadInPostImage}
               imageAccept=".png, .jpg, .jpeg"
+              view={{ html: showPreview, md: true, menu: true }}
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

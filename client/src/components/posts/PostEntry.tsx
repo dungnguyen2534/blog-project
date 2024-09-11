@@ -4,6 +4,7 @@ import PostOptions from "./PostOptions";
 import { Post } from "@/validation/schema/post";
 import { BsChatSquare } from "react-icons/bs";
 import { Button } from "../ui/button";
+import { PiHeartLight } from "react-icons/pi";
 
 interface PostEntryProps {
   post: Post;
@@ -13,7 +14,7 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
   return (
     <article
       ref={ref}
-      className="secondary-container px-2 py-3 sm:p-4 w-full flex flex-col gap-2 rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
+      className="secondary-container px-2 pt-3 !pb-1 sm:!pb-2 sm:p-4 w-full flex flex-col gap-2 rounded-none sm:rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
       <PostOptions post={post} author={post.author} menuOnTop />
 
       <div className="md:ml-[2.85rem]">
@@ -26,7 +27,12 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
           )}
         </Link>
 
-        <div className="mt-2 flex items-center font-light text-sm">
+        <div className="mt-2 flex items-center gap-3 font-light text-sm">
+          <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
+            <Link href="#">
+              <PiHeartLight size={22} /> 99 Reactions
+            </Link>
+          </Button>
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
             <Link href="#">
               <BsChatSquare size={18} className="mt-[3px]" /> 10 Comments

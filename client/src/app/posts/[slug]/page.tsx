@@ -4,6 +4,7 @@ import { NotFoundError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
+import CommentEditor from "@/components/posts/CreateCommentBox";
 
 const getPost = cache(async (slug: string) => {
   try {
@@ -47,7 +48,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
     .replace(/\[(.*?)\]\(#(.*?)\)/gm, "[$1](#user-content-$2)"); // prefix header for table of contents
 
   return (
-    <article className="secondary-container sm:my-4 sm:py-7 p-3">
+    <article className="secondary-container sm:my-[0.7rem] sm:py-7 p-3">
       <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
@@ -58,6 +59,9 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
         <section>
           <MarkdownRenderer>{modifiedBody}</MarkdownRenderer>
         </section>
+        <footer>
+          <CommentEditor postId={post._id} />
+        </footer>
       </div>
     </article>
   );

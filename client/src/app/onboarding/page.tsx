@@ -10,7 +10,7 @@ import { ConflictError } from "@/lib/http-errors";
 import { OnboardingBody, OnboardingBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingPage() {
