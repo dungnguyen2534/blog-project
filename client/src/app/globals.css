@@ -110,7 +110,7 @@
 
 /* Custom markdown editor */
 .rc-md-editor {
-  @apply rounded bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-800 pb-0  !important;
+  @apply rounded bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-800 pb-0  overflow-hidden  !important;
 }
 
 .rc-md-editor .rc-md-navigation {
@@ -141,6 +141,10 @@
   @apply hidden;
 }
 
+.rc-md-editor .editor-container .sec-md {
+  @apply border-r-[0px] border-r-neutral-800 rounded-md !important;
+}
+
 .rc-md-editor .editor-container .sec-md,
 .rc-md-editor .editor-container .section {
   @apply border-r-2 dark:border-neutral-700;
@@ -156,11 +160,11 @@
 
 .rc-md-editor .editor-container .sec-md .input,
 .editor-container .html-wrap {
-  @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400 overflow-auto;
+  @apply scrollbar-thin scrollbar-track-[#f7f7f7] dark:scrollbar-track-[#141414] scrollbar-thumb-neutral-400 overflow-auto;
 }
 
 .rc-md-editor .editor-container .sec-md .input {
-  @apply text-base bg-white dark:bg-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400  !important;
+  @apply text-base bg-white dark:bg-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 !important;
 }
 
 .editor-container .html-wrap {

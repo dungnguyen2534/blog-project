@@ -57,7 +57,7 @@ export default function PostOptions({
   const router = useRouter();
 
   const [isDeleting, setIsDeleting] = useState(false);
-  const [show, setShow] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
 
   function handleCopyLink() {
     navigator.clipboard.writeText(
@@ -73,7 +73,7 @@ export default function PostOptions({
 
     try {
       await PostsAPI.deletePost(post._id);
-      setShow(false);
+      setShowDialog(false);
 
       revalidateCachedData("/posts/" + post.slug);
       router.push("/"); // TODO: return to where the post was deleted from
@@ -129,7 +129,7 @@ export default function PostOptions({
           </span>
         </div>
       </Link>
-      <Dialog open={show} onOpenChange={setShow}>
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div
             className={`text-neutral-500 dark:text-neutral-400 ${
@@ -185,7 +185,7 @@ export default function PostOptions({
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => setShow(false)}>Turn back</Button>
+            <Button onClick={() => setShowDialog(false)}>Turn back</Button>
             <LoadingButton
               loading={isDeleting}
               text="Sure, delete it"

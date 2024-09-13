@@ -16,7 +16,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import { extractImageUrls } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 export default function NewPostPage() {
   const form = useForm<createPostBody>({
@@ -35,6 +42,16 @@ export default function NewPostPage() {
 
   const title = form.watch("title");
   const body = form.watch("body");
+
+  const titleLimit = 150;
+  useEffect(() => {
+    if (title.length === titleLimit) {
+      toast({
+        title: "Title too long",
+        description: `Title can't be more than ${titleLimit} characters`,
+      });
+    }
+  }, [title, toast]);
 
   async function onSubmit(values: createPostBody) {
     setIsSubmitting(true);
@@ -67,47 +84,69 @@ export default function NewPostPage() {
 
   return (
     <main className="container px-1 sm:px-8 py-2 sm:py-4">
-      <FormWrapper form={form} submitFunction={onSubmit}>
+      <FormWrapper form={form}>
         <FormInput
           controller={form.control}
           name="title"
-          placeholder="Your new post title here"
+          placeholder="Your new post title..."
           className="p-8 pl-3 !text-2xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0"
           autoComplete="off"
-          limit={150}
+          limit={titleLimit}
         />
 
         <MarkdownEditor
           controller={form.control}
           name="body"
-          placeholder="Write something awesome!"
+          placeholder="Write your post here!"
+          height="65vh"
         />
 
-        <TextField
-          controller={form.control}
-          name="summary"
-          placeholder="Add a short summary to make people curious..."
-          className="focus-visible:ring-0 focus-visible:ring-offset-0  !-mt-4 rounded-tl-none rounded-tr-none dark:bg-neutral-900 m-auto w-full border-t-neutral-100 dark:border-t-[#1e1e1e]"
-          resizable={false}
-          limit={300}
-        />
         <div className="flex justify-between items-center flex-col sm:flex-row gap-2">
-          <LoadingButton
-            className="font-semibold w-full sm:w-36"
-            text="Publish"
-            type="submit"
-            loadingText="Publishing..."
-            loading={isSubmitting}
-            disabled={!title || !body}
-          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                className="font-semibold w-full sm:w-36"
+                type="button"
+                disabled={!title || !body}>
+                Start Publishing
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="p-8 flex flex-col gap-2">
+              <>
+                <DialogTitle>Before publishing</DialogTitle>
+                <DialogDescription className="mt-1">
+                  Let&apos;s add a short summary to make people curious
+                </DialogDescription>
+              </>
+              <TextField
+                controller={form.control}
+                name="summary"
+                placeholder="Your post summary here..."
+                description="This is optional but highly recommended"
+                className="dark:bg-neutral-900 m-auto w-full"
+                resizable={false}
+                limit={200}
+                showCharCount
+              />
+              <LoadingButton
+                className="font-semibold w-full sm:w-36"
+                text="Publish"
+                type="submit"
+                loadingText="Publishing..."
+                loading={isSubmitting}
+                disabled={!title || !body}
+                onClick={form.handleSubmit(onSubmit)}
+              />
+            </DialogContent>
+          </Dialog>
+
           <Button asChild variant="link">
             <Link
               className="text-sm text-[#5a5a5a] dark:text-neutral-400 flex items-center gap-1"
-              href="https://www.markdownguide.org/cheat-sheet/"
-              target="_blank"
-              rel="noopener noreferrer">
+              href="/editor-guide"
+              target="_blank">
               <RxQuestionMarkCircled size={22} />
-              Don&apos;t know how to write markdown?
+              Editor Guide
             </Link>
           </Button>
         </div>

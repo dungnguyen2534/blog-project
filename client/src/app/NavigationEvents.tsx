@@ -34,16 +34,13 @@ export function NavigationEvents() {
       router.push(returnTo || "/");
     }
 
-    // delete unused images when user navigates away from create post page
+    // delete unused images when user navigates away from from pages that have the markdown editor
     async function deleteUnusedImages() {
       await PostsAPI.deleteUnusedImages();
     }
 
     window.addEventListener("beforeunload", deleteUnusedImages);
-    if (
-      pathRef.current === "/posts/create-post" &&
-      pathRef.current !== pathname
-    ) {
+    if (pathRef.current.startsWith("/posts/") && pathRef.current !== pathname) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }

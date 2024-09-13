@@ -228,7 +228,10 @@ export const getPostList: RequestHandler<
       (await PostModel.countDocuments(filter)) / limit
     );
 
-    res.status(200).json({ posts, totalPages, currentPage });
+    // simulate slow network, skeleton test
+    setTimeout(() => {
+      res.status(200).json({ posts, totalPages, currentPage });
+    }, 1000);
   } catch (error) {
     next(error);
   }

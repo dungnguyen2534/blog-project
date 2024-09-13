@@ -1,6 +1,5 @@
 "use client";
 
-import MdEditor from "react-markdown-editor-lite";
 import { Control } from "react-hook-form";
 import {
   FormControl,
@@ -13,8 +12,9 @@ import MarkdownRenderer from "../MarkdownRenderer";
 import "react-markdown-editor-lite/lib/index.css";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
-import React from "react";
 import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
+import MdEditor from "react-markdown-editor-lite";
+import { useEffect, useRef, useState } from "react";
 
 interface MarkdownEditorProps {
   controller: Control<any>;
@@ -24,7 +24,9 @@ interface MarkdownEditorProps {
   description?: string;
   className?: string;
   height?: string;
+  showMenu?: boolean;
   showPreview?: boolean;
+  autoFocus?: boolean;
   forComment?: { postId: string };
 }
 
@@ -35,11 +37,13 @@ export default function MarkdownEditor({
   placeholder,
   description,
   height,
+  showMenu = true,
   showPreview = true,
   forComment,
+  autoFocus,
+  className,
 }: MarkdownEditorProps) {
   const { toast } = useToast();
-
   async function uploadInPostImage(image: File) {
     try {
       if (forComment) {
@@ -72,6 +76,7 @@ export default function MarkdownEditor({
       }
     }
   }
+
   return (
     <FormField
       control={controller}
@@ -81,6 +86,7 @@ export default function MarkdownEditor({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <MdEditor
+              className={className}
               value={field.value}
               style={{ height: height || "50vh" }}
               renderHTML={(text) => <MarkdownRenderer>{text}</MarkdownRenderer>}
@@ -88,7 +94,8 @@ export default function MarkdownEditor({
               placeholder={placeholder}
               onImageUpload={uploadInPostImage}
               imageAccept=".png, .jpg, .jpeg"
-              view={{ html: showPreview, md: true, menu: true }}
+              view={{ html: showPreview, md: true, menu: showMenu }}
+              autoFocus={autoFocus}
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

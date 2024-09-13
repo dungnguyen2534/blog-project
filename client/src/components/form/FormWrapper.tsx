@@ -4,7 +4,7 @@ import { Form } from "../ui/form";
 interface FormWrapperProps {
   children: React.ReactNode;
   form: UseFormReturn<any>;
-  submitFunction: (values: any) => void;
+  submitFunction?: (values: any) => void;
   className?: string;
 }
 
@@ -16,7 +16,9 @@ export default function FormWrapper({
 }: FormWrapperProps) {
   return (
     <Form {...form}>
-      <form className={className} onSubmit={form.handleSubmit(submitFunction)}>
+      <form
+        className={className}
+        onSubmit={form.handleSubmit(submitFunction || (() => {}))}>
         {children}
       </form>
     </Form>

@@ -83,7 +83,6 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
   }
 
   const { isDirty } = form.formState;
-
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogTrigger asChild>
@@ -100,7 +99,7 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
         <FormWrapper
           form={form}
           submitFunction={onSubmit}
-          className="flex flex-col gap-3">
+          className="flex flex-col gap-1">
           <FileInput
             controller={form.control}
             label="Profile picture"
@@ -123,6 +122,7 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
             name="about"
             placeholder="A short bio about yourself"
             limit={200}
+            showCharCount
           />
           <LoadingButton
             text="Save"
