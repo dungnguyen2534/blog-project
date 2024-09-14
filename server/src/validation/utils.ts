@@ -5,10 +5,16 @@ import { z } from "zod";
 export const PostBodySchema = z.object({
   title: z.string().min(1).max(150, "Title should be less than 150 characters"),
   body: z.string().min(1, "Body is required"),
+  tags: z
+    .array(z.string())
+    .refine((tags) => tags.every((tag) => tag.startsWith("#")), {
+      message: "Each tag must start with a '#' symbol.",
+    })
+    .optional(),
   images: z.array(z.string()).optional(),
   summary: z
     .string()
-    .max(300, "Summary should be less than 300 characters")
+    .max(180, "Summary should be less than 180 characters")
     .optional(),
 });
 
@@ -32,7 +38,7 @@ export const ImageSchema = z.custom<Express.Multer.File>(
     return result.ok;
   },
   {
-    message: "Invalid image type",
+    message: "Invalid image type, only jpeg/jpg and png are allowed",
   }
 );
 

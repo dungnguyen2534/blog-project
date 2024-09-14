@@ -80,7 +80,7 @@ export const editComment: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const { commentId } = req.params;
-  const { body, images = [] } = req.body;
+  const { body, images } = req.body;
   const authenticatedUser = req.user;
 
   try {
@@ -93,29 +93,31 @@ export const editComment: RequestHandler<
       throw createHttpError(403, "You are not authorized to edit this comment");
     }
 
-    const newImages = images.map((url) => new URL(url).pathname);
+    const newImages = images?.map((url) => new URL(url).pathname);
 
-    const oldUnusedImages = commentToUpdate.images.filter(
-      (image) => !newImages.includes(image)
-    );
+    if (newImages) {
+      await TempImageModel.updateMany(
+        {
+          userId: authenticatedUser._id,
+          imagePath: { $in: newImages },
+        },
+        { $set: { temporary: false } }
+      );
 
-    if (oldUnusedImages.length > 0) {
-      for (const imagePath of oldUnusedImages) {
-        const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagesPathToDelete);
+      const oldUnusedImages = commentToUpdate.images.filter(
+        (image) => !newImages.includes(image)
+      );
+
+      if (oldUnusedImages.length > 0) {
+        for (const imagePath of oldUnusedImages) {
+          const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
+          await fs.promises.unlink(imagesPathToDelete);
+        }
+        await TempImageModel.deleteMany({
+          imagePath: { $in: oldUnusedImages },
+        });
       }
-      await TempImageModel.deleteMany({
-        imagePath: { $in: oldUnusedImages },
-      });
     }
-
-    await TempImageModel.updateMany(
-      {
-        userId: authenticatedUser._id,
-        imagePath: { $in: newImages },
-      },
-      { $set: { temporary: false } }
-    );
 
     const newUnusedImages = await TempImageModel.find({
       userId: authenticatedUser._id,
@@ -135,8 +137,10 @@ export const editComment: RequestHandler<
       });
     }
 
-    commentToUpdate.body = body;
-    commentToUpdate.images = newImages;
+    Object.assign(commentToUpdate, {
+      body,
+      ...(newImages && { images: newImages }),
+    });
 
     await commentToUpdate.save();
 

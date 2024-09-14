@@ -24,23 +24,25 @@ export const createPost: RequestHandler<
   createPostBody,
   unknown
 > = async (req, res, next) => {
-  const { title, body, summary, images = [] } = req.body;
+  const { title, body, summary, tags, images } = req.body;
   const authenticatedUser = req.user;
 
   try {
     assertIsDefined(authenticatedUser);
 
     // delete temporary status of new images
-    let imagesPath;
-    if (images.length > 0) {
-      imagesPath = images.map((url) => new URL(url).pathname);
-      await TempImageModel.updateMany(
-        {
-          userId: authenticatedUser._id,
-          imagePath: { $in: imagesPath },
-        },
-        { $set: { temporary: false } }
-      );
+    let imagePaths: string[] | undefined;
+    if (images) {
+      if (images.length > 0) {
+        imagePaths = images.map((url) => new URL(url).pathname);
+        await TempImageModel.updateMany(
+          {
+            userId: authenticatedUser._id,
+            imagePath: { $in: imagePaths },
+          },
+          { $set: { temporary: false } }
+        );
+      }
     }
 
     // delete unused images if there is any(when user post an image and change/delete before post)
@@ -64,7 +66,8 @@ export const createPost: RequestHandler<
       slug: slugify(title),
       title,
       body,
-      images: imagesPath,
+      tags,
+      images: imagePaths,
       summary,
       author: authenticatedUser._id,
     });
@@ -82,7 +85,7 @@ export const updatePost: RequestHandler<
   unknown
 > = async (req, res, next) => {
   const { postId } = req.params;
-  const { title, body, summary, images = [] } = req.body;
+  const { title, body, summary, tags, images } = req.body;
   const authenticatedUser = req.user;
 
   try {
@@ -96,30 +99,33 @@ export const updatePost: RequestHandler<
     }
 
     // check and delete any old unused images that not include in the update
-    const newImages = images.map((url) => new URL(url).pathname);
+    const newImages = images?.map((url) => new URL(url).pathname);
 
-    const oldUnusedImages = postToUpdate.images.filter(
-      (image) => !newImages.includes(image)
-    );
+    if (newImages) {
+      // delete temporary status of new images
+      await TempImageModel.updateMany(
+        {
+          userId: authenticatedUser._id,
+          imagePath: { $in: newImages },
+        },
+        { $set: { temporary: false } }
+      );
 
-    if (oldUnusedImages.length > 0) {
-      for (const imagePath of oldUnusedImages) {
-        const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagePathToDelete);
+      const oldUnusedImages = postToUpdate.images.filter(
+        (image) => !newImages.includes(image)
+      );
+
+      if (oldUnusedImages.length > 0) {
+        for (const imagePath of oldUnusedImages) {
+          const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+          await fs.promises.unlink(imagePathToDelete);
+        }
+
+        await TempImageModel.deleteMany({
+          imagePath: { $in: oldUnusedImages },
+        });
       }
-      await TempImageModel.deleteMany({
-        imagePath: { $in: oldUnusedImages },
-      });
     }
-
-    // delete temporary status of new images
-    await TempImageModel.updateMany(
-      {
-        userId: authenticatedUser._id,
-        imagePath: { $in: newImages },
-      },
-      { $set: { temporary: false } }
-    );
 
     // delete new unused images if there is any(when user post an image and change/delete before post)
     const newUnusedImages = await TempImageModel.find({
@@ -140,14 +146,16 @@ export const updatePost: RequestHandler<
       });
     }
 
-    postToUpdate.slug = slugify(title);
-    postToUpdate.title = title;
-    postToUpdate.body = body;
-    postToUpdate.images = newImages;
-    postToUpdate.summary = summary;
+    Object.assign(postToUpdate, {
+      slug: slugify(title),
+      title,
+      body,
+      ...(tags && { tags }),
+      ...(newImages && { images: newImages }),
+      summary,
+    });
 
     await postToUpdate.save();
-
     res.status(200).json(postToUpdate);
   } catch (error) {
     next(error);
@@ -213,8 +221,12 @@ export const getPostList: RequestHandler<
   const currentPage = parseInt(req.query.page || "1");
   const limit = parseInt(req.query.limit || "12");
   const authorId = req.query.authorId;
+  const tag = req.query.tag;
 
-  const filter = authorId ? { author: authorId } : {};
+  const filter = {
+    ...(authorId ? { author: authorId } : {}),
+    ...(tag ? { tags: "#" + tag } : {}),
+  };
 
   try {
     const posts = await PostModel.find(filter)

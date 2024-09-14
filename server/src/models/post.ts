@@ -17,6 +17,9 @@ const postSchema = new Schema(
     summary: {
       type: String,
     },
+    tags: {
+      type: [String],
+    },
     images: {
       type: [String],
     },

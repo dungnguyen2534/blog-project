@@ -11,16 +11,17 @@ import { PostPage } from "@/validation/schema/post";
 interface PostsListProps {
   firstPage: PostPage;
   author?: User;
+  tag?: string;
 }
 
-export default function PostsList({ author, firstPage }: PostsListProps) {
+export default function PostsList({ author, firstPage, tag }: PostsListProps) {
   const {
     pages,
     isLoadingPage,
     pageToLoad,
     isLoadingPageError,
     setPageToLoad,
-  } = usePostsLoader(author?._id, 2); // firstPage is ssr, fetch post client side start from page 2
+  } = usePostsLoader(author?._id, 2, 12, tag); // firstPage is ssr, fetch post client side start from page 2
 
   const pageToLoadRef = useRef(pageToLoad);
   pageToLoadRef.current = pageToLoad;
@@ -56,7 +57,11 @@ export default function PostsList({ author, firstPage }: PostsListProps) {
 
         {!author && firstPage.posts.length === 0 && (
           <EmptyPostList
-            text="No one has posted yet, be the first!"
+            text={
+              tag
+                ? `No posts found with tag: ${tag}`
+                : "No one has posted yet..."
+            }
             className="mt-48"
           />
         )}

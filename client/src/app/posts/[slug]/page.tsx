@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
 import CommentSection from "@/components/comments/CommentSection";
+import PostTags from "@/components/posts/PostTags";
 
 const getPost = cache(async (slug: string) => {
   try {
@@ -55,6 +56,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
             <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
               {post.title}
             </h1>
+            <PostTags tags={post.tags} className="mb-3" />
             <PostOptions post={post} author={post.author} />
           </header>
           <section>

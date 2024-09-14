@@ -27,7 +27,7 @@ export async function generateMetadata({
 }: UserProfilePageProps) {
   const user = await getUser(username);
   return {
-    title: user.username + " | BLOG-PROJECT",
+    title: user.username + " | Devdaily",
   };
 }
 

@@ -10,14 +10,22 @@ import LoadingButton from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
-import { extractImageUrls } from "@/lib/utils";
+import { extractImageUrls, generateTags } from "@/lib/utils";
 import { createPostBody, Post, PostBodySchema } from "@/validation/schema/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { BsMarkdown } from "react-icons/bs";
 import revalidateCachedData from "@/lib/revalidate";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { RxQuestionMarkCircled } from "react-icons/rx";
+import TextInput from "@/components/form/TextInput";
 
 interface UpdatePostPageProps {
   post: Post;
@@ -41,13 +49,37 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
   const title = form.watch("title");
   const body = form.watch("body");
 
+  const [tagsString, setTagsString] = useState("");
+
   async function onSubmit(values: createPostBody) {
+    let tags: string[] = [];
+
+    if (tagsString.length > 0) {
+      tags = generateTags(tagsString);
+      if (tags.length > 5) {
+        toast({
+          title: "Too many tags",
+          description: "You can't have more than 5 tags",
+        });
+        return;
+      }
+
+      if (tags.some((tag) => tag.length > 20)) {
+        toast({
+          title: "Some tags are too long",
+          description: "Each tag can't be more than 20 characters",
+        });
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
 
     try {
       const { slug } = await PostsAPI.updatePost(post._id, {
         ...values,
+        tags,
         images,
       });
 
@@ -76,7 +108,7 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
         <FormInput
           controller={form.control}
           name="title"
-          placeholder="Your new post title here"
+          placeholder="Your post title"
           className="p-8 pl-3 !text-2xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0"
           autoComplete="off"
           limit={150}
@@ -85,34 +117,65 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
         <MarkdownEditor
           controller={form.control}
           name="body"
-          placeholder="Write something awesome!"
+          placeholder="Write something new..."
+          height="65vh"
         />
 
-        <TextField
-          controller={form.control}
-          name="summary"
-          placeholder="Add a short summary to make people curious..."
-          className="focus-visible:ring-0 focus-visible:ring-offset-0  !-mt-4 rounded-tl-none rounded-tr-none dark:bg-neutral-900 m-auto w-full border-t-neutral-100 dark:border-t-[#1e1e1e]"
-          resizable={false}
-          limit={300}
-        />
         <div className="flex justify-between items-center flex-col sm:flex-row gap-2">
-          <LoadingButton
-            className="font-semibold w-full sm:w-36"
-            text="Update"
-            type="submit"
-            loadingText="Updating..."
-            loading={isSubmitting}
-            disabled={!title || !body}
-          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                className="font-semibold w-full sm:w-36"
+                type="button"
+                disabled={!title || !body}>
+                Start Updating
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="p-8 flex flex-col gap-2">
+              <DialogTitle>Before updating</DialogTitle>
+              <DialogDescription className="-mt-1">
+                Update or add a short summary if you haven&apos;t already
+              </DialogDescription>
+
+              <TextField
+                controller={form.control}
+                name="summary"
+                placeholder="Your post summary here..."
+                description="This is optional but recommended"
+                className="dark:bg-neutral-900 m-auto w-full"
+                resizable={false}
+                limit={180}
+                showCharCount
+              />
+
+              <TextInput
+                onChange={(e) => setTagsString(e.target.value)}
+                label="Your post tags:"
+                description="Example: #javascript #react #webdev"
+                className="dark:bg-neutral-900"
+                placeholder="Enter your post tags here... (5 tags at most)"
+                defaultValue={post.tags.join(" ")}
+              />
+
+              <LoadingButton
+                className="font-semibold w-full sm:w-36"
+                text="Update"
+                type="submit"
+                loadingText="Updating..."
+                loading={isSubmitting}
+                disabled={!title || !body}
+                onClick={form.handleSubmit(onSubmit)}
+              />
+            </DialogContent>
+          </Dialog>
+
           <Button asChild variant="link">
             <Link
               className="text-sm text-[#5a5a5a] dark:text-neutral-400 flex items-center gap-1"
-              href="https://www.markdownguide.org/cheat-sheet/"
-              target="_blank"
-              rel="noopener noreferrer">
-              <BsMarkdown size={22} />
-              Markdown cheat sheet
+              href="/editor-guide"
+              target="_blank">
+              <RxQuestionMarkCircled size={22} />
+              Editor Guide
             </Link>
           </Button>
         </div>

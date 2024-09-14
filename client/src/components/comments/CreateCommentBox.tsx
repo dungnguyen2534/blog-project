@@ -81,7 +81,7 @@ export default function CreateCommentBox({
           name="body"
           showMenu={true}
           showPreview={false}
-          height="12rem"
+          height="15.5rem"
           forComment={{ postId }}
           placeholder="Share your thoughts..."
           className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-400 dark:focus-within:outline-neutral-400"

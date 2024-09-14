@@ -4,7 +4,8 @@ import PostOptions from "./PostOptions";
 import { Post } from "@/validation/schema/post";
 import { BsChatSquare } from "react-icons/bs";
 import { Button } from "../ui/button";
-import { PiHeartLight } from "react-icons/pi";
+import { BiLike } from "react-icons/bi";
+import PostTags from "./PostTags";
 
 interface PostEntryProps {
   post: Post;
@@ -26,11 +27,12 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
             </p>
           )}
         </Link>
-
-        <div className="mt-2 flex items-center gap-3 font-light text-sm">
+        <PostTags tags={post.tags} />
+        <div className="mt-1 flex items-center gap-3 font-light text-sm">
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
             <Link href="#">
-              <PiHeartLight size={22} /> 99 Reactions
+              <BiLike size={22} /> 99 Likes
+              {/* <BiSolidLike /> */}
             </Link>
           </Button>
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">

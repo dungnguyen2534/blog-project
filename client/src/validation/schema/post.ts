@@ -8,6 +8,7 @@ export const postSchema = z.object({
   body: z.string(),
   summary: z.string(),
   author: userSchema,
+  tags: z.array(z.string()),
   images: z.array(z.string()),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -15,8 +16,9 @@ export const postSchema = z.object({
 
 export const PostBodySchema = z.object({
   title: z.string().min(1).max(150),
-  summary: z.string().max(300).optional(),
+  summary: z.string().max(180).optional(),
   body: z.string().min(1),
+  tags: z.array(z.string()).optional(),
   images: z.array(z.string()),
 });
 

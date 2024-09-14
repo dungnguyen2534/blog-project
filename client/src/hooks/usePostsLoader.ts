@@ -5,14 +5,15 @@ import useSWRInfinite from "swr/infinite";
 export default function usePostsLoader(
   authorId: string = "",
   startPage?: number,
-  limit: number = 12
+  limit: number = 12,
+  tag: string = ""
 ) {
   const { data, size, isLoading, error, setSize } = useSWRInfinite(
     (pageIndex: number, previousPageData: PostPage) => {
       if (previousPageData && !previousPageData.posts.length) return null;
 
-      return `/posts?authorId=${authorId}&page=${
-        startPage ? startPage - 1 + pageIndex + 1 : pageIndex + 1 // if startPage is provided, pageIndex should start from startPage
+      return `/posts?tag=${tag}&authorId=${authorId}&page=${
+        startPage ? startPage - 1 + pageIndex + 1 : pageIndex + 1 // start from startPage if it's provided (ssr)
       }&limit=${limit}`;
     },
     PostsAPI.getPostList

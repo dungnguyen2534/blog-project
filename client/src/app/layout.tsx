@@ -12,8 +12,8 @@ import { NavigationEvents } from "./NavigationEvents";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BLOG-PROJECT",
-  description: "A cool blog project",
+  title: "Devdaily",
+  description: "A cool blog site for developers",
 };
 
 export default function RootLayout({

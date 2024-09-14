@@ -36,9 +36,9 @@ export default function Navbar() {
         <LogoTag
           href="/"
           onClick={() => revalidateCachedData("/")}
-          className="absolute top-1/2 transform -translate-y-1/2 text-xl font-semibold flex items-center">
+          className="absolute top-1/2 transform -translate-y-1/2 text-xl font-bold flex items-center">
           <IoMdCodeDownload size={50} className="-ml-[0.175rem]" />
-          <span className="ml-1 text-2xl">Devflow</span>
+          <span className="ml-1 text-2xl">Devdaily</span>
         </LogoTag>
         <div className="flex justify-center items-center gap-3 ml-auto">
           {pathname === "/onboarding" && <ModeToggle className="sm:hidden" />}

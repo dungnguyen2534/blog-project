@@ -15,7 +15,7 @@ import TextField from "@/components/form/TextField";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { extractImageUrls } from "@/lib/utils";
+import { extractImageUrls, generateTags } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DialogTrigger } from "@radix-ui/react-dialog";
+import TextInput from "@/components/form/TextInput";
 
 export default function NewPostPage() {
   const form = useForm<createPostBody>({
@@ -53,12 +54,35 @@ export default function NewPostPage() {
     }
   }, [title, toast]);
 
+  const [tagsString, setTagsString] = useState("");
+
   async function onSubmit(values: createPostBody) {
+    let tags: string[] = [];
+
+    if (tagsString.length > 0) {
+      tags = generateTags(tagsString);
+      if (tags.length > 5) {
+        toast({
+          title: "Too many tags",
+          description: "You can't have more than 5 tags",
+        });
+        return;
+      }
+
+      if (tags.some((tag) => tag.length > 20)) {
+        toast({
+          title: "Some tags are too long",
+          description: "Each tag can't be more than 20 characters",
+        });
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
 
     try {
-      const { slug } = await PostsAPI.createPost({ ...values, images });
+      const { slug } = await PostsAPI.createPost({ ...values, tags, images });
       router.push("/posts/" + slug);
     } catch (error) {
       setIsSubmitting(false);
@@ -112,22 +136,31 @@ export default function NewPostPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="p-8 flex flex-col gap-2">
-              <>
-                <DialogTitle>Before publishing</DialogTitle>
-                <DialogDescription className="mt-1">
-                  Let&apos;s add a short summary to make people curious
-                </DialogDescription>
-              </>
+              <DialogTitle>Before publishing</DialogTitle>
+              <DialogDescription className="-mt-1">
+                Let&apos;s add some more information to your post.
+              </DialogDescription>
+
               <TextField
                 controller={form.control}
                 name="summary"
-                placeholder="Your post summary here..."
-                description="This is optional but highly recommended"
+                label="Add a short summary:"
+                placeholder="Your post summary"
+                description="This is optional but recommended"
                 className="dark:bg-neutral-900 m-auto w-full"
                 resizable={false}
-                limit={200}
+                limit={180}
                 showCharCount
               />
+
+              <TextInput
+                onChange={(e) => setTagsString(e.target.value)}
+                label="Add some tags so people know what your post is about:"
+                description="Example: #javascript #react #webdev"
+                className="dark:bg-neutral-900"
+                placeholder="Enter your post tags here... (5 tags at most)"
+              />
+
               <LoadingButton
                 className="font-semibold w-full sm:w-36"
                 text="Publish"

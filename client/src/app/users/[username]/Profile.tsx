@@ -22,7 +22,7 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
 
   return (
     <>
-      <main className="secondary-container p-3 sm:my-4 sm:p-7">
+      <main className="secondary-container p-3 sm:mt-4 sm:p-7">
         <div className="relative flex gap-3 flex-col items-center">
           {loggedInUser && (
             <div className="absolute -top-4 -right-4">
@@ -55,7 +55,7 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
         </div>
       </main>
 
-      <div className="container px-0 my-3">
+      <div className="container px-0 my-2">
         <PostsList author={user} firstPage={userFirstPostPage} />
       </div>
     </>
