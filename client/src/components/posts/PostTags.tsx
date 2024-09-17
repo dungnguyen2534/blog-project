@@ -1,3 +1,6 @@
+"use client";
+
+import revalidateCachedData from "@/lib/revalidate";
 import Link from "next/link";
 
 interface PostTagsProps {
@@ -13,6 +16,9 @@ export default function PostTags({ tags, className }: PostTagsProps) {
           <Link
             key={tag}
             href={`/tags/${tag.replace("#", "")}`}
+            onClick={() =>
+              revalidateCachedData(`/tags/${tag.replace("#", "")}`)
+            }
             className="text-sm font-semibold py-1 px-2 rounded-md transition-colors hover:bg-neutral-100 hover:dark:bg-neutral-800">
             {tag}
           </Link>

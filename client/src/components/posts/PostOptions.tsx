@@ -14,12 +14,6 @@ import Link from "next/link";
 import { BsThreeDots } from "react-icons/bs";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDeleteForever } from "react-icons/md";
-import UserAvatar from "../UserAvatar";
-import {
-  calculateReadingTime,
-  formatDate,
-  formatUpdatedDate,
-} from "@/lib/utils";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
@@ -34,10 +28,11 @@ import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import LoadingButton from "../LoadingButton";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
 import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";
+import PostAuthor from "./PostAuthor";
 
 interface PostOptionsProps {
   post: Post;
@@ -53,11 +48,10 @@ export default function PostOptions({
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
 
-  const { toast } = useToast();
-  const router = useRouter();
-
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+
+  const { toast } = useToast();
 
   function handleCopyLink() {
     navigator.clipboard.writeText(
@@ -68,6 +62,9 @@ export default function PostOptions({
     });
   }
 
+  const router = useRouter();
+  const pathname = usePathname();
+
   async function deletePost() {
     setIsDeleting(true);
 
@@ -76,8 +73,7 @@ export default function PostOptions({
       setShowDialog(false);
 
       revalidateCachedData("/posts/" + post.slug);
-      router.push("/"); // TODO: return to where the post was deleted from
-      revalidateCachedData("/");
+      if (pathname === "/posts/" + post.slug) router.back();
     } catch (error) {
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {
@@ -91,44 +87,9 @@ export default function PostOptions({
     }
   }
 
-  let postDate;
-  if (!(post.createdAt !== post.updatedAt)) {
-    postDate = (
-      <time
-        className="text-xs text-neutral-500 dark:text-neutral-400"
-        dateTime={post.createdAt}>
-        {formatDate(post.createdAt)}
-      </time>
-    );
-  } else {
-    postDate = (
-      <time
-        className="text-xs text-neutral-500 dark:text-neutral-400"
-        dateTime={post.createdAt}>
-        {`${formatDate(post.createdAt, false)} - ${formatUpdatedDate(
-          post.updatedAt
-        )}`}
-      </time>
-    );
-  }
-
   return (
     <div className="flex justify-between items-center">
-      <Link
-        href={"/users/" + post.author.username}
-        className="flex gap-2 items-center">
-        <UserAvatar
-          username={post.author.username}
-          profilePicUrl={post.author.profilePicPath}
-        />
-        <div className="flex flex-col justify-center">
-          <span className="text-sm font-medium">{post.author.username}</span>
-          <span className="text-xs text-neutral-500 dark:text-neutral-400">
-            {postDate}
-            <span> • {calculateReadingTime(post.body)} min read </span>
-          </span>
-        </div>
-      </Link>
+      <PostAuthor post={post} />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div

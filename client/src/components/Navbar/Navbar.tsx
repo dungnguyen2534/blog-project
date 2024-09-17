@@ -11,11 +11,11 @@ import { usePathname } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
 
 export default function Navbar() {
-  const { user, mutateUser, isValidatingUser } = useAuth();
+  const { user, mutateUser, isLoadingUser } = useAuth();
   const pathname = usePathname();
 
   let callToActions;
-  if (isValidatingUser) {
+  if (isLoadingUser) {
     callToActions = (
       <div className="flex items-center gap-2">
         <Skeleton className="hidden sm:block h-10 w-[117px]" />
@@ -29,7 +29,6 @@ export default function Navbar() {
   }
 
   const LogoTag = pathname === "/onboarding" ? "div" : Link;
-
   return (
     <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-2 pt-3 sm:py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
       <div className="container px-2 sm:px-8  flex items-center relative">

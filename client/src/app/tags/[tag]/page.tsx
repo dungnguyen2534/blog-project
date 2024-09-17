@@ -19,7 +19,7 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
   return (
     <main className="container px-0 sm:px-8 my-[0.35rem] sm:my-3">
       {/* TODO: Tags pool, put this to a separate component */}
-      <div className="secondary-container bg-neutral-900 flex p-5 my-3 items-center justify-between">
+      <div className="secondary-container bg-neutral-900 flex p-5 mb-3 items-center justify-between">
         <h1 className="font-bold text-3xl">{"#" + tag}</h1>
         <div>
           <Button variant="outline">Follow</Button>

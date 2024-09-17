@@ -27,6 +27,7 @@ import LoadingButton from "../LoadingButton";
 import { DialogHeader } from "../ui/dialog";
 import { useState } from "react";
 import { Skeleton } from "../ui/skeleton";
+import revalidateCachedData from "@/lib/revalidate";
 
 interface SignedInViewProps {
   user: User;
@@ -77,7 +78,11 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[30vh] sm:w-auto">
             <DropdownMenuItem className="text-lg sm:text-base" asChild>
-              <Link href={"/users/" + user.username}>@{user.username}</Link>
+              <Link
+                onClick={() => revalidateCachedData("/users/" + user.username)}
+                href={"/users/" + user.username}>
+                @{user.username}
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <MobileDropdownContent />

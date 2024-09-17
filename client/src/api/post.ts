@@ -35,7 +35,9 @@ const PostsAPI = {
     return res.payload;
   },
   async getPostList(url?: string) {
-    const res = await http.get<PostPage>(url || "/posts");
+    const res = await http.get<PostPage>(url || "/posts", {
+      cache: "no-cache",
+    });
     return res.payload;
   },
   async getSlugs() {

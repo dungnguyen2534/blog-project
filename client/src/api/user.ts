@@ -29,7 +29,9 @@ const UserAPI = {
     return res.payload;
   },
   getUser: async (username: string) => {
-    const res = await http.get<User>("/auth/users/" + username);
+    const res = await http.get<User>("/auth/users/" + username, {
+      cache: "no-cache",
+    });
     return res.payload;
   },
   updateUser: async (input: EditProfileBody) => {

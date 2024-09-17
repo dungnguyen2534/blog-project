@@ -10,7 +10,7 @@ import {
 import requireAuth from "../middlewares/requireAuth";
 import { ImageUploadFilter } from "../middlewares/imageUploadFilter";
 import {
-  createPostLimiter,
+  // createPostLimiter,
   updatePostLimiter,
   uploadImagesLimiter,
 } from "../middlewares/rate-limiter";
@@ -22,7 +22,7 @@ const router = express.Router();
 router.post(
   "/",
   requireAuth,
-  createPostLimiter,
+  // createPostLimiter,
   validateRequest(createPostSchema),
   PostsController.createPost
 );

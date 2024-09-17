@@ -240,10 +240,9 @@ export const getPostList: RequestHandler<
       (await PostModel.countDocuments(filter)) / limit
     );
 
-    // simulate slow network, skeleton test
     setTimeout(() => {
       res.status(200).json({ posts, totalPages, currentPage });
-    }, 1000);
+    }, 500);
   } catch (error) {
     next(error);
   }

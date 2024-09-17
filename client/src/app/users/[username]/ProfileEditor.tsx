@@ -26,7 +26,7 @@ import {
 } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface ProfileEditorProps {
@@ -34,11 +34,14 @@ interface ProfileEditorProps {
 }
 
 export default function ProfileEditor({ user }: ProfileEditorProps) {
-  const defaultValues = {
-    username: user.username,
-    about: user.about || "",
-    profilePicture: undefined,
-  };
+  const defaultValues = useMemo(
+    () => ({
+      username: user.username,
+      about: user.about || "",
+      profilePicture: undefined,
+    }),
+    [user.username, user.about]
+  );
 
   const form = useForm<EditProfileBody>({
     resolver: zodResolver(EditProfileBodySchema),
@@ -47,8 +50,8 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
 
   const [showDialog, setShowDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
+  const router = useRouter();
   const { toast } = useToast();
   const { mutateUser } = useAuth();
 
@@ -61,10 +64,10 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
       revalidateCachedData("/users/" + user.username); // remove old user page from cache
       revalidateCachedData("/users/" + updatedUser.username);
 
-      mutateUser(updatedUser);
-      setIsSubmitting(false);
-      setShowDialog(false);
+      const { username, about } = updatedUser;
+      form.reset({ username, about, profilePicture: undefined });
 
+      mutateUser(updatedUser);
       router.push("/users/" + updatedUser.username);
     } catch (error) {
       setIsSubmitting(false);
@@ -81,6 +84,12 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
       }
     }
   }
+
+  // only when data have actually changed, close dialog and reset isSubmitting
+  useEffect(() => {
+    setShowDialog(false);
+    setIsSubmitting(false);
+  }, [defaultValues, user.profilePicPath]);
 
   const { isDirty } = form.formState;
   return (
