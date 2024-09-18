@@ -22,10 +22,10 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
 
   return (
     <>
-      <main className="secondary-container p-3 sm:mt-4 sm:p-7">
-        <div className="relative flex gap-3 flex-col items-center">
+      <main className="secondary-container p-3 md:mt-[0.7rem] sm:p-7 rounded-none md:rounded-md">
+        <div className="relative flex gap-3 flex-col md:items-center">
           {loggedInUser && (
-            <div className="absolute -top-4 -right-4">
+            <div className="absolute top-1 right-1 md:-top-4 md:-right-4">
               {isLoggedInUser ? (
                 <ProfileEditor user={user} />
               ) : (
@@ -40,13 +40,13 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
             className="h-24 w-24 sm:w-36 sm:h-36"
           />
 
-          <div className="flex flex-col text-center">
+          <div className="flex flex-col md:text-center">
             <h1 className="text-3xl">{user.username}</h1>
 
             {user.about && <p className="mt-3">{user.about}</p>}
 
             <time
-              className="text-neutral-500 text-sm flex gap-1 items-center mt-4 justify-center"
+              className="text-neutral-500 text-sm flex gap-1 items-center mt-4 md:justify-center"
               dateTime={user.createdAt}>
               <RiCake2Line size={20} className="mb-1" /> Joined on{" "}
               {formatDate(user.createdAt, false)}
@@ -55,7 +55,7 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
         </div>
       </main>
 
-      <div className="container px-0 my-2">
+      <div className="container px-0 my-[0.35rem] md:my-2">
         <PostsList author={user} firstPage={userFirstPostPage} />
       </div>
     </>

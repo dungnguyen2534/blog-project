@@ -5,7 +5,7 @@ export default async function Home() {
   const firstPage = await PostsAPI.getPostList();
 
   return (
-    <main className="container px-0 sm:px-8 my-[0.35rem] sm:my-3">
+    <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
       <PostsList firstPage={firstPage} />
     </main>
   );

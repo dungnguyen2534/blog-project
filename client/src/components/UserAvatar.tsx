@@ -14,7 +14,7 @@ export default function UserAvatar({
   profilePicUrl,
 }: UserAvatarProps) {
   return (
-    <Avatar className={`${className} w-[2.4rem] h-[2.4rem]`}>
+    <Avatar className={`w-[2.4rem] h-[2.4rem] ${className} `}>
       <AvatarImage src={profilePicUrl} alt={`${username || "user"} avatar`} />
       <AvatarFallback className="overflow-hidden">
         <FaUser

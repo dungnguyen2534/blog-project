@@ -1,3 +1,5 @@
+"use client";
+
 import Markdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
@@ -6,18 +8,23 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import addClasses from "rehype-class-names";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { useTheme } from "next-themes";
 
 interface MarkdownRendererProps {
   children: string;
 }
 
 export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
+  const { theme } = useTheme();
+
   return (
     <Markdown
       className="markdown max-w-full"
       remarkPlugins={[
         remarkGfm,
-        [remarkToc, { tight: true, prefix: "user-content-", maxDepth: 4 }], // 4 because h1 is not allowed
+        [remarkToc, { tight: true, prefix: "user-content-", maxDepth: 3 }],
       ]}
       rehypePlugins={[
         rehypeSlug,
@@ -27,7 +34,7 @@ export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
           rehypeExternalLinks,
           { target: "_blank", rel: ["noopener", "noreferrer", "nofollow"] },
         ],
-        [addClasses, { "h2,h3,h4,h5,h6": "snap-start scroll-mt-20" }],
+        [addClasses, { "h1,h2,h3,h4,h5,h6": "snap-start scroll-mt-20" }],
       ]}
       components={{
         img: (props) => (
@@ -38,6 +45,27 @@ export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
             </a>
           </span>
         ),
+        code: ({ className, children }) => {
+          const match = /language-(\w+)/.exec(className || "");
+          return match ? (
+            <SyntaxHighlighter
+              language={match[1]}
+              showLineNumbers
+              wrapLongLines
+              style={vs2015}
+              customStyle={{
+                backgroundColor: theme === "dark" ? "#121212" : "#222",
+                padding: "1rem",
+              }}>
+              {String(children ?? " ").replace(/\n$/, "")}
+            </SyntaxHighlighter>
+          ) : (
+            <code
+              className={`${className} before:content-none after:content-none rounded-md p-1`}>
+              {children}
+            </code>
+          );
+        },
       }}>
       {children}
     </Markdown>

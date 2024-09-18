@@ -39,32 +39,21 @@ export async function generateMetadata({ params: { slug } }: PostPageProps) {
 export default async function PostPage({ params: { slug } }: PostPageProps) {
   const post = await getPost(slug);
 
-  // for SEO, there should be only one h1 tag on a page
-  // already hiding the h1 button in the editor, but double checking here in case user pastes markdown with h1
-  const modifiedBody = post.body
-    .replace(/^####\s/gm, "##### ")
-    .replace(/^###\s/gm, "#### ")
-    .replace(/^##\s/gm, "### ")
-    .replace(/^#\s/gm, "## ")
-    .replace(/\[(.*?)\]\(#(.*?)\)/gm, "[$1](#user-content-$2)"); // prefix header for table of contents
-
   return (
-    <>
-      <article className="secondary-container sm:mt-[0.7rem] sm:py-7 p-3 rounded-b-none">
-        <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
-          <header>
-            <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
-              {post.title}
-            </h1>
-            <PostTags tags={post.tags} className="mb-3" />
-            <PostOptions post={post} author={post.author} />
-          </header>
-          <section>
-            <MarkdownRenderer>{modifiedBody}</MarkdownRenderer>
-          </section>
+    <article className="secondary-container md:mt-[0.7rem] sm:py-7 p-3 rounded-b-none">
+      <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
+        <header>
+          <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
+            {post.title}
+          </h1>
+          <PostTags tags={post.tags} className="mb-3" />
+          <PostOptions post={post} author={post.author} />
+        </header>
+        <div>
+          <MarkdownRenderer>{post.body}</MarkdownRenderer>
         </div>
-      </article>
+      </div>
       <CommentSection postId={post._id} />
-    </>
+    </article>
   );
 }

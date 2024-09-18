@@ -21,7 +21,7 @@ export default function PostsList({ author, firstPage, tag }: PostsListProps) {
     pageToLoad,
     isLoadingPageError,
     setPageToLoad,
-  } = usePostsLoader(author?._id, 2, 12, tag); // firstPage is ssr, fetch post client side start from page 2
+  } = usePostsLoader(author?._id, 2, 12, tag); // firstPage is ssr
 
   const pageToLoadRef = useRef(pageToLoad);
   pageToLoadRef.current = pageToLoad;
@@ -50,7 +50,7 @@ export default function PostsList({ author, firstPage, tag }: PostsListProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-[0.35rem] sm:gap-2 m-auto">
+      <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
         {!author && !firstPage && (
           <EmptyPostList text="Failed to load posts" className="mt-48" />
         )}

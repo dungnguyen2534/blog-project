@@ -34,7 +34,7 @@ export const getOTP: RequestHandler<
       .exec();
 
     if (existedEmail) {
-      return createHttpError(409, "Email already taken");
+      throw createHttpError(409, "Email already taken");
     }
 
     const otp = crypto.randomInt(100000, 999999).toString(); // random 6 digits

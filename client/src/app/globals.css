@@ -70,7 +70,49 @@
 
 @layer components {
   .markdown {
-    @apply prose prose-neutral dark:prose-invert dark:text-neutral-100 prose-h2:mb-4 prose-h2:mt-0 prose-h2:font-extrabold prose-h3:mb-3 prose-h3:mt-0 prose-h3:font-extrabold prose-h4:mb-2 prose-h4:mt-2 prose-h4:font-bold prose-h5:font-semibold  prose-h6:font-medium prose-a:text-blue-500  prose-blockquote:p-[0] prose-blockquote:pl-4 prose-th:text-start dark:prose-blockquote:border-l-4 dark:prose-blockquote:border-l-neutral-700 prose-pre:bg-neutral-800 dark:prose-pre:bg-neutral-950 prose-a:no-underline;
+    @apply prose 
+        prose-neutral 
+        dark:prose-invert 
+        dark:text-neutral-100
+        prose-h1:font-extrabold
+        prose-h1:text-3xl 
+        prose-h1:mb-4 
+        prose-h1:mt-0 
+        prose-h2:mb-4 
+        prose-h2:mt-0 
+        prose-h2:font-extrabold 
+        prose-h3:mb-3 
+        prose-h3:mt-0 
+        prose-h3:font-extrabold 
+        prose-h4:mb-2 
+        prose-h4:mt-2 
+        prose-h4:font-bold 
+        prose-h5:font-semibold 
+        prose-h5:my-2  
+        prose-h6:font-medium 
+        prose-h6:my-2 
+        prose-a:text-blue-500  
+        prose-blockquote:p-[0] 
+        prose-blockquote:pl-4 
+        prose-th:text-start 
+        dark:prose-blockquote:border-l-4 
+        dark:prose-blockquote:border-l-neutral-700 
+        prose-a:no-underline  
+        prose-pre:p-0 
+        prose-pre:m-0 
+        prose-code:text-base;
+  }
+
+  .markdown code:not(pre code) {
+    @apply bg-neutral-200 dark:bg-neutral-700 rounded-md !p-1;
+  }
+
+  .markdown code.undefined {
+    @apply p-0;
+  }
+
+  .markdown pre:has(> code.undefined) {
+    @apply bg-[#222] dark:bg-[#121212];
   }
 
   .primary-color {
@@ -110,7 +152,7 @@
 
 /* Custom markdown editor */
 .rc-md-editor {
-  @apply rounded bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-800 pb-0  overflow-hidden  !important;
+  @apply rounded bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-800 pb-0  overflow-hidden !important;
 }
 
 .rc-md-editor .rc-md-navigation {
@@ -135,10 +177,6 @@
 
 .rc-md-editor .navigation-nav .drop-wrap .table-list .list-item {
   @apply dark:hover:bg-neutral-400;
-}
-
-.rc-md-editor .navigation-nav .drop-wrap .header-list > :first-child {
-  @apply hidden;
 }
 
 .rc-md-editor .editor-container .sec-md {
@@ -171,20 +209,28 @@
   @apply bg-white dark:bg-neutral-900;
 }
 
+.editor-container .html-wrap .custom-html-style {
+  @apply max-w-prose mx-auto;
+}
+
+.editor-container .custom-html-style h1 {
+  @apply text-3xl font-extrabold mb-4 mt-0;
+}
+
 .editor-container .custom-html-style h2 {
-  @apply text-2xl font-extrabold mb-4 mt-0;
+  @apply text-2xl font-extrabold mb-4 mt-0 leading-8;
 }
 .editor-container .custom-html-style h3 {
-  @apply text-xl font-extrabold mb-3 mt-0;
+  @apply text-xl font-extrabold mb-3 mt-0 leading-8;
 }
 .editor-container .custom-html-style h4 {
-  @apply font-bold mb-2 mt-0;
+  @apply font-bold my-2 leading-6;
 }
 .editor-container .custom-html-style h5 {
-  @apply font-semibold;
+  @apply font-semibold my-[10px];
 }
 .editor-container .custom-html-style h6 {
-  @apply font-medium;
+  @apply font-medium my-[10px];
 }
 
 .editor-container .custom-html-style hr {
@@ -202,8 +248,25 @@
   @apply text-base dark:text-white;
 }
 
+.editor-container .custom-html-style p {
+  @apply my-5;
+}
+
+.editor-container .custom-html-style ul,
+.editor-container .custom-html-style ol {
+  @apply my-5 pl-[1.625rem];
+}
+
+.editor-container .custom-html-style li {
+  @apply text-base leading-7;
+}
+
 .editor-container .custom-html-style code {
-  @apply text-sm;
+  @apply text-base;
+}
+
+.editor-container .custom-html-style code:not(pre code) {
+  @apply text-base !bg-neutral-200 dark:!bg-neutral-700 rounded-md p-1;
 }
 
 .editor-container .custom-html-style a,
@@ -220,7 +283,7 @@
 }
 
 .editor-container .custom-html-style pre {
-  @apply rounded-md bg-neutral-800 dark:bg-neutral-950 py-[6px] px-[12px];
+  @apply rounded-md bg-neutral-800 dark:bg-neutral-950 p-0 m-0;
 }
 
 .editor-container .custom-html-style table {
