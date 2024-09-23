@@ -1,30 +1,49 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import PostEntry from "./PostEntry";
-import usePostsLoader from "@/hooks/usePostsLoader";
 import EmptyPostList from "./EmptyPostList";
 import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
-import { PostPage } from "@/validation/schema/post";
+import { Post, PostPage } from "@/validation/schema/post";
+import PostsAPI from "@/api/post";
 
 interface PostsListProps {
-  firstPage: PostPage;
+  initialPage: PostPage;
   author?: User;
   tag?: string;
 }
 
-export default function PostsList({ author, firstPage, tag }: PostsListProps) {
-  const {
-    pages,
-    isLoadingPage,
-    pageToLoad,
-    isLoadingPageError,
-    setPageToLoad,
-  } = usePostsLoader(author?._id, 2, 12, tag); // firstPage is ssr
+export default function PostsList({
+  author,
+  initialPage,
+  tag,
+}: PostsListProps) {
+  const [postList, setPostList] = useState<Post[]>(initialPage.posts);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageLoadError, setPageLoadError] = useState(false);
 
-  const pageToLoadRef = useRef(pageToLoad);
-  pageToLoadRef.current = pageToLoad;
+  const pageIndexRef = useRef(pageIndex);
+  pageIndexRef.current = pageIndex;
+
+  const fetchNextPage = useCallback(
+    async (author?: User, tag?: string, limit?: number) => {
+      const url = `/posts?${tag ? `tag=${tag}` : ""}${
+        author ? `&authorId=${author._id}` : ""
+      }&page=${pageIndexRef.current + 1}${limit ? `&limit=${limit}` : ""}`;
+
+      try {
+        setPageIndex(pageIndexRef.current + 1);
+        if (pageIndexRef.current >= initialPage.totalPages) return;
+
+        const nextPage = await PostsAPI.getPostList(url);
+        setPostList((prevPostList) => [...prevPostList, ...nextPage.posts]);
+      } catch (error) {
+        setPageLoadError(true);
+      }
+    },
+    [initialPage.totalPages]
+  );
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
   const postRef = useCallback(
@@ -32,9 +51,9 @@ export default function PostsList({ author, firstPage, tag }: PostsListProps) {
       if (postEntry == null) return;
 
       const observer = new IntersectionObserver(
-        (entries) => {
+        async (entries) => {
           if (entries[0].isIntersecting) {
-            setPageToLoad(pageToLoadRef.current + 1);
+            fetchNextPage(author, tag, 12);
             observer.unobserve(postEntry);
           }
         },
@@ -45,60 +64,51 @@ export default function PostsList({ author, firstPage, tag }: PostsListProps) {
 
       observer.observe(postEntry);
     },
-    [setPageToLoad]
+    [author, tag, fetchNextPage]
   );
 
   return (
     <>
       <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
-        {!author && !firstPage && (
+        {!author && !initialPage && (
           <EmptyPostList text="Failed to load posts" className="mt-48" />
         )}
 
-        {!author && firstPage.posts.length === 0 && (
-          <EmptyPostList
-            text={
-              tag
-                ? `No posts found with tag: ${tag}`
-                : "No one has posted yet..."
-            }
-            className="mt-48"
-          />
-        )}
-
-        {author && firstPage.posts.length === 0 && (
-          <EmptyPostList
-            text={`${author.username} hasn't post anything yet...`}
-            hideIcon
-          />
-        )}
-
-        {author && !firstPage && (
+        {author && !initialPage && (
           <EmptyPostList
             text={`Failed to load ${author.username}'s posts`}
             hideIcon
           />
         )}
 
-        {firstPage.posts.map((post) => (
-          <PostEntry key={post._id} post={post} />
-        ))}
+        {!author && initialPage.posts.length === 0 && (
+          <EmptyPostList
+            text={
+              tag
+                ? `No posts found with tag: ${tag}`
+                : "No one has posted yet, be the fist!"
+            }
+            className="mt-48"
+          />
+        )}
 
-        {firstPage &&
-          !isLoadingPageError &&
-          !isLoadingPage &&
-          pages.map((page) =>
-            page.posts.map((post, index) => (
-              <PostEntry
-                key={post._id}
-                post={post}
-                ref={index === page.posts.length - 1 ? postRef : null}
-              />
-            ))
-          )}
+        {author && initialPage.posts.length === 0 && (
+          <EmptyPostList
+            text={`${author.username} hasn't post anything yet...`}
+            hideIcon
+          />
+        )}
 
-        {/* current page is the pageToLoad, totalPages from the ssr first page api call */}
-        {pageToLoad < firstPage.totalPages && (
+        {initialPage &&
+          postList.map((post, index) => (
+            <PostEntry
+              key={post._id}
+              post={post}
+              ref={index === postList.length - 1 ? postRef : null}
+            />
+          ))}
+
+        {pageIndex <= initialPage.totalPages && !pageLoadError && (
           <PostListSkeleton skeletonCount={3} />
         )}
       </div>

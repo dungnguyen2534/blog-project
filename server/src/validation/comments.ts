@@ -29,6 +29,7 @@ export const getCommentsSchema = z.object({
     postId: MongoIdSchema,
   }),
   query: z.object({
+    parentCommentId: MongoIdSchema.optional(),
     page: z.string().optional(),
     limit: z.string().optional(),
   }),

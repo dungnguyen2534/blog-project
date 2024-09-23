@@ -50,6 +50,7 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
   const body = form.watch("body");
 
   const [tagsString, setTagsString] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
 
   async function onSubmit(values: createPostBody) {
     let tags: string[] = [];
@@ -122,15 +123,22 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
         />
 
         <div className="flex justify-between items-center flex-col sm:flex-row gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="font-semibold w-full sm:w-36"
-                type="button"
-                disabled={!title || !body}>
-                Start Updating
-              </Button>
-            </DialogTrigger>
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <Button
+              className="font-semibold w-full sm:w-36"
+              type="button"
+              onClick={() => {
+                if (!title.trim() || !body.trim()) {
+                  toast({
+                    title: "Title and body can't be empty",
+                    description: "Your post can't be updated with no content",
+                  });
+                } else {
+                  setOpenDialog(true);
+                }
+              }}>
+              Start Updating
+            </Button>
             <DialogContent className="p-8 flex flex-col gap-2">
               <DialogTitle>Before updating</DialogTitle>
               <DialogDescription className="-mt-1">
@@ -163,7 +171,7 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
                 type="submit"
                 loadingText="Updating..."
                 loading={isSubmitting}
-                disabled={!title || !body}
+                disabled={!title.trim() || !body.trim()}
                 onClick={form.handleSubmit(onSubmit)}
               />
             </DialogContent>

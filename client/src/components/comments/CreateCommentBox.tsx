@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
 import MarkdownEditor from "../form/MarkdownEditor";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +15,6 @@ import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
-import TextField from "../form/TextField";
 
 interface CreateCommentBoxProps {
   postId: string;
@@ -37,7 +35,9 @@ export default function CreateCommentBox({
     },
   });
 
+  const { user } = useAuth();
   const { toast } = useToast();
+  const { isSubmitting } = form.formState;
 
   async function onSubmit(comment: CreateCommentBody) {
     const images = extractImageUrls(comment.body);
@@ -48,6 +48,7 @@ export default function CreateCommentBox({
         parentCommentId,
         images,
       });
+      form.reset();
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
@@ -63,8 +64,12 @@ export default function CreateCommentBox({
     }
   }
 
-  const { user } = useAuth();
-  const { isSubmitting, isDirty } = form.formState;
+  function onInvalidComment() {
+    toast({
+      title: "Empty comment",
+      description: "Please write something before submitting",
+    });
+  }
 
   return (
     <div className="flex gap-2">
@@ -72,10 +77,14 @@ export default function CreateCommentBox({
         <UserAvatar
           username={user?.username}
           profilePicUrl={user?.profilePicPath}
-          className="mt-1"
+          className="mt-2 w-11 h-11"
         />
       )}
-      <FormWrapper form={form} submitFunction={onSubmit} className="flex-grow">
+      <FormWrapper
+        form={form}
+        submitFunction={onSubmit}
+        onInvalid={onInvalidComment}
+        className="flex-grow">
         <MarkdownEditor
           controller={form.control}
           name="body"
@@ -93,7 +102,6 @@ export default function CreateCommentBox({
             type="submit"
             loadingText="Submitting..."
             loading={isSubmitting}
-            disabled={!isDirty}
           />
           <Button asChild variant="link">
             <Link

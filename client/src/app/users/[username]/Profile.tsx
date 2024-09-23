@@ -12,10 +12,10 @@ import { PostPage } from "@/validation/schema/post";
 
 interface ProfileProps {
   user: User;
-  userFirstPostPage: PostPage;
+  userInitialPostsPage: PostPage;
 }
 
-export default function Profile({ user, userFirstPostPage }: ProfileProps) {
+export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
   const { user: loggedInUser } = useAuth();
 
   const isLoggedInUser = loggedInUser?._id === user._id;
@@ -56,7 +56,7 @@ export default function Profile({ user, userFirstPostPage }: ProfileProps) {
       </main>
 
       <div className="container px-0 my-[0.35rem] md:my-2">
-        <PostsList author={user} firstPage={userFirstPostPage} />
+        <PostsList author={user} initialPage={userInitialPostsPage} />
       </div>
     </>
   );

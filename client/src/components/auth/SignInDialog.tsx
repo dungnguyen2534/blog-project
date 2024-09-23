@@ -105,7 +105,6 @@ export default function SignInDialog({
             <LoadingButton
               className="w-full mt-1"
               text="Sign in"
-              loadingText="Signing in..."
               loading={isSubmitting}
             />
           </FormWrapper>

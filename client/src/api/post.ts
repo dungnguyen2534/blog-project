@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import {
   Comment,
+  CommentPage,
   CreateCommentBody,
   createPostBody,
   Post,
@@ -58,6 +59,15 @@ const PostsAPI = {
     const res = await http.post<{ imageUrl: string }>(
       `/posts/${postId}/comments/images`,
       formData
+    );
+    return res.payload;
+  },
+  async getCommentList(postId: string, url?: string) {
+    const res = await http.get<CommentPage>(
+      url ? `${url}` : `/posts/${postId}/comments`,
+      {
+        cache: "no-cache",
+      }
     );
     return res.payload;
   },

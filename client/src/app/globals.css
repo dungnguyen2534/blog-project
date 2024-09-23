@@ -92,7 +92,7 @@
         prose-h6:font-medium 
         prose-h6:my-2 
         prose-a:text-blue-500  
-        prose-blockquote:p-[0] 
+        prose-blockquote:p-0 
         prose-blockquote:pl-4 
         prose-th:text-start 
         dark:prose-blockquote:border-l-4 
@@ -100,7 +100,21 @@
         prose-a:no-underline  
         prose-pre:p-0 
         prose-pre:m-0 
-        prose-code:text-base;
+        prose-code:text-base
+        prose-blockquote:!my-6
+        prose-blockquote:text-base;
+  }
+
+  .markdown blockquote p {
+    @apply py-2;
+  }
+
+  .markdown > pre:has(> code) {
+    @apply my-4 !py-0;
+  }
+
+  .markdown > pre:has(> pre) {
+    @apply !py-0 my-4;
   }
 
   .markdown code:not(pre code) {
@@ -108,11 +122,11 @@
   }
 
   .markdown code.undefined {
-    @apply p-0;
+    @apply px-0;
   }
 
   .markdown pre:has(> code.undefined) {
-    @apply bg-[#222] dark:bg-[#121212];
+    @apply bg-[#222] dark:bg-[#121212] !p-4;
   }
 
   .primary-color {
@@ -171,6 +185,10 @@
   @apply dark:bg-neutral-900 dark:text-white !important;
 }
 
+.rc-md-editor .navigation-nav .drop-wrap .header-list > :first-child {
+  @apply hidden;
+}
+
 .rc-md-editor .navigation-nav .drop-wrap .list-item {
   @apply dark:hover:bg-neutral-700;
 }
@@ -180,7 +198,7 @@
 }
 
 .rc-md-editor .editor-container .sec-md {
-  @apply border-r-[0px] border-r-neutral-800 rounded-md !important;
+  @apply border-r-0 border-r-neutral-800 rounded-md !important;
 }
 
 .rc-md-editor .editor-container .sec-md,
@@ -196,6 +214,7 @@
   @apply primary-color;
 }
 
+/* Markdown edit field */
 .rc-md-editor .editor-container .sec-md .input,
 .editor-container .html-wrap {
   @apply scrollbar-thin scrollbar-track-[#f7f7f7] dark:scrollbar-track-[#141414] scrollbar-thumb-neutral-400 overflow-auto;
@@ -205,6 +224,7 @@
   @apply text-base bg-white dark:bg-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 !important;
 }
 
+/* Preview field */
 .editor-container .html-wrap {
   @apply bg-white dark:bg-neutral-900;
 }
@@ -227,10 +247,10 @@
   @apply font-bold my-2 leading-6;
 }
 .editor-container .custom-html-style h5 {
-  @apply font-semibold my-[10px];
+  @apply font-semibold my-[0.625rem];
 }
 .editor-container .custom-html-style h6 {
-  @apply font-medium my-[10px];
+  @apply font-medium my-[0.625rem];
 }
 
 .editor-container .custom-html-style hr {
@@ -286,20 +306,38 @@
   @apply rounded-md bg-neutral-800 dark:bg-neutral-950 p-0 m-0;
 }
 
+.editor-container .custom-html-style .markdown > pre:has(> code) {
+  @apply my-4 !py-0;
+}
+
+.editor-container .custom-html-style .markdown > pre:has(> pre) {
+  @apply !py-0 my-4;
+}
+
+.markdown > pre:has(> code) {
+  @apply my-4 !py-0;
+}
+
+.markdown > pre:has(> pre) {
+  @apply !py-0 my-4;
+}
+
+/* dasdasdasd */
+
 .editor-container .custom-html-style table {
   @apply border-none;
 }
 
 .editor-container .custom-html-style thead {
-  @apply border-b-[1px];
+  @apply border-b-[0.0625rem];
 }
 
 .editor-container .custom-html-style th {
-  @apply pt-[1px] pb-2 text-left bg-inherit font-semibold;
+  @apply pt-[0.0625rem] pb-2 text-left bg-inherit font-semibold;
 }
 
 .editor-container .custom-html-style tr {
-  @apply pt-[1px] pb-2 text-left bg-inherit border-t-0 border-l-0 border-r-0 border-0 border-b-[1px] border-b-neutral-200 dark:border-b-neutral-700;
+  @apply pt-[0.0625rem] pb-2 text-left bg-inherit border-t-0 border-l-0 border-r-0 border-0 border-b-[0.0625rem] border-b-neutral-200 dark:border-b-neutral-700;
 }
 
 .editor-container .custom-html-style tr:last-child {

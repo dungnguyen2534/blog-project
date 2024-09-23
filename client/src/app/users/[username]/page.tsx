@@ -35,9 +35,9 @@ export default async function UserProfilePage({
   params: { username },
 }: UserProfilePageProps) {
   const user = await getUser(username);
-  const firstPostPage = await PostsAPI.getPostList(
+  const userInitialPostsPage = await PostsAPI.getPostList(
     `/posts?authorId=${user._id}`
   );
 
-  return <Profile user={user} userFirstPostPage={firstPostPage} />;
+  return <Profile user={user} userInitialPostsPage={userInitialPostsPage} />;
 }

@@ -28,20 +28,33 @@ export const PostPageSchema = z.object({
   totalPages: z.number(),
 });
 
+export const CommentSchema = z.object({
+  _id: z.string(),
+  author: userSchema,
+  parentCommentId: z.string().optional(),
+  body: z.string().min(1),
+  images: z.array(z.string()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 export const CommentBodySchema = z.object({
+  parentCommentId: z.string().optional(),
   body: z.string().min(1),
   images: z.array(z.string()),
 });
 
-export const CommentSchema = z.object({
-  parentCommentId: z.string().optional(),
-  body: z.string().min(1),
-  images: z.array(z.string()),
+export const commentPageSchema = z.object({
+  comments: z.array(CommentSchema),
+  totalComments: z.number(),
+  currentPage: z.number(),
+  totalPages: z.number(),
 });
 
 export type Post = z.infer<typeof postSchema>;
 export type createPostBody = z.infer<typeof PostBodySchema>;
 export type updatePostBody = z.infer<typeof PostBodySchema>;
 export type PostPage = z.infer<typeof PostPageSchema>;
-export type Comment = z.infer<typeof CommentBodySchema>;
-export type CreateCommentBody = z.infer<typeof CommentSchema>;
+export type Comment = z.infer<typeof CommentSchema>;
+export type CreateCommentBody = z.infer<typeof CommentBodySchema>;
+export type CommentPage = z.infer<typeof commentPageSchema>;

@@ -14,14 +14,18 @@ import { useTheme } from "next-themes";
 
 interface MarkdownRendererProps {
   children: string;
+  className?: string;
 }
 
-export default function MarkdownRenderer({ children }: MarkdownRendererProps) {
+export default function MarkdownRenderer({
+  children,
+  className,
+}: MarkdownRendererProps) {
   const { theme } = useTheme();
 
   return (
     <Markdown
-      className="markdown max-w-full"
+      className={`markdown max-w-full ${className}`}
       remarkPlugins={[
         remarkGfm,
         [remarkToc, { tight: true, prefix: "user-content-", maxDepth: 3 }],

@@ -23,7 +23,6 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 import TextInput from "@/components/form/TextInput";
 
 export default function NewPostPage() {
@@ -55,6 +54,7 @@ export default function NewPostPage() {
   }, [title, toast]);
 
   const [tagsString, setTagsString] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
 
   async function onSubmit(values: createPostBody) {
     let tags: string[] = [];
@@ -117,24 +117,30 @@ export default function NewPostPage() {
           autoComplete="off"
           limit={titleLimit}
         />
-
         <MarkdownEditor
           controller={form.control}
           name="body"
           placeholder="Write your post here!"
           height="65vh"
         />
-
         <div className="flex justify-between items-center flex-col sm:flex-row gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="font-semibold w-full sm:w-36"
-                type="button"
-                disabled={!title || !body}>
-                Start Publishing
-              </Button>
-            </DialogTrigger>
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <Button
+              className="font-semibold w-full sm:w-36"
+              type="button"
+              onClick={() => {
+                if (!title.trim() || !body.trim()) {
+                  toast({
+                    title: "Title and body can't be empty",
+                    description: "Please write something before publishing",
+                  });
+                } else {
+                  setOpenDialog(true);
+                }
+              }}>
+              Start Publishing
+            </Button>
+
             <DialogContent className="p-8 flex flex-col gap-2">
               <DialogTitle>Before publishing</DialogTitle>
               <DialogDescription className="-mt-1">
@@ -166,8 +172,8 @@ export default function NewPostPage() {
                 text="Publish"
                 type="submit"
                 loadingText="Publishing..."
+                disabled={!title.trim() || !body.trim()}
                 loading={isSubmitting}
-                disabled={!title || !body}
                 onClick={form.handleSubmit(onSubmit)}
               />
             </DialogContent>

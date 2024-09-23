@@ -10,6 +10,13 @@ interface LoadingButtonProps {
   className?: string;
   disabled?: boolean;
   onClick?: () => void;
+  variant?:
+    | "default"
+    | "outline"
+    | "destructive"
+    | "secondary"
+    | "ghost"
+    | "link";
 }
 
 export default function LoadingButton({
@@ -20,15 +27,23 @@ export default function LoadingButton({
   disabled = false,
   type,
   className,
+  variant,
 }: LoadingButtonProps) {
   return (
     <Button
+      variant={variant}
       className={className}
       disabled={disabled || loading}
       type={type}
       onClick={onClick}>
-      {loading && <LoaderCircle className="mr-2 animate-spin" />}
-      {loading && loadingText ? loadingText : text}
+      {loading ? (
+        <>
+          <LoaderCircle className="mr-2 animate-spin" />
+          {loadingText && loadingText}
+        </>
+      ) : (
+        text
+      )}
     </Button>
   );
 }

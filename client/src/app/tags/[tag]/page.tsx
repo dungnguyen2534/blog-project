@@ -14,7 +14,7 @@ export async function generateMetadata({ params: { tag } }: TagPageProps) {
 }
 
 export default async function TagPage({ params: { tag } }: TagPageProps) {
-  const firstPage = await PostsAPI.getPostList(`/posts?tag=${tag}`);
+  const initialPage = await PostsAPI.getPostList(`/posts?tag=${tag}`);
 
   return (
     <main className="container px-0 sm:px-8 my-[0.35rem] sm:my-3">
@@ -29,7 +29,7 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
         </div>
       </div>
 
-      <PostsList firstPage={firstPage} tag={tag} />
+      <PostsList initialPage={initialPage} tag={tag} />
     </main>
   );
 }
