@@ -149,7 +149,6 @@ export default function SignUpDialog({
             <LoadingButton
               className="w-full mt-1"
               text="Sign up"
-              loadingText="Signing up..."
               loading={isSubmitting}
               disabled={!getOPTSuccess}
             />

@@ -2,11 +2,11 @@ import PostsList from "@/components/posts/PostList";
 import PostsAPI from "@/api/post";
 
 export default async function Home() {
-  const firstPage = await PostsAPI.getPostList();
+  const initialPage = await PostsAPI.getPostList();
 
   return (
     <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
-      <PostsList firstPage={firstPage} />
+      <PostsList initialPage={initialPage} />
     </main>
   );
 }

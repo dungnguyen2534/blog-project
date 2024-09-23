@@ -148,7 +148,6 @@ export default function ForgotPasswordDialog({
             <LoadingButton
               className="w-full mt-1"
               text="Reset password"
-              loadingText="Resetting password..."
               type="submit"
               loading={isSubmitting}
               disabled={!getOTPSuccess}

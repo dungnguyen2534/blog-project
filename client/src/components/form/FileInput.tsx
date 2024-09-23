@@ -7,7 +7,6 @@ import {
   FormLabel,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 
 interface FileInputProps {
   controller: Control<any>;

@@ -8,23 +8,14 @@ import {
   formatDate,
   formatUpdatedDate,
 } from "@/lib/utils";
-import revalidateCachedData from "@/lib/revalidate";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Button } from "../ui/button";
-import useAuth from "@/hooks/useAuth";
+import { TooltipTrigger } from "@/components/ui/tooltip";
+import MiniProfileProvider from "../MiniProfileProvider";
 
 interface PostAuthorProps {
   post: Post;
 }
 
 export default function PostAuthor({ post }: PostAuthorProps) {
-  const { user: LoggedInUser } = useAuth();
-
   let postDate;
   if (!(post.createdAt !== post.updatedAt)) {
     postDate = (
@@ -48,65 +39,26 @@ export default function PostAuthor({ post }: PostAuthorProps) {
     );
   }
 
+  const author = post.author;
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <div className="relative flex">
-          <TooltipTrigger asChild>
-            <Link
-              href={"/users/" + post.author.username}
-              onClick={() =>
-                revalidateCachedData("/users/" + post.author.username)
-              }
-              className="flex gap-[0.4rem] items-center">
-              <UserAvatar
-                username={post.author.username}
-                profilePicUrl={post.author.profilePicPath}
-              />
-              <span className="text-sm font-medium mb-5">
-                {post.author.username}
-              </span>
-            </Link>
-          </TooltipTrigger>
-          <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-11">
-            {postDate}
-            <span> • {calculateReadingTime(post.body)} min read </span>
-          </div>
+    <MiniProfileProvider author={author} customTrigger>
+      <div className="relative flex">
+        <TooltipTrigger asChild>
+          <Link
+            href={"/users/" + author.username}
+            className="flex gap-[0.4rem] items-center">
+            <UserAvatar
+              username={author.username}
+              profilePicUrl={author.profilePicPath}
+            />
+            <span className="text-sm font-medium mb-5">{author.username}</span>
+          </Link>
+        </TooltipTrigger>
+        <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-11">
+          {postDate}
+          <span> • {calculateReadingTime(post.body)} min read </span>
         </div>
-        <TooltipContent>
-          <div className="w-56 py-1">
-            <Link
-              href={"/users/" + post.author.username}
-              onClick={() =>
-                revalidateCachedData("/users/" + post.author.username)
-              }
-              className="flex gap-[0.4rem] items-center mb-2">
-              <UserAvatar
-                username={post.author.username}
-                profilePicUrl={post.author.profilePicPath}
-              />
-              <span className="text-sm font-medium">
-                {post.author.username}
-              </span>
-            </Link>
-            <div className="flex flex-col gap-2">
-              {post.author._id !== LoggedInUser?._id && (
-                <Button className="w-full">Follow</Button>
-              )}
-
-              <div>{post.author.about}</div>
-              <div className="flex flex-col">
-                <div className="font-semibold text-xs text-neutral-500 uppercase">
-                  JOINED
-                </div>
-                <time suppressHydrationWarning dateTime={post.author.createdAt}>
-                  {formatDate(post.author.createdAt, false)}
-                </time>
-              </div>
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+      </div>
+    </MiniProfileProvider>
   );
 }

@@ -210,20 +210,26 @@ export const getCommentList: RequestHandler<
   GetCommentsQuery
 > = async (req, res, next) => {
   const currentPage = parseInt(req.query.page || "1");
-  const limit = parseInt(req.query.limit || "1");
+  const limit = parseInt(req.query.limit || "2");
+  const { parentCommentId } = req.query;
   const { postId } = req.params;
 
   try {
-    const comments = await CommentModel.find({ postId: postId })
+    const comments = await CommentModel.find({ postId, parentCommentId })
       .sort({ _id: -1 })
       .skip((currentPage - 1) * limit)
       .limit(limit)
       .populate("author")
       .exec();
 
-    const totalPages = Math.ceil((await CommentModel.countDocuments()) / limit);
+    const totalComments = await CommentModel.countDocuments({
+      postId,
+      parentCommentId,
+    });
 
-    res.status(200).json({ comments, totalPages, currentPage });
+    const totalPages = Math.ceil(totalComments / limit);
+
+    res.status(200).json({ comments, totalComments, totalPages, currentPage });
   } catch (error) {
     next(error);
   }
