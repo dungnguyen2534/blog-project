@@ -67,6 +67,7 @@ export const createComment: RequestHandler<
       images: imagesPath,
     });
 
+    await newComment.populate("author");
     res.status(201).json(newComment);
   } catch (error) {
     next(error);

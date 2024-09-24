@@ -15,6 +15,7 @@ import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
+import useCommentsLoader from "@/hooks/useCommentsLoader";
 
 interface CreateCommentBoxProps {
   postId: string;
@@ -39,16 +40,20 @@ export default function CreateCommentBox({
   const { toast } = useToast();
   const { isSubmitting } = form.formState;
 
+  const { setCommentList } = useCommentsLoader();
+
   async function onSubmit(comment: CreateCommentBody) {
     const images = extractImageUrls(comment.body);
 
     try {
-      await PostsAPI.createComment(postId, {
+      const newComment = await PostsAPI.createComment(postId, {
         body: comment.body,
         parentCommentId,
         images,
       });
       form.reset();
+      setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
+      console.log(newComment.author.username);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
@@ -100,7 +105,6 @@ export default function CreateCommentBox({
             className="font-semibold w-full sm:w-36"
             text="Submit"
             type="submit"
-            loadingText="Submitting..."
             loading={isSubmitting}
           />
           <Button asChild variant="link">

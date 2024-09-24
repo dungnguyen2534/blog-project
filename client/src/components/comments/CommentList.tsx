@@ -6,13 +6,12 @@ import LoadingButton from "../LoadingButton";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 
 interface CommentListProps {
-  postId: string;
   initialPage: CommentPage;
 }
 
-export default function CommentList({ postId, initialPage }: CommentListProps) {
+export default function CommentList({ initialPage }: CommentListProps) {
   const { commentList, fetchNextPage, pageIndex, isLoading, pageLoadError } =
-    useCommentsLoader({ postId, initialPage });
+    useCommentsLoader();
 
   return (
     <>
