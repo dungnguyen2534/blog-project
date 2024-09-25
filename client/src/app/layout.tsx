@@ -8,6 +8,7 @@ import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { NavigationEvents } from "./NavigationEvents";
+import PostsContextProvider from "@/context/PostsContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,12 +35,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <AuthDialogsProvider>
-            <Navbar />
-            {children}
-            <Toaster />
-            <Suspense fallback={null}>
-              <NavigationEvents />
-            </Suspense>
+            <PostsContextProvider>
+              <Navbar />
+              {children}
+              <Toaster />
+              <Suspense fallback={null}>
+                <NavigationEvents />
+              </Suspense>
+            </PostsContextProvider>
           </AuthDialogsProvider>
         </ThemeProvider>
       </body>

@@ -20,10 +20,10 @@ export const deletePostSchema = z.object({
 
 export const getPostsSchema = z.object({
   query: z.object({
-    page: z.string().optional(),
-    limit: z.string().optional(),
-    tag: z.string().optional(),
     authorId: MongoIdSchema.optional(),
+    continueAfterId: MongoIdSchema.optional(),
+    tag: z.string().optional(),
+    limit: z.string().optional(),
   }),
 });
 

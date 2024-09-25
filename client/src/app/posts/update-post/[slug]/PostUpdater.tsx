@@ -14,7 +14,7 @@ import { extractImageUrls, generateTags } from "@/lib/utils";
 import { createPostBody, Post, PostBodySchema } from "@/validation/schema/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useState } from "react";
 import { useForm } from "react-hook-form";
 import revalidateCachedData from "@/lib/revalidate";
 import {
@@ -26,12 +26,13 @@ import {
 } from "@/components/ui/dialog";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import TextInput from "@/components/form/TextInput";
+import usePostsLoader from "@/hooks/usePostsLoader";
 
-interface UpdatePostPageProps {
+interface PostUpdaterProps {
   post: Post;
 }
 
-export default function UpdatePost({ post }: UpdatePostPageProps) {
+export default function PostUpdater({ post }: PostUpdaterProps) {
   const form = useForm<createPostBody>({
     resolver: zodResolver(PostBodySchema),
     defaultValues: {
@@ -51,6 +52,8 @@ export default function UpdatePost({ post }: UpdatePostPageProps) {
 
   const [tagsString, setTagsString] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+
+  const { setPostList } = usePostsLoader();
 
   async function onSubmit(values: createPostBody) {
     let tags: string[] = [];

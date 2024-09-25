@@ -74,18 +74,18 @@
         prose-neutral 
         dark:prose-invert 
         dark:text-neutral-100
+        prose-p:my-3
         prose-h1:font-extrabold
         prose-h1:text-3xl 
         prose-h1:mb-4 
-        prose-h1:mt-0 
+        prose-h1:mt-2 
         prose-h2:mb-4 
-        prose-h2:mt-0 
+        prose-h2:mt-2 
         prose-h2:font-extrabold 
         prose-h3:mb-3 
-        prose-h3:mt-0 
+        prose-h3:mt-1 
         prose-h3:font-extrabold 
-        prose-h4:mb-2 
-        prose-h4:mt-2 
+        prose-h4:my-2  
         prose-h4:font-bold 
         prose-h5:font-semibold 
         prose-h5:my-2  
@@ -234,14 +234,14 @@
 }
 
 .editor-container .custom-html-style h1 {
-  @apply text-3xl font-extrabold mb-4 mt-0;
+  @apply text-3xl font-extrabold mb-4 mt-2;
 }
 
 .editor-container .custom-html-style h2 {
-  @apply text-2xl font-extrabold mb-4 mt-0 leading-8;
+  @apply text-2xl font-extrabold mb-4 mt-2 leading-8;
 }
 .editor-container .custom-html-style h3 {
-  @apply text-xl font-extrabold mb-3 mt-0 leading-8;
+  @apply text-xl font-extrabold mb-3 mt-1 leading-8;
 }
 .editor-container .custom-html-style h4 {
   @apply font-bold my-2 leading-6;
@@ -269,7 +269,7 @@
 }
 
 .editor-container .custom-html-style p {
-  @apply my-5;
+  @apply my-3;
 }
 
 .editor-container .custom-html-style ul,

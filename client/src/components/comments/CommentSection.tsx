@@ -2,6 +2,7 @@ import PostsAPI from "@/api/post";
 import CommentList from "./CommentList";
 import CreateCommentBox from "./CreateCommentBox";
 import CommentsContextProvider from "@/context/CommentsContext";
+import CommentCount from "./CommentCount";
 
 interface CommentSectionProps {
   postId: string;
@@ -16,7 +17,8 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
             <div className="text-2xl font-extrabold mb-4">
-              Comments ({initialPage.totalComments})
+              Comments{" "}
+              {<CommentCount initialCount={initialPage.totalComments} />}
             </div>
             <CreateCommentBox postId={postId} />
           </div>

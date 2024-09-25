@@ -53,6 +53,12 @@ const PostsAPI = {
     const res = await http.post<Comment>(`/posts/${postId}/comments`, values);
     return res.payload;
   },
+  async deleteComment(postId: string, commentId: string) {
+    const res = await http.delete<Comment>(
+      `/posts/${postId}/comments/${commentId}`
+    );
+    return res.payload;
+  },
   async uploadInCommentImage(postId: string, image: File) {
     const formData = new FormData();
     formData.append("inCommentImage", image);
