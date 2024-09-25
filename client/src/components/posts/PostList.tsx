@@ -1,49 +1,36 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import PostEntry from "./PostEntry";
 import EmptyPostList from "./EmptyPostList";
 import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
-import { Post, PostPage } from "@/validation/schema/post";
-import PostsAPI from "@/api/post";
+import { PostPage } from "@/validation/schema/post";
+import usePostsLoader from "@/hooks/usePostsLoader";
 
 interface PostsListProps {
-  initialPage: PostPage;
   author?: User;
   tag?: string;
+  continueAfterId?: string;
+  initialPage: PostPage;
 }
 
 export default function PostsList({
-  author,
   initialPage,
+  author,
   tag,
 }: PostsListProps) {
-  const [postList, setPostList] = useState<Post[]>(initialPage.posts);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageLoadError, setPageLoadError] = useState(false);
+  const {
+    postList,
+    setPostList,
+    fetchNextPage,
+    lastPostReached,
+    pageLoadError,
+  } = usePostsLoader();
 
-  const pageIndexRef = useRef(pageIndex);
-  pageIndexRef.current = pageIndex;
-
-  const fetchNextPage = useCallback(
-    async (author?: User, tag?: string, limit?: number) => {
-      const url = `/posts?${tag ? `tag=${tag}` : ""}${
-        author ? `&authorId=${author._id}` : ""
-      }&page=${pageIndexRef.current + 1}${limit ? `&limit=${limit}` : ""}`;
-
-      try {
-        setPageIndex(pageIndexRef.current + 1);
-        if (pageIndexRef.current >= initialPage.totalPages) return;
-
-        const nextPage = await PostsAPI.getPostList(url);
-        setPostList((prevPostList) => [...prevPostList, ...nextPage.posts]);
-      } catch (error) {
-        setPageLoadError(true);
-      }
-    },
-    [initialPage.totalPages]
-  );
+  useEffect(() => {
+    setPostList(initialPage.posts);
+  }, [initialPage.posts, setPostList]);
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
   const postRef = useCallback(
@@ -53,7 +40,7 @@ export default function PostsList({
       const observer = new IntersectionObserver(
         async (entries) => {
           if (entries[0].isIntersecting) {
-            fetchNextPage(author, tag, 12);
+            fetchNextPage(author?._id, tag, 12);
             observer.unobserve(postEntry);
           }
         },
@@ -64,7 +51,7 @@ export default function PostsList({
 
       observer.observe(postEntry);
     },
-    [author, tag, fetchNextPage]
+    [fetchNextPage, tag, author?._id]
   );
 
   return (
@@ -99,16 +86,23 @@ export default function PostsList({
           />
         )}
 
-        {initialPage &&
-          postList.map((post, index) => (
-            <PostEntry
-              key={post._id}
-              post={post}
-              ref={index === postList.length - 1 ? postRef : null}
-            />
-          ))}
+        {initialPage && postList.length > 0
+          ? postList.map((post, index) => (
+              <PostEntry
+                key={post._id}
+                post={post}
+                ref={index === postList.length - 1 ? postRef : null}
+              />
+            ))
+          : initialPage.posts.map((post, index) => (
+              <PostEntry
+                key={post._id}
+                post={post}
+                ref={index === postList.length - 1 ? postRef : null}
+              />
+            ))}
 
-        {pageIndex <= initialPage.totalPages && !pageLoadError && (
+        {!initialPage.lastPostReached && !lastPostReached && !pageLoadError && (
           <PostListSkeleton skeletonCount={3} />
         )}
       </div>

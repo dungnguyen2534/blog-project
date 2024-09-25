@@ -30,7 +30,7 @@ export const getCommentsSchema = z.object({
   }),
   query: z.object({
     parentCommentId: MongoIdSchema.optional(),
-    page: z.string().optional(),
+    continueAfterId: MongoIdSchema.optional(),
     limit: z.string().optional(),
   }),
 });

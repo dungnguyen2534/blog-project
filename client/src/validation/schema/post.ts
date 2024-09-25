@@ -24,11 +24,11 @@ export const PostBodySchema = z.object({
 
 export const PostPageSchema = z.object({
   posts: z.array(postSchema),
-  currentPage: z.number(),
-  totalPages: z.number(),
+  lastPostReached: z.boolean(),
 });
 
 export const CommentSchema = z.object({
+  postId: z.string(),
   _id: z.string(),
   author: userSchema,
   parentCommentId: z.string().optional(),
@@ -46,9 +46,8 @@ export const CommentBodySchema = z.object({
 
 export const commentPageSchema = z.object({
   comments: z.array(CommentSchema),
+  lastCommentReached: z.boolean(),
   totalComments: z.number(),
-  currentPage: z.number(),
-  totalPages: z.number(),
 });
 
 export type Post = z.infer<typeof postSchema>;

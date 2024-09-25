@@ -53,7 +53,6 @@ export default function CreateCommentBox({
       });
       form.reset();
       setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
-      console.log(newComment.author.username);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({

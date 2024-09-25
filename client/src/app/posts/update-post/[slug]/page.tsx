@@ -2,7 +2,8 @@ import PostsAPI from "@/api/post";
 import { NotFoundError } from "@/lib/http-errors";
 import { Post } from "@/validation/schema/post";
 import { notFound } from "next/navigation";
-import UpdatePost from "./UpdatePost";
+import PostUpdater from "./PostUpdater";
+import PostsContextProvider from "@/context/PostsContext";
 
 interface UpdatePostPageProps {
   params: { slug: string };
@@ -22,5 +23,5 @@ export default async function UpdatePostPage({
       throw error;
     }
   }
-  return <UpdatePost post={post} />;
+  return <PostUpdater post={post} />;
 }

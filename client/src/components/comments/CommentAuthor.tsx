@@ -2,13 +2,7 @@ import Link from "next/link";
 import { Comment } from "@/validation/schema/post";
 import MiniProfileProvider from "../MiniProfileProvider";
 import { TooltipTrigger } from "../ui/tooltip";
-import UserAvatar from "../UserAvatar";
-import {
-  calculateReadingTime,
-  formatDate,
-  formatUpdatedDate,
-} from "@/lib/utils";
-import post from "@/api/post";
+import { formatDate, formatUpdatedDate } from "@/lib/utils";
 
 interface CommentAuthorProps {
   comment: Comment;

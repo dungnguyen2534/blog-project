@@ -1,5 +1,6 @@
 import PostsList from "@/components/posts/PostList";
 import PostsAPI from "@/api/post";
+import PostsContextProvider from "@/context/PostsContext";
 
 export default async function Home() {
   const initialPage = await PostsAPI.getPostList();

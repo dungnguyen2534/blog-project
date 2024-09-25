@@ -2,18 +2,14 @@
 
 import PostsAPI from "@/api/post";
 import { CommentPage, Comment as CommentType } from "@/validation/schema/post";
-import { createContext, useCallback, useRef, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 
 interface CommentsContextType {
   commentList: CommentType[];
-  fetchNextPage: (
-    url?: string,
-    limit?: number,
-    parentCommentId?: string
-  ) => Promise<void>;
+  fetchNextPage: (parentCommentId?: string, limit?: number) => Promise<void>;
   setCommentList: React.Dispatch<React.SetStateAction<CommentType[]>>;
-  pageIndex: number;
   isLoading: boolean;
+  lastCommentReached: boolean;
   pageLoadError: boolean;
 }
 
@@ -34,35 +30,30 @@ export default function CommentsContextProvider({
     initialPage.comments
   );
 
-  const [pageIndex, setPageIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastCommentReached, setLastCommentReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
 
-  const pageIndexRef = useRef(pageIndex);
-  pageIndexRef.current = pageIndex;
-
-  // Either pass a url or limit and parentCommentId
+  const continueAfterId = commentList[commentList.length - 1]?._id;
   const fetchNextPage = useCallback(
-    async (url?: string, limit?: number, parentCommentId?: string) => {
-      if (url && (limit || parentCommentId))
-        throw new Error(
-          "Cannot use url and limit/parentCommentId at the same time"
-        );
-
+    async (parentCommentId?: string, limit?: number) => {
       setIsLoading(true);
+
       const query = `posts/${postId}/comments?${
         parentCommentId ? `parentCommentId=${parentCommentId}&` : ""
-      }page=${pageIndexRef.current + 1}&limit=${limit}`;
+      }${
+        continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
+      }limit=${limit}`;
 
       try {
-        setPageIndex(pageIndexRef.current + 1);
-        if (pageIndexRef.current >= initialPage.totalPages) return;
+        const nextPage = await PostsAPI.getCommentList(postId, query);
 
-        const nextPage = await PostsAPI.getCommentList(postId, url || query);
         setCommentList((prevCommentList) => [
           ...prevCommentList,
           ...nextPage.comments,
         ]);
+
+        setLastCommentReached(nextPage.lastCommentReached);
       } catch (error) {
         setIsLoading(false);
         setPageLoadError(true);
@@ -70,7 +61,7 @@ export default function CommentsContextProvider({
         setIsLoading(false);
       }
     },
-    [postId, initialPage.totalPages]
+    [postId, continueAfterId]
   );
 
   return (
@@ -79,7 +70,7 @@ export default function CommentsContextProvider({
         commentList,
         setCommentList,
         fetchNextPage,
-        pageIndex,
+        lastCommentReached,
         isLoading,
         pageLoadError,
       }}>

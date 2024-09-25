@@ -33,6 +33,7 @@ import revalidateCachedData from "@/lib/revalidate";
 import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";
 import PostAuthor from "./PostAuthor";
+import usePostsLoader from "@/hooks/usePostsLoader";
 
 interface PostOptionsProps {
   post: Post;
@@ -65,6 +66,8 @@ export default function PostOptions({
   const router = useRouter();
   const pathname = usePathname();
 
+  const { setPostList } = usePostsLoader();
+
   async function deletePost() {
     setIsDeleting(true);
 
@@ -74,6 +77,9 @@ export default function PostOptions({
 
       revalidateCachedData("/posts/" + post.slug);
       if (pathname === "/posts/" + post.slug) router.back();
+      setPostList((prevList) => {
+        return prevList.filter((currentPost) => currentPost._id !== post._id);
+      });
     } catch (error) {
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {
@@ -82,7 +88,10 @@ export default function PostOptions({
           description: "You are not authorized to delete this post",
         });
       } else {
-        toast({ title: "Error", description: "Failed to delete the post" });
+        toast({
+          title: "Error",
+          description: "An error occurred, please try again later",
+        });
       }
     }
   }

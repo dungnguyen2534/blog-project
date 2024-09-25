@@ -218,10 +218,8 @@ export const getPostList: RequestHandler<
   unknown,
   getPostsQuery
 > = async (req, res, next) => {
-  const currentPage = parseInt(req.query.page || "1");
   const limit = parseInt(req.query.limit || "12");
-  const authorId = req.query.authorId;
-  const tag = req.query.tag;
+  const { authorId, tag, continueAfterId } = req.query;
 
   const filter = {
     ...(authorId ? { author: authorId } : {}),
@@ -229,20 +227,23 @@ export const getPostList: RequestHandler<
   };
 
   try {
-    const posts = await PostModel.find(filter)
-      .sort({ _id: -1 })
-      .skip((currentPage - 1) * limit)
-      .limit(limit)
+    const query = PostModel.find(filter).sort({ _id: -1 });
+
+    if (continueAfterId) {
+      query.lt("_id", continueAfterId);
+    }
+
+    const result = await query
+      .limit(limit + 1)
       .populate("author")
       .exec();
 
-    const totalPages = Math.ceil(
-      (await PostModel.countDocuments(filter)) / limit
-    );
+    const posts = result.slice(0, limit);
+    const lastPostReached = result.length <= limit;
 
     setTimeout(() => {
-      res.status(200).json({ posts, totalPages, currentPage });
-    }, 500);
+      res.status(200).json({ posts, lastPostReached });
+    }, 700);
   } catch (error) {
     next(error);
   }
