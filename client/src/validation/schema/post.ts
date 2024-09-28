@@ -51,9 +51,8 @@ export const commentPageSchema = z.object({
 });
 
 export type Post = z.infer<typeof postSchema>;
-export type createPostBody = z.infer<typeof PostBodySchema>;
-export type updatePostBody = z.infer<typeof PostBodySchema>;
+export type PostBody = z.infer<typeof PostBodySchema>;
 export type PostPage = z.infer<typeof PostPageSchema>;
 export type Comment = z.infer<typeof CommentSchema>;
-export type CreateCommentBody = z.infer<typeof CommentBodySchema>;
+export type CommentBody = z.infer<typeof CommentBodySchema>;
 export type CommentPage = z.infer<typeof commentPageSchema>;

@@ -4,7 +4,7 @@ import FormWrapper from "@/components/form/FormWrapper";
 import FormInput from "@/components/form/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createPostBody, PostBodySchema } from "@/validation/schema/post";
+import { PostBody, PostBodySchema } from "@/validation/schema/post";
 import PostsAPI from "@/api/post";
 import { useRouter } from "next/navigation";
 import MarkdownEditor from "@/components/form/MarkdownEditor";
@@ -26,7 +26,7 @@ import {
 import TextInput from "@/components/form/TextInput";
 
 export default function NewPostPage() {
-  const form = useForm<createPostBody>({
+  const form = useForm<PostBody>({
     resolver: zodResolver(PostBodySchema),
     defaultValues: {
       title: "",
@@ -56,7 +56,7 @@ export default function NewPostPage() {
   const [tagsString, setTagsString] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
-  async function onSubmit(values: createPostBody) {
+  async function onSubmit(values: PostBody) {
     let tags: string[] = [];
 
     if (tagsString.length > 0) {

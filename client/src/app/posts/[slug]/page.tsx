@@ -40,7 +40,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
   const post = await getPost(slug);
 
   return (
-    <article className="secondary-container md:mt-[0.7rem] sm:py-7 p-3 rounded-b-none">
+    <article className="secondary-container md:my-[0.7rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
       <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">

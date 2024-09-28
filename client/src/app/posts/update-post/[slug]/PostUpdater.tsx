@@ -11,10 +11,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { extractImageUrls, generateTags } from "@/lib/utils";
-import { createPostBody, Post, PostBodySchema } from "@/validation/schema/post";
+import { PostBody, Post, PostBodySchema } from "@/validation/schema/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import revalidateCachedData from "@/lib/revalidate";
 import {
@@ -22,18 +22,16 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import TextInput from "@/components/form/TextInput";
-import usePostsLoader from "@/hooks/usePostsLoader";
 
 interface PostUpdaterProps {
   post: Post;
 }
 
 export default function PostUpdater({ post }: PostUpdaterProps) {
-  const form = useForm<createPostBody>({
+  const form = useForm<PostBody>({
     resolver: zodResolver(PostBodySchema),
     defaultValues: {
       title: post.title,
@@ -50,12 +48,18 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
   const title = form.watch("title");
   const body = form.watch("body");
 
-  const [tagsString, setTagsString] = useState("");
+  const [tagsString, setTagsString] = useState(post.tags.join(" "));
   const [openDialog, setOpenDialog] = useState(false);
 
-  const { setPostList } = usePostsLoader();
+  async function onSubmit(values: PostBody) {
+    if (!form.formState.isDirty && tagsString === post.tags.join(" ")) {
+      toast({
+        title: "No changes detected",
+        description: "You haven't made any changes to your post",
+      });
+      return;
+    }
 
-  async function onSubmit(values: createPostBody) {
     let tags: string[] = [];
 
     if (tagsString.length > 0) {
@@ -70,7 +74,7 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
 
       if (tags.some((tag) => tag.length > 20)) {
         toast({
-          title: "Some tags are too long",
+          title: "One or more tags are too long",
           description: "Each tag can't be more than 20 characters",
         });
         return;
@@ -165,7 +169,7 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
                 description="Example: #javascript #react #webdev"
                 className="dark:bg-neutral-900"
                 placeholder="Enter your post tags here... (5 tags at most)"
-                defaultValue={post.tags.join(" ")}
+                defaultValue={tagsString}
               />
 
               <LoadingButton

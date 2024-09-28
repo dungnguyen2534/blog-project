@@ -36,7 +36,7 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
             </Link>
           </Button>
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
-            <Link href="#">
+            <Link href={`/posts/${post.slug}#comments`}>
               <BsChatSquare size={18} className="mt-[3px]" /> 10 Comments
             </Link>
           </Button>

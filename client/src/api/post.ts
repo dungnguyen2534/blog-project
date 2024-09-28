@@ -2,7 +2,7 @@ import http from "@/lib/http";
 import {
   Comment,
   CommentPage,
-  CreateCommentBody,
+  CommentBody,
   createPostBody,
   Post,
   PostPage,
@@ -49,8 +49,15 @@ const PostsAPI = {
     const res = await http.get<Post>("/posts/" + slug);
     return res.payload;
   },
-  async createComment(postId: string, values: CreateCommentBody) {
+  async createComment(postId: string, values: CommentBody) {
     const res = await http.post<Comment>(`/posts/${postId}/comments`, values);
+    return res.payload;
+  },
+  async editComment(postId: string, commentId: string, values: CommentBody) {
+    const res = await http.patch<Comment>(
+      `/posts/${postId}/comments/${commentId}`,
+      values
+    );
     return res.payload;
   },
   async deleteComment(postId: string, commentId: string) {
