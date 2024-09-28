@@ -1,42 +1,40 @@
 "use client";
 
 import type { Comment } from "@/validation/schema/post";
-import CommentAuthor from "./CommentAuthor";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { BsThreeDots } from "react-icons/bs";
 import { useState } from "react";
-import { FaRegEdit } from "react-icons/fa";
-import { MdOutlineDeleteForever } from "react-icons/md";
 import LoadingButton from "../LoadingButton";
 import { Button } from "../ui/button";
-import useAuth from "@/hooks/useAuth";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { useToast } from "../ui/use-toast";
 import PostsAPI from "@/api/post";
+import MiniProfileProvider from "../MiniProfileProvider";
+import { TooltipTrigger } from "../ui/tooltip";
+import Link from "next/link";
+import { formatDate, formatUpdatedDate } from "@/lib/utils";
 
 interface CommentOptionsProps {
+  children: React.ReactNode;
   comment: Comment;
 }
 
-export default function CommentOptions({ comment }: CommentOptionsProps) {
+export default function CommentOptions({
+  children,
+  comment,
+}: CommentOptionsProps) {
   const [showDialog, setShowDialog] = useState(false);
-
-  const { user } = useAuth();
-  const isAuthor = comment.author._id === user?._id;
 
   const { setCommentList } = useCommentsLoader();
   const { toast } = useToast();
@@ -71,31 +69,13 @@ export default function CommentOptions({ comment }: CommentOptionsProps) {
           <div
             className="text-neutral-500 dark:text-neutral-400 
              -mt-5">
-            <DropdownMenuTrigger className="absolute right-0 top-0">
+            <DropdownMenuTrigger className="absolute -right-2 top-1">
               <div className="rounded-full transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-100 p-2">
                 <BsThreeDots size={20} />
               </div>
             </DropdownMenuTrigger>
           </div>
-          <DropdownMenuContent>
-            {isAuthor && (
-              <>
-                <DropdownMenuItem className="flex items-center gap-2 w-full h-full py-2">
-                  <FaRegEdit size={18} className="mb-[1px]" /> Edit
-                </DropdownMenuItem>
-
-                <DialogTrigger asChild>
-                  <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                    <MdOutlineDeleteForever
-                      size={22}
-                      className="-ml-1 mb-[1px]"
-                    />
-                    Delete
-                  </DropdownMenuItem>
-                </DialogTrigger>
-              </>
-            )}
-          </DropdownMenuContent>
+          <DropdownMenuContent>{children}</DropdownMenuContent>
         </DropdownMenu>
         <DialogContent>
           <DialogHeader>
@@ -117,6 +97,52 @@ export default function CommentOptions({ comment }: CommentOptionsProps) {
           </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function CommentAuthor({ comment }: { comment: Comment }) {
+  let commentDate;
+  if (!(comment.createdAt !== comment.updatedAt)) {
+    commentDate = (
+      <time
+        suppressHydrationWarning
+        className="text-xs text-neutral-500 dark:text-neutral-400"
+        dateTime={comment.createdAt}>
+        {formatDate(comment.createdAt)}
+      </time>
+    );
+  } else {
+    commentDate = (
+      <time
+        suppressHydrationWarning
+        className="text-xs text-neutral-500 dark:text-neutral-400"
+        dateTime={comment.createdAt}>
+        {formatDate(comment.createdAt)}
+      </time>
+    );
+  }
+
+  const author = comment.author;
+  return (
+    <div className="my-2">
+      <MiniProfileProvider author={author} customTrigger>
+        <div className="relative flex">
+          <TooltipTrigger asChild>
+            <Link
+              href={"/users/" + author.username}
+              className="flex gap-[0.4rem] items-center">
+              <span className="text-sm font-medium mb-5">
+                {author.username}
+              </span>
+            </Link>
+          </TooltipTrigger>
+          <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-0">
+            {commentDate}
+            {comment.createdAt !== comment.updatedAt && " - Edited"}
+          </div>
+        </div>
+      </MiniProfileProvider>
     </div>
   );
 }

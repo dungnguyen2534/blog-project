@@ -143,6 +143,7 @@ export const editComment: RequestHandler<
       ...(newImages && { images: newImages }),
     });
 
+    await commentToUpdate.populate("author");
     await commentToUpdate.save();
 
     res.status(200).json(commentToUpdate);

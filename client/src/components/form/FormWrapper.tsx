@@ -11,6 +11,7 @@ interface FormWrapperProps {
   submitFunction?: SubmitHandler<any>;
   onInvalid?: SubmitErrorHandler<any> | undefined;
   className?: string;
+  resetAfterSubmit?: boolean;
 }
 
 export default function FormWrapper({
@@ -19,12 +20,24 @@ export default function FormWrapper({
   submitFunction,
   onInvalid,
   className,
+  resetAfterSubmit,
 }: FormWrapperProps) {
+  const handleSubmit: SubmitHandler<any> = async (data) => {
+    if (submitFunction) {
+      await submitFunction(data);
+      if (resetAfterSubmit) {
+        form.reset();
+      }
+    } else {
+      return () => {};
+    }
+  };
+
   return (
     <Form {...form}>
       <form
         className={className}
-        onSubmit={form.handleSubmit(submitFunction || (() => {}), onInvalid)}>
+        onSubmit={form.handleSubmit(handleSubmit, onInvalid)}>
         {children}
       </form>
     </Form>
