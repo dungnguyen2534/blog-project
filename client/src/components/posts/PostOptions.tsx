@@ -39,12 +39,14 @@ interface PostOptionsProps {
   post: Post;
   author: User;
   menuOnTop?: boolean;
+  previousUrl: string | null;
 }
 
 export default function PostOptions({
   post,
   author,
   menuOnTop,
+  previousUrl,
 }: PostOptionsProps) {
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
@@ -75,11 +77,16 @@ export default function PostOptions({
       await PostsAPI.deletePost(post._id);
       setShowDialog(false);
 
-      revalidateCachedData("/posts/" + post.slug);
-      if (pathname === "/posts/" + post.slug) router.back();
       setPostList((prevList) => {
         return prevList.filter((currentPost) => currentPost._id !== post._id);
       });
+
+      revalidateCachedData("/posts/" + post.slug);
+      if (pathname === "/posts/" + post.slug) {
+        previousUrl === "/posts/create-post"
+          ? router.push("/")
+          : router.push(previousUrl || "/");
+      }
     } catch (error) {
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {

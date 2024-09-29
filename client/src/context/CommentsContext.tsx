@@ -6,11 +6,13 @@ import { createContext, useCallback, useState } from "react";
 
 interface CommentsContextType {
   commentList: CommentType[];
-  fetchNextPage: (parentCommentId?: string, limit?: number) => Promise<void>;
   setCommentList: React.Dispatch<React.SetStateAction<CommentType[]>>;
+  fetchNextPage: (limit?: number, continueAfterId?: string) => Promise<void>;
   isLoading: boolean;
   lastCommentReached: boolean;
   pageLoadError: boolean;
+  replyPages: CommentPage[];
+  setReplyPages: React.Dispatch<React.SetStateAction<CommentPage[]>>;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -19,32 +21,32 @@ interface CommentsContextProps {
   children: React.ReactNode;
   postId: string;
   initialPage: CommentPage;
+  initialReplyPages: CommentPage[];
 }
 
 export default function CommentsContextProvider({
   children,
   initialPage,
+  initialReplyPages,
   postId,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage.comments
   );
 
+  const [replyPages, setReplyPages] =
+    useState<CommentPage[]>(initialReplyPages);
+
   const [isLoading, setIsLoading] = useState(false);
-  const [lastCommentReached, setLastCommentReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
-
-  const continueAfterId = commentList[commentList.length - 1]?._id;
+  const [lastCommentReached, setLastCommentReached] = useState(false);
   const fetchNextPage = useCallback(
-    async (parentCommentId?: string, limit?: number) => {
-      setIsLoading(true);
-
+    async (limit?: number, continueAfterId?: string) => {
       const query = `posts/${postId}/comments?${
-        parentCommentId ? `parentCommentId=${parentCommentId}&` : ""
-      }${
         continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
       }limit=${limit}`;
 
+      setIsLoading(true);
       try {
         const nextPage = await PostsAPI.getCommentList(postId, query);
 
@@ -61,7 +63,7 @@ export default function CommentsContextProvider({
         setIsLoading(false);
       }
     },
-    [postId, continueAfterId]
+    [postId]
   );
 
   return (
@@ -73,6 +75,8 @@ export default function CommentsContextProvider({
         lastCommentReached,
         isLoading,
         pageLoadError,
+        replyPages,
+        setReplyPages,
       }}>
       {children}
     </CommentsContext.Provider>

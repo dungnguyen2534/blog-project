@@ -51,11 +51,12 @@ export const createComment: RequestHandler<
     if (unusedImages.length > 0) {
       const unusedImagesPath = unusedImages.map((image) => image.imagePath);
 
-      for (const imagePath of unusedImagesPath) {
+      const deletePromises = unusedImagesPath.map(async (imagePath) => {
         const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagesPathToDelete);
-      }
+        return fs.promises.unlink(imagesPathToDelete);
+      });
 
+      await Promise.all(deletePromises);
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagesPath } });
     }
 
@@ -110,10 +111,12 @@ export const editComment: RequestHandler<
       );
 
       if (oldUnusedImages.length > 0) {
-        for (const imagePath of oldUnusedImages) {
+        const deletePromises = oldUnusedImages.map(async (imagePath) => {
           const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-          await fs.promises.unlink(imagesPathToDelete);
-        }
+          return fs.promises.unlink(imagesPathToDelete);
+        });
+
+        await Promise.all(deletePromises);
         await TempImageModel.deleteMany({
           imagePath: { $in: oldUnusedImages },
         });
@@ -128,11 +131,12 @@ export const editComment: RequestHandler<
     if (newUnusedImages.length > 0) {
       const unusedImagesPath = newUnusedImages.map((image) => image.imagePath);
 
-      for (const imagePath of unusedImagesPath) {
+      const deletePromises = unusedImagesPath.map(async (imagePath) => {
         const unusedImagePath = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(unusedImagePath);
-      }
+        return fs.promises.unlink(unusedImagePath);
+      });
 
+      await Promise.all(deletePromises);
       await TempImageModel.deleteMany({
         imagePath: { $in: unusedImagesPath },
       });
@@ -174,26 +178,30 @@ export const deleteComment: RequestHandler<
       );
     }
 
-    for (const imagePath of commentToDelete.images) {
+    const deletePromises = commentToDelete.images.map(async (imagePath) => {
       const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-      await fs.promises.unlink(imagePathToDelete);
-    }
+      return fs.promises.unlink(imagePathToDelete);
+    });
+
+    await Promise.all(deletePromises);
 
     // cascade delete child comments
     const childComments = await CommentModel.find({
       parentCommentId: commentId,
     }).exec();
     if (childComments.length > 0) {
-      for (const comment of childComments) {
-        for (const commentImagePath of comment.images) {
+      const deletePromises = childComments.flatMap((comment) =>
+        comment.images.map((commentImagePath) => {
           const imagePathToDelete = path.join(
             __dirname,
             "../..",
             commentImagePath
           );
-          await fs.promises.unlink(imagePathToDelete);
-        }
-      }
+          return fs.promises.unlink(imagePathToDelete);
+        })
+      );
+
+      await Promise.all(deletePromises);
       await CommentModel.deleteMany({ parentCommentId: commentId });
     }
 
@@ -232,10 +240,20 @@ export const getCommentList: RequestHandler<
     const comments = result.slice(0, limit);
     const lastCommentReached = result.length <= limit;
 
-    const totalComments = await CommentModel.countDocuments({ postId }).exec();
+    const [totalComments, totalCommentsIncludeReplies] = await Promise.all([
+      CommentModel.countDocuments({
+        postId,
+        parentCommentId,
+      }).exec(),
+      CommentModel.countDocuments({
+        postId,
+      }).exec(),
+    ]);
+
     res.status(200).json({
       comments,
       totalComments,
+      totalCommentsIncludeReplies,
       lastCommentReached,
     });
   } catch (error) {

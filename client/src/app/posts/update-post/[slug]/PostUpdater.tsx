@@ -47,12 +47,18 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
 
   const title = form.watch("title");
   const body = form.watch("body");
+  const summary = form.watch("summary");
 
   const [tagsString, setTagsString] = useState(post.tags.join(" "));
   const [openDialog, setOpenDialog] = useState(false);
 
   async function onSubmit(values: PostBody) {
-    if (!form.formState.isDirty && tagsString === post.tags.join(" ")) {
+    if (
+      title === post.title &&
+      body === post.body &&
+      summary === post.summary &&
+      tagsString === post.tags.join(" ")
+    ) {
       toast({
         title: "No changes detected",
         description: "You haven't made any changes to your post",

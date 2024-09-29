@@ -1,6 +1,9 @@
 "use client";
 
-import type { Comment, CommentBody } from "@/validation/schema/post";
+import type {
+  Comment as CommentType,
+  CommentBody,
+} from "@/validation/schema/post";
 import MarkdownRenderer from "../MarkdownRenderer";
 import UserAvatar from "../UserAvatar";
 import CommentOptions from "./CommentOptions";
@@ -17,12 +20,27 @@ import { extractImageUrls } from "@/lib/utils";
 import PostsAPI from "@/api/post";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { Button } from "../ui/button";
+import ReplySection from "./ReplySection";
 
 interface CommentProps {
-  comment: Comment;
+  comment: CommentType;
+  replyComment?: boolean;
+  onEditReply?: (comment: CommentType) => void;
+  onDeleteReply?: (comment: CommentType) => void;
+  className?: string;
 }
 
-export default function Comment({ comment }: CommentProps) {
+export default function Comment({
+  comment,
+  replyComment,
+  onEditReply,
+  onDeleteReply,
+  className,
+}: CommentProps) {
+  if (replyComment && (!onEditReply || !onDeleteReply)) {
+    throw new Error("onEditReply and onDeleteReply are required for reply");
+  }
+
   const { user } = useAuth();
   const isAuthor = comment.author._id === user?._id;
   const postId = comment.postId;
@@ -40,11 +58,16 @@ export default function Comment({ comment }: CommentProps) {
         body: comment.body,
         images,
       });
-      setCommentList((prevCommentList) =>
-        prevCommentList.map((comment) =>
-          comment._id === newComment._id ? newComment : comment
-        )
-      );
+
+      if (replyComment) {
+        onEditReply && onEditReply(newComment);
+      } else {
+        setCommentList((prevCommentList) =>
+          prevCommentList.map((comment) =>
+            comment._id === newComment._id ? newComment : comment
+          )
+        );
+      }
 
       setIsEditing(false);
     } catch (error) {
@@ -62,11 +85,15 @@ export default function Comment({ comment }: CommentProps) {
     }
   }
 
-  const isMobile = window.matchMedia("(max-width: 640px)").matches;
+  let isMobile = false;
+  if (typeof window !== "undefined") {
+    isMobile = window.matchMedia("(max-width: 640px)").matches;
+  }
+
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex gap-2 mt-5">
+    <div className={`flex gap-2 mt-5 ${className}`}>
       <UserAvatar
         username={comment.author.username}
         profilePicUrl={comment.author.profilePicPath}
@@ -88,37 +115,44 @@ export default function Comment({ comment }: CommentProps) {
           />
           <Button
             variant="secondary"
-            className="flex gap-1 absolute bottom-0 left-[7.5rem] sm:left-[9.5rem]"
+            className="absolute bottom-0 left-[7.5rem] sm:left-[9.5rem]"
             onClick={() => setIsEditing(false)}>
-            Stop<span className="hidden sm:block">Editing</span>
+            Dismiss
           </Button>
         </div>
       ) : (
-        <div
-          ref={heightRef}
-          className="flex-grow flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-sm w-fit px-5 overflow-hidden">
-          <CommentOptions comment={comment}>
-            {isAuthor && (
-              <>
-                <DropdownMenuItem
-                  className="flex items-center gap-2 w-full h-full py-2 cursor-pointer"
-                  onClick={() => setIsEditing(true)}>
-                  <FaRegEdit size={18} className="mb-[1px]" /> Edit
-                </DropdownMenuItem>
-
-                <DialogTrigger asChild>
-                  <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                    <MdOutlineDeleteForever
-                      size={22}
-                      className="-ml-1 mb-[1px]"
-                    />
-                    Delete
+        <div className="flex-grow flex flex-col">
+          <div
+            ref={heightRef}
+            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-sm px-5 overflow-hidden">
+            <CommentOptions
+              comment={comment}
+              onDeleteReply={replyComment ? onDeleteReply : undefined}>
+              {isAuthor && (
+                <>
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 w-full h-full py-2 cursor-pointer"
+                    onClick={() => setIsEditing(true)}>
+                    <FaRegEdit size={18} className="mb-[1px]" /> Edit
                   </DropdownMenuItem>
-                </DialogTrigger>
-              </>
-            )}
-          </CommentOptions>
-          <MarkdownRenderer>{comment.body}</MarkdownRenderer>
+
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                      <MdOutlineDeleteForever
+                        size={22}
+                        className="-ml-1 mb-[1px]"
+                      />
+                      Delete
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                </>
+              )}
+            </CommentOptions>
+            <MarkdownRenderer>{comment.body}</MarkdownRenderer>
+          </div>
+          {!replyComment && (
+            <ReplySection postId={postId} parentCommentId={commentId} />
+          )}
         </div>
       )}
     </div>

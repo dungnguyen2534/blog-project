@@ -3,7 +3,6 @@ import { NotFoundError } from "@/lib/http-errors";
 import { Post } from "@/validation/schema/post";
 import { notFound } from "next/navigation";
 import PostUpdater from "./PostUpdater";
-import PostsContextProvider from "@/context/PostsContext";
 
 interface UpdatePostPageProps {
   params: { slug: string };
@@ -23,5 +22,6 @@ export default async function UpdatePostPage({
       throw error;
     }
   }
+
   return <PostUpdater post={post} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Comment } from "@/validation/schema/post";
+import type { Comment as CommentType } from "@/validation/schema/post";
 import {
   Dialog,
   DialogContent,
@@ -23,20 +23,22 @@ import PostsAPI from "@/api/post";
 import MiniProfileProvider from "../MiniProfileProvider";
 import { TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
-import { formatDate, formatUpdatedDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 interface CommentOptionsProps {
   children: React.ReactNode;
-  comment: Comment;
+  comment: CommentType;
+  onDeleteReply?: (comment: CommentType) => void;
 }
 
 export default function CommentOptions({
   children,
   comment,
+  onDeleteReply,
 }: CommentOptionsProps) {
   const [showDialog, setShowDialog] = useState(false);
 
-  const { setCommentList } = useCommentsLoader();
+  const { setCommentList, setReplyPages, replyPages } = useCommentsLoader();
   const { toast } = useToast();
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -46,9 +48,23 @@ export default function CommentOptions({
 
     try {
       await PostsAPI.deleteComment(comment.postId, comment._id);
-      setCommentList((prev) =>
-        prev.filter((prevComment) => prevComment._id !== comment._id)
-      );
+
+      if (onDeleteReply) {
+        onDeleteReply(comment);
+      } else {
+        setCommentList((prev) =>
+          prev.filter((prevComment) => prevComment._id !== comment._id)
+        );
+
+        setReplyPages((prev) =>
+          prev.map((page) => ({
+            ...page,
+            comments: page.comments.filter(
+              (prevComment) => prevComment.parentCommentId !== comment._id
+            ),
+          }))
+        );
+      }
     } catch (error) {
       setShowDialog(false);
       setIsDeleting(false);
@@ -101,7 +117,7 @@ export default function CommentOptions({
   );
 }
 
-function CommentAuthor({ comment }: { comment: Comment }) {
+function CommentAuthor({ comment }: { comment: CommentType }) {
   let commentDate;
   if (!(comment.createdAt !== comment.updatedAt)) {
     commentDate = (
