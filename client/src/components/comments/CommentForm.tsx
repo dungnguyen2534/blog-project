@@ -21,6 +21,8 @@ interface CommentFormProps {
   submitFunction: (comment: CommentBody) => Promise<void>;
   height?: string;
   autoFocus?: boolean;
+  className?: string;
+  submitBtnText?: string;
 }
 
 export default function CommentForm({
@@ -30,6 +32,8 @@ export default function CommentForm({
   submitFunction,
   height,
   autoFocus,
+  className,
+  submitBtnText,
 }: CommentFormProps) {
   const form = useForm<CommentBody>({
     resolver: zodResolver(CommentBodySchema),
@@ -51,7 +55,7 @@ export default function CommentForm({
   }
 
   return (
-    <div className="flex gap-2">
+    <div className={`flex gap-2 ${className}`}>
       {!noAvatar && (
         <UserAvatar
           username={user?.username}
@@ -88,7 +92,7 @@ export default function CommentForm({
         <div className="flex justify-between items-center sm:flex-row gap-2">
           <LoadingButton
             className="font-semibold w-28 sm:w-36"
-            text="Submit"
+            text={submitBtnText || "Submit"}
             type="submit"
             loading={isSubmitting}
           />

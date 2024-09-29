@@ -6,6 +6,7 @@ import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
 import CommentSection from "@/components/comments/CommentSection";
 import PostTags from "@/components/posts/PostTags";
+import { headers } from "next/headers";
 
 const getPost = cache(async (slug: string) => {
   try {
@@ -38,6 +39,8 @@ export async function generateMetadata({ params: { slug } }: PostPageProps) {
 
 export default async function PostPage({ params: { slug } }: PostPageProps) {
   const post = await getPost(slug);
+  const referer = headers().get("referer");
+  const previousUrl = referer ? new URL(referer).pathname : null;
 
   return (
     <article className="secondary-container md:my-[0.7rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
@@ -47,7 +50,11 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
             {post.title}
           </h1>
           <PostTags tags={post.tags} className="mb-3" />
-          <PostOptions post={post} author={post.author} />
+          <PostOptions
+            post={post}
+            author={post.author}
+            previousUrl={previousUrl}
+          />
         </header>
         <div>
           <MarkdownRenderer>{post.body}</MarkdownRenderer>

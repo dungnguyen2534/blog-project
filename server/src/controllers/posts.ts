@@ -54,10 +54,12 @@ export const createPost: RequestHandler<
     if (unusedImages.length > 0) {
       const unusedImagePaths = unusedImages.map((image) => image.imagePath);
 
-      for (const imagePath of unusedImagePaths) {
+      const deletePromises = unusedImagePaths.map((imagePath) => {
         const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(imagePathToDelete);
-      }
+        return fs.promises.unlink(imagePathToDelete);
+      });
+
+      await Promise.all(deletePromises);
 
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagePaths } });
     }
@@ -116,10 +118,12 @@ export const updatePost: RequestHandler<
       );
 
       if (oldUnusedImages.length > 0) {
-        for (const imagePath of oldUnusedImages) {
+        const deletePromises = oldUnusedImages.map((imagePath) => {
           const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-          await fs.promises.unlink(imagePathToDelete);
-        }
+          return fs.promises.unlink(imagePathToDelete);
+        });
+
+        await Promise.all(deletePromises);
 
         await TempImageModel.deleteMany({
           imagePath: { $in: oldUnusedImages },
@@ -136,10 +140,12 @@ export const updatePost: RequestHandler<
     if (newUnusedImages.length > 0) {
       const unusedImagesPath = newUnusedImages.map((image) => image.imagePath);
 
-      for (const imagePath of unusedImagesPath) {
+      const deletePromises = unusedImagesPath.map((imagePath) => {
         const unusedImagePath = path.join(__dirname, "../..", imagePath);
-        await fs.promises.unlink(unusedImagePath);
-      }
+        return fs.promises.unlink(unusedImagePath);
+      });
+
+      await Promise.all(deletePromises);
 
       await TempImageModel.deleteMany({
         imagePath: { $in: unusedImagesPath },
@@ -181,26 +187,30 @@ export const deletePost: RequestHandler<
       throw createHttpError(403, "You are not authorized to delete this post");
     }
 
-    for (const imagePath of postToDelete.images) {
+    const deletePromises = postToDelete.images.map((imagePath) => {
       const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-      await fs.promises.unlink(imagePathToDelete);
-    }
+      return fs.promises.unlink(imagePathToDelete);
+    });
+
+    await Promise.all(deletePromises);
 
     // cascade delete comments of the post
     const comments = await CommentModel.find({
       postId: postToDelete._id,
     }).exec();
     if (comments.length > 0) {
-      for (const comment of comments) {
-        for (const commentImagePath of comment.images) {
+      const deletePromises = comments.flatMap((comment) =>
+        comment.images.map((commentImagePath) => {
           const imagePathToDelete = path.join(
             __dirname,
             "../..",
             commentImagePath
           );
-          await fs.promises.unlink(imagePathToDelete);
-        }
-      }
+          return fs.promises.unlink(imagePathToDelete);
+        })
+      );
+
+      await Promise.all(deletePromises);
       await CommentModel.deleteMany({ postId: postToDelete._id });
     }
 

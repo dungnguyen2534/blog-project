@@ -1,10 +1,9 @@
 "use client";
 
 import Comment from "./Comment";
-import { CommentPage } from "@/validation/schema/post";
+import { CommentPage, Comment as CommentType } from "@/validation/schema/post";
 import LoadingButton from "../LoadingButton";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
-import { useState } from "react";
 
 interface CommentListProps {
   initialPage: CommentPage;
@@ -21,10 +20,9 @@ export default function CommentList({ initialPage }: CommentListProps) {
 
   return (
     <>
-      {initialPage &&
-        commentList.map((comment) => (
-          <Comment key={comment._id} comment={comment} />
-        ))}
+      {commentList.map((comment) => {
+        return <Comment key={comment._id} comment={comment} />;
+      })}
 
       {!initialPage.lastCommentReached &&
         !lastCommentReached &&
@@ -35,7 +33,9 @@ export default function CommentList({ initialPage }: CommentListProps) {
               variant="secondary"
               text="Load more comments"
               loading={isLoading}
-              onClick={() => fetchNextPage(undefined, 2)}
+              onClick={() =>
+                fetchNextPage(2, commentList[commentList.length - 1]._id)
+              }
             />
           </div>
         )}

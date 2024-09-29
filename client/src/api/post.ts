@@ -3,18 +3,17 @@ import {
   Comment,
   CommentPage,
   CommentBody,
-  createPostBody,
+  PostBody,
   Post,
   PostPage,
-  updatePostBody,
 } from "@/validation/schema/post";
 
 const PostsAPI = {
-  async createPost(values: createPostBody) {
+  async createPost(values: PostBody) {
     const res = await http.post<Post>("/posts", values);
     return res.payload;
   },
-  async updatePost(id: string, values: updatePostBody) {
+  async updatePost(id: string, values: PostBody) {
     const res = await http.patch<Post>("/posts/" + id, values);
     return res.payload;
   },
@@ -75,9 +74,13 @@ const PostsAPI = {
     );
     return res.payload;
   },
-  async getCommentList(postId: string, url?: string) {
+  async getCommentList(postId: string, url?: string, parentCommentId?: string) {
     const res = await http.get<CommentPage>(
-      url ? `${url}` : `/posts/${postId}/comments`,
+      url
+        ? `${url}`
+        : `/posts/${postId}/comments${
+            parentCommentId ? `?parentCommentId=${parentCommentId}` : ""
+          }`,
       {
         cache: "no-cache",
       }
