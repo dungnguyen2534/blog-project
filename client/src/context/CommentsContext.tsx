@@ -1,8 +1,9 @@
 "use client";
 
 import PostsAPI from "@/api/post";
+import usePostsLoader from "@/hooks/usePostsLoader";
 import { CommentPage, Comment as CommentType } from "@/validation/schema/post";
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 interface CommentsContextType {
   commentList: CommentType[];
@@ -13,6 +14,10 @@ interface CommentsContextType {
   pageLoadError: boolean;
   replyPages: CommentPage[];
   setReplyPages: React.Dispatch<React.SetStateAction<CommentPage[]>>;
+  replies: CommentType[];
+  setReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
+  newLocalReplies: CommentType[];
+  setNewLocalReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -37,6 +42,12 @@ export default function CommentsContextProvider({
   const [replyPages, setReplyPages] =
     useState<CommentPage[]>(initialReplyPages);
 
+  const [replies, setReplies] = useState<CommentType[]>(
+    initialReplyPages.flatMap((page) => page.comments)
+  );
+
+  const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
   const [lastCommentReached, setLastCommentReached] = useState(false);
@@ -49,10 +60,32 @@ export default function CommentsContextProvider({
       setIsLoading(true);
       try {
         const nextPage = await PostsAPI.getCommentList(postId, query);
+        const nextReplyPagesPromises = nextPage.comments.map(
+          async (comment) => {
+            const replyPage = await PostsAPI.getCommentList(
+              postId,
+              undefined,
+              comment._id
+            );
+            return replyPage;
+          }
+        );
+
+        const nextReplyPages = await Promise.all(nextReplyPagesPromises);
 
         setCommentList((prevCommentList) => [
           ...prevCommentList,
           ...nextPage.comments,
+        ]);
+
+        setReplyPages((prevReplyPages) => [
+          ...prevReplyPages,
+          ...nextReplyPages,
+        ]);
+
+        setReplies((prevReplies) => [
+          ...prevReplies,
+          ...nextReplyPages.flatMap((page) => page.comments),
         ]);
 
         setLastCommentReached(nextPage.lastCommentReached);
@@ -77,6 +110,10 @@ export default function CommentsContextProvider({
         pageLoadError,
         replyPages,
         setReplyPages,
+        replies,
+        setReplies,
+        newLocalReplies,
+        setNewLocalReplies,
       }}>
       {children}
     </CommentsContext.Provider>

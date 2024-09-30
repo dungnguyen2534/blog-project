@@ -1,27 +1,32 @@
 "use client";
 
 import useCommentsLoader from "@/hooks/useCommentsLoader";
+import usePostsLoader from "@/hooks/usePostsLoader";
 import { useEffect, useRef, useState } from "react";
 
 interface CommentCountProps {
-  initialCount: number;
+  postId: string;
+  initialCountServerSide?: number;
 }
 
-export default function CommentCount({ initialCount }: CommentCountProps) {
-  const [count, setCount] = useState(initialCount);
-  const { commentList } = useCommentsLoader();
+/*
+initialCountServerSide is used to set the initial count when user accesses the page directly from the URL
+because the initialCount from postList will not be available in that case. Other cases will use the initialCount, initialCountServerSide not always shows latest count.
+*/
+export default function CommentCount({
+  postId,
+  initialCountServerSide,
+}: CommentCountProps) {
+  const { postList } = usePostsLoader();
+  const initialCount = postList.find(
+    (post) => post._id === postId
+  )?.commentCount;
 
-  const commentListRef = useRef(commentList);
+  const [count, setCount] = useState(
+    initialCount || initialCountServerSide || 0
+  );
 
-  useEffect(() => {
-    if (commentListRef.current.length + 1 === commentList.length) {
-      setCount((prevCount) => prevCount + 1);
-    } else if (commentListRef.current.length - 1 === commentList.length) {
-      setCount((prevCount) => prevCount - 1);
-    }
-
-    commentListRef.current = commentList;
-  }, [commentList]);
+  // TODO: make this shit work when create/delete comments
 
   return <>{count > 0 ? `(${count})` : ""}</>;
 }

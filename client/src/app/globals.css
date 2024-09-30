@@ -166,11 +166,15 @@
 
 /* Custom markdown editor */
 .rc-md-editor {
-  @apply rounded bg-neutral-100 dark:bg-neutral-950 dark:border-neutral-800 pb-0  overflow-hidden !important;
+  @apply rounded bg-neutral-100 dark:bg-neutral-900 dark:border-neutral-800 pb-0 !important;
 }
 
 .rc-md-editor .rc-md-navigation {
   @apply dark:bg-neutral-950 dark:border-b-neutral-700 rounded-tl-md rounded-tr-md;
+}
+
+.rc-md-editor .editor-container {
+  @apply rounded-b-[0.2rem] overflow-hidden dark:!bg-neutral-900;
 }
 
 .rc-md-editor .navigation-nav .button-wrap .button {
@@ -198,7 +202,7 @@
 }
 
 .rc-md-editor .editor-container .sec-md {
-  @apply border-r-0 border-r-neutral-800 rounded-md !important;
+  @apply border-r-0 border-r-neutral-800 rounded-md  !important;
 }
 
 .rc-md-editor .editor-container .sec-md,

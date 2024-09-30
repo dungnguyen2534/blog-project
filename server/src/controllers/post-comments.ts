@@ -17,6 +17,7 @@ import createHttpError from "http-errors";
 import { nanoid } from "nanoid";
 import sharp from "sharp";
 import env from "../env";
+import PostModel from "../models/post";
 
 export const createComment: RequestHandler<
   CreateCommentParams,
@@ -68,6 +69,7 @@ export const createComment: RequestHandler<
       images: imagesPath,
     });
 
+    await PostModel.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } });
     await newComment.populate("author");
     res.status(201).json(newComment);
   } catch (error) {
@@ -185,11 +187,14 @@ export const deleteComment: RequestHandler<
 
     await Promise.all(deletePromises);
 
+    let commentCountDecrement = 1;
+
     // cascade delete child comments
     const childComments = await CommentModel.find({
       parentCommentId: commentId,
     }).exec();
     if (childComments.length > 0) {
+      commentCountDecrement += childComments.length;
       const deletePromises = childComments.flatMap((comment) =>
         comment.images.map((commentImagePath) => {
           const imagePathToDelete = path.join(
@@ -204,6 +209,10 @@ export const deleteComment: RequestHandler<
       await Promise.all(deletePromises);
       await CommentModel.deleteMany({ parentCommentId: commentId });
     }
+
+    await PostModel.findByIdAndUpdate(commentToDelete.postId, {
+      $inc: { commentCount: -1 * commentCountDecrement },
+    });
 
     await commentToDelete.deleteOne();
 
@@ -227,10 +236,14 @@ export const getCommentList: RequestHandler<
     const query = CommentModel.find({
       postId,
       parentCommentId,
-    }).sort({ _id: -1 });
+    }).sort({ _id: parentCommentId ? 1 : -1 });
 
     if (continueAfterId) {
-      query.lt("_id", continueAfterId);
+      if (parentCommentId) {
+        query.gt("_id", continueAfterId);
+      } else {
+        query.lt("_id", continueAfterId);
+      }
     }
 
     const result = await query
@@ -240,20 +253,8 @@ export const getCommentList: RequestHandler<
     const comments = result.slice(0, limit);
     const lastCommentReached = result.length <= limit;
 
-    const [totalComments, totalCommentsIncludeReplies] = await Promise.all([
-      CommentModel.countDocuments({
-        postId,
-        parentCommentId,
-      }).exec(),
-      CommentModel.countDocuments({
-        postId,
-      }).exec(),
-    ]);
-
     res.status(200).json({
       comments,
-      totalComments,
-      totalCommentsIncludeReplies,
       lastCommentReached,
     });
   } catch (error) {

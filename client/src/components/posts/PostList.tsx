@@ -92,6 +92,7 @@ export default function PostsList({
                 key={post._id}
                 post={post}
                 ref={index === postList.length - 1 ? postRef : null}
+                commentCount={post.commentCount}
               />
             ))
           : initialPage.posts.map((post, index) => (

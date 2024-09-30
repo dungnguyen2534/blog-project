@@ -44,7 +44,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
     <CommentForm
       postId={postId}
       submitFunction={onCreateComment}
-      height="12rem"
+      height="10rem"
     />
   );
 }
