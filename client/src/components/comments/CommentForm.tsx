@@ -12,11 +12,12 @@ import { RxQuestionMarkCircled } from "react-icons/rx";
 import { useToast } from "../ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
+import { useEffect } from "react";
 
 interface CommentFormProps {
   postId: string;
   parentCommentId?: string;
-  initialValue?: string;
+  defaultValue?: string;
   noAvatar?: boolean;
   submitFunction: (comment: CommentBody) => Promise<void>;
   height?: string;
@@ -27,7 +28,7 @@ interface CommentFormProps {
 
 export default function CommentForm({
   postId,
-  initialValue = "",
+  defaultValue = "",
   noAvatar,
   submitFunction,
   height,
@@ -38,7 +39,7 @@ export default function CommentForm({
   const form = useForm<CommentBody>({
     resolver: zodResolver(CommentBodySchema),
     defaultValues: {
-      body: initialValue,
+      body: defaultValue,
       images: [],
     },
   });
@@ -79,6 +80,7 @@ export default function CommentForm({
         resetAfterSubmit
         className="flex-grow">
         <MarkdownEditor
+          defaultValue={defaultValue}
           autoFocus={autoFocus}
           controller={form.control}
           name="body"

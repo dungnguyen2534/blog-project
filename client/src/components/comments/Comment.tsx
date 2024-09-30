@@ -20,7 +20,8 @@ import { extractImageUrls } from "@/lib/utils";
 import PostsAPI from "@/api/post";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { Button } from "../ui/button";
-import ReplySection from "./ReplySection";
+import CommentActions from "./CommentActions";
+import Replies from "./Replies";
 
 interface CommentProps {
   comment: CommentType;
@@ -41,14 +42,18 @@ export default function Comment({
     throw new Error("onEditReply and onDeleteReply are required for reply");
   }
 
+  const topLevelCommentId = comment.parentCommentId || comment._id;
+
   const { user } = useAuth();
   const isAuthor = comment.author._id === user?._id;
   const postId = comment.postId;
   const commentId = comment._id;
 
-  const [isEditing, setIsEditing] = useState(false);
   const { setCommentList } = useCommentsLoader();
+
   const { toast } = useToast();
+
+  const [isEditing, setIsEditing] = useState(false);
 
   async function onEditComment(comment: CommentBody) {
     const images = extractImageUrls(comment.body);
@@ -89,7 +94,6 @@ export default function Comment({
   if (typeof window !== "undefined") {
     isMobile = window.matchMedia("(max-width: 640px)").matches;
   }
-
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -104,7 +108,7 @@ export default function Comment({
           <CommentForm
             postId={comment.postId}
             submitFunction={onEditComment}
-            initialValue={comment.body}
+            defaultValue={comment.body}
             noAvatar
             autoFocus
             height={
@@ -150,9 +154,12 @@ export default function Comment({
             </CommentOptions>
             <MarkdownRenderer>{comment.body}</MarkdownRenderer>
           </div>
-          {!replyComment && (
-            <ReplySection postId={postId} parentCommentId={commentId} />
-          )}
+          <CommentActions
+            postId={postId}
+            parentCommentId={topLevelCommentId}
+            parentCommentUsername={comment.author.username}
+          />
+          <Replies postId={postId} parentCommentId={comment._id} />
         </div>
       )}
     </div>

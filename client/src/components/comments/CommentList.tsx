@@ -26,7 +26,8 @@ export default function CommentList({ initialPage }: CommentListProps) {
 
       {!initialPage.lastCommentReached &&
         !lastCommentReached &&
-        !pageLoadError && (
+        !pageLoadError &&
+        !(commentList.length === 0) && (
           <div className="ml-[3.1rem] mt-5">
             <LoadingButton
               className="w-full"

@@ -38,7 +38,8 @@ export default function CommentOptions({
 }: CommentOptionsProps) {
   const [showDialog, setShowDialog] = useState(false);
 
-  const { setCommentList, setReplyPages, replyPages } = useCommentsLoader();
+  const { commentList, setCommentList, setReplyPages, fetchNextPage } =
+    useCommentsLoader();
   const { toast } = useToast();
 
   const [isDeleting, setIsDeleting] = useState(false);
@@ -52,6 +53,9 @@ export default function CommentOptions({
       if (onDeleteReply) {
         onDeleteReply(comment);
       } else {
+        if (comment._id === commentList[commentList.length - 1]._id) {
+          fetchNextPage(1, comment._id);
+        }
         setCommentList((prev) =>
           prev.filter((prevComment) => prevComment._id !== comment._id)
         );

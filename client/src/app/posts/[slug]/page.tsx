@@ -60,7 +60,10 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
           <MarkdownRenderer>{post.body}</MarkdownRenderer>
         </div>
       </div>
-      <CommentSection postId={post._id} />
+      <CommentSection
+        postId={post._id}
+        initialCommentCount={post.commentCount}
+      />
     </article>
   );
 }

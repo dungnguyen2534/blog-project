@@ -39,7 +39,7 @@ interface PostOptionsProps {
   post: Post;
   author: User;
   menuOnTop?: boolean;
-  previousUrl: string | null;
+  previousUrl?: string | null;
 }
 
 export default function PostOptions({
@@ -70,16 +70,16 @@ export default function PostOptions({
 
   const { setPostList } = usePostsLoader();
 
+  // TODO: prevent user interaction while deleting
   async function deletePost() {
     setIsDeleting(true);
 
     try {
       await PostsAPI.deletePost(post._id);
-      setShowDialog(false);
 
-      setPostList((prevList) => {
-        return prevList.filter((currentPost) => currentPost._id !== post._id);
-      });
+      setPostList((prevList) =>
+        prevList.filter((currentPost) => currentPost._id !== post._id)
+      );
 
       revalidateCachedData("/posts/" + post.slug);
       if (pathname === "/posts/" + post.slug) {
@@ -87,6 +87,8 @@ export default function PostOptions({
           ? router.push("/")
           : router.push(previousUrl || "/");
       }
+
+      setShowDialog(false);
     } catch (error) {
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {
@@ -166,7 +168,6 @@ export default function PostOptions({
             <LoadingButton
               loading={isDeleting}
               text="Sure, delete it"
-              loadingText="Deleting..."
               onClick={deletePost}
               className="bg-red-600 dark:hover:bg-red-700 text-white"
             />

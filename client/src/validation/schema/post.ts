@@ -10,6 +10,8 @@ export const postSchema = z.object({
   author: userSchema,
   tags: z.array(z.string()),
   images: z.array(z.string()),
+  likeCount: z.number(),
+  commentCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -47,7 +49,6 @@ export const CommentBodySchema = z.object({
 export const commentPageSchema = z.object({
   comments: z.array(CommentSchema),
   lastCommentReached: z.boolean(),
-  totalComments: z.number(),
 });
 
 export type Post = z.infer<typeof postSchema>;

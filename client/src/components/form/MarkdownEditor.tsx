@@ -28,6 +28,7 @@ interface MarkdownEditorProps {
   showPreview?: boolean;
   autoFocus?: boolean;
   forComment?: { postId: string };
+  defaultValue?: string;
 }
 
 export default function MarkdownEditor({
@@ -42,6 +43,7 @@ export default function MarkdownEditor({
   forComment,
   autoFocus,
   className,
+  defaultValue,
 }: MarkdownEditorProps) {
   const { toast } = useToast();
   async function uploadInPostImage(image: File) {
@@ -96,6 +98,7 @@ export default function MarkdownEditor({
               imageAccept=".png, .jpg, .jpeg"
               view={{ html: showPreview, md: true, menu: showMenu }}
               autoFocus={autoFocus}
+              defaultValue={defaultValue}
             />
           </FormControl>
           <FormDescription>{description}</FormDescription>

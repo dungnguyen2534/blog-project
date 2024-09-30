@@ -28,6 +28,14 @@ const postSchema = new Schema(
       ref: "User",
       required: true,
     },
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
+    commentCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
