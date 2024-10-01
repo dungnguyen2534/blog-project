@@ -37,17 +37,24 @@ export default function CommentOptions({
   onDeleteReply,
 }: CommentOptionsProps) {
   const { toast } = useToast();
-  const { commentList, setCommentList, setReplyPages, fetchNextPage } =
-    useCommentsLoader();
+  const {
+    commentList,
+    setCommentList,
+    setReplyPages,
+    fetchNextPage,
+    setCommentCount,
+  } = useCommentsLoader();
 
   const [showDialog, setShowDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function deleteComment() {
     setIsDeleting(true);
-
     try {
-      await PostsAPI.deleteComment(comment.postId, comment._id);
+      const { totalComments } = await PostsAPI.deleteComment(
+        comment.postId,
+        comment._id
+      );
 
       if (onDeleteReply) {
         onDeleteReply(comment);
@@ -68,6 +75,8 @@ export default function CommentOptions({
           }))
         );
       }
+
+      setCommentCount(totalComments);
     } catch (error) {
       setShowDialog(false);
       setIsDeleting(false);

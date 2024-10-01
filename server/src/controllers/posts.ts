@@ -34,7 +34,7 @@ export const createPost: RequestHandler<
     let imagePaths: string[] | undefined;
     if (images) {
       if (images.length > 0) {
-        imagePaths = images.map((url) => new URL(url).pathname);
+        imagePaths = images.map((url: string) => new URL(url).pathname);
         await TempImageModel.updateMany(
           {
             userId: authenticatedUser._id,
@@ -101,7 +101,7 @@ export const updatePost: RequestHandler<
     }
 
     // check and delete any old unused images that not include in the update
-    const newImages = images?.map((url) => new URL(url).pathname);
+    const newImages = images?.map((url: string) => new URL(url).pathname);
 
     if (newImages) {
       // delete temporary status of new images

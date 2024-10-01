@@ -49,6 +49,7 @@ export const CommentBodySchema = z.object({
 export const commentPageSchema = z.object({
   comments: z.array(CommentSchema),
   lastCommentReached: z.boolean(),
+  totalComments: z.number(),
 });
 
 export type Post = z.infer<typeof postSchema>;

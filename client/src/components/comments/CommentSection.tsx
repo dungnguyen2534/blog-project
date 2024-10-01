@@ -7,13 +7,9 @@ import { CommentPage } from "@/validation/schema/post";
 
 interface CommentSectionProps {
   postId: string;
-  initialCommentCount: number;
 }
 
-export default async function CommentSection({
-  postId,
-  initialCommentCount,
-}: CommentSectionProps) {
+export default async function CommentSection({ postId }: CommentSectionProps) {
   const initialPage = await PostsAPI.getCommentList(postId);
 
   let initialReplyPages: CommentPage[];
@@ -38,14 +34,9 @@ export default async function CommentSection({
         className="mt-10 rounded-t-none sm:py-7 p-3 border-t-[1px]">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
-            <div className="text-2xl font-extrabold mb-4">
-              Comments{" "}
-              {
-                <CommentCount
-                  postId={postId}
-                  initialCountServerSide={initialCommentCount}
-                />
-              }
+            <div className="flex gap-1 text-2xl font-extrabold mb-4">
+              <span>Comments</span>
+              {<CommentCount />}
             </div>
             <CreateCommentBox postId={postId} />
           </div>

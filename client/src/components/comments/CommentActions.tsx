@@ -24,7 +24,8 @@ export default function CommentActions({
   notTopLevelComment,
   usernameToReplyTo,
 }: CommentActionsProps) {
-  const { setReplyPages, setNewLocalReplies } = useCommentsLoader();
+  const { setReplyPages, setNewLocalReplies, setCommentCount } =
+    useCommentsLoader();
 
   const { toast } = useToast();
   const [isReplying, setIsReplying] = useState(false);
@@ -51,6 +52,7 @@ export default function CommentActions({
       );
 
       setNewLocalReplies((prevReplies) => [...prevReplies, newComment]);
+      setCommentCount((prevCount) => prevCount + 1);
       setIsReplying(false);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
