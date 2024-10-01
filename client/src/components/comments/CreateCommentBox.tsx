@@ -13,7 +13,7 @@ interface CreateCommentBoxProps {
 }
 
 export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
-  const { setCommentList } = useCommentsLoader();
+  const { setCommentList, setCommentCount } = useCommentsLoader();
   const { toast } = useToast();
 
   async function onCreateComment(comment: CommentBody) {
@@ -25,6 +25,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
         images,
       });
       setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
+      setCommentCount((prevCount) => prevCount + 1);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({

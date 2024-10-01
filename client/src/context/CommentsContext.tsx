@@ -18,6 +18,8 @@ interface CommentsContextType {
   setReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
   newLocalReplies: CommentType[];
   setNewLocalReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
+  commentCount: number;
+  setCommentCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -27,6 +29,7 @@ interface CommentsContextProps {
   postId: string;
   initialPage: CommentPage;
   initialReplyPages: CommentPage[];
+  initialCountServerSide?: number;
 }
 
 export default function CommentsContextProvider({
@@ -34,6 +37,7 @@ export default function CommentsContextProvider({
   initialPage,
   initialReplyPages,
   postId,
+  initialCountServerSide,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage.comments
@@ -99,6 +103,28 @@ export default function CommentsContextProvider({
     [postId]
   );
 
+  const { postList } = usePostsLoader();
+  const initialCount = postList.find(
+    (post) => post._id === postId
+  )?.commentCount;
+
+  const [commentCount, setCommentCount] = useState(initialCount || 0);
+  useEffect(() => {
+    async function fetchCommentCount() {
+      try {
+        const { totalComments } = await PostsAPI.getCommentList(
+          postId,
+          `/posts/${postId}/comments?limit=0`
+        );
+        setCommentCount(totalComments);
+      } catch (error) {
+        setCommentCount(initialCount || 0);
+      }
+    }
+
+    !initialCount && fetchCommentCount();
+  }, [postId, initialCount]);
+
   return (
     <CommentsContext.Provider
       value={{
@@ -114,6 +140,8 @@ export default function CommentsContextProvider({
         setReplies,
         newLocalReplies,
         setNewLocalReplies,
+        commentCount,
+        setCommentCount,
       }}>
       {children}
     </CommentsContext.Provider>

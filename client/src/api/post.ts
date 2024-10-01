@@ -60,7 +60,7 @@ const PostsAPI = {
     return res.payload;
   },
   async deleteComment(postId: string, commentId: string) {
-    const res = await http.delete<Comment>(
+    const res = await http.delete<{ totalComments: number }>(
       `/posts/${postId}/comments/${commentId}`
     );
     return res.payload;

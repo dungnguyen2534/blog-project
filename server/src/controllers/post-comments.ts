@@ -34,7 +34,7 @@ export const createComment: RequestHandler<
 
     let imagesPath;
     if (images.length > 0) {
-      imagesPath = images.map((url) => new URL(url).pathname);
+      imagesPath = images.map((url: string) => new URL(url).pathname);
       await TempImageModel.updateMany(
         {
           userId: authenticatedUser._id,
@@ -97,7 +97,7 @@ export const editComment: RequestHandler<
       throw createHttpError(403, "You are not authorized to edit this comment");
     }
 
-    const newImages = images?.map((url) => new URL(url).pathname);
+    const newImages = images?.map((url: string) => new URL(url).pathname);
 
     if (newImages) {
       await TempImageModel.updateMany(
@@ -216,7 +216,11 @@ export const deleteComment: RequestHandler<
 
     await commentToDelete.deleteOne();
 
-    res.sendStatus(204);
+    const totalComments = await CommentModel.countDocuments({
+      postId: commentToDelete.postId,
+    });
+
+    res.status(200).json({ totalComments });
   } catch (error) {
     next(error);
   }
@@ -253,9 +257,12 @@ export const getCommentList: RequestHandler<
     const comments = result.slice(0, limit);
     const lastCommentReached = result.length <= limit;
 
+    const totalComments = await CommentModel.countDocuments({ postId });
+
     res.status(200).json({
       comments,
       lastCommentReached,
+      totalComments,
     });
   } catch (error) {
     next(error);
