@@ -1,7 +1,7 @@
 "use client";
 
 import MarkdownEditor from "../form/MarkdownEditor";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CommentBody, CommentBodySchema } from "@/validation/schema/post";
 import FormWrapper from "../form/FormWrapper";
@@ -12,7 +12,6 @@ import { RxQuestionMarkCircled } from "react-icons/rx";
 import { useToast } from "../ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
-import { useEffect } from "react";
 
 interface CommentFormProps {
   postId: string;
@@ -28,7 +27,7 @@ interface CommentFormProps {
 
 export default function CommentForm({
   postId,
-  defaultValue = "",
+  defaultValue,
   noAvatar,
   submitFunction,
   height,
@@ -39,7 +38,7 @@ export default function CommentForm({
   const form = useForm<CommentBody>({
     resolver: zodResolver(CommentBodySchema),
     defaultValues: {
-      body: defaultValue,
+      body: defaultValue || "",
       images: [],
     },
   });
@@ -80,7 +79,6 @@ export default function CommentForm({
         resetAfterSubmit
         className="flex-grow">
         <MarkdownEditor
-          defaultValue={defaultValue}
           autoFocus={autoFocus}
           controller={form.control}
           name="body"

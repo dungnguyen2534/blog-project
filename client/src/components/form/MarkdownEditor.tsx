@@ -14,7 +14,7 @@ import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import MdEditor from "react-markdown-editor-lite";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface MarkdownEditorProps {
   controller: Control<any>;
@@ -79,6 +79,19 @@ export default function MarkdownEditor({
     }
   }
 
+  // Access the the editor to place the cursor at the end of the default text
+  // for some reason the autoFocus place the cursor at the beginning when using react-hook-form defaultValues, and setFocus is not working
+  const editorRef = useRef<any>(null);
+  useEffect(() => {
+    if (autoFocus && editorRef.current) {
+      const editor = editorRef.current.getMdElement(); // this is how to get the textarea editor element based on the docs
+      if (editor) {
+        editor.focus();
+        editor.setSelectionRange(editor.value.length, editor.value.length);
+      }
+    }
+  }, [autoFocus]);
+
   return (
     <FormField
       control={controller}
@@ -88,6 +101,7 @@ export default function MarkdownEditor({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <MdEditor
+              ref={editorRef}
               className={className}
               value={field.value}
               style={{ height: height || "50vh" }}
@@ -95,7 +109,7 @@ export default function MarkdownEditor({
               onChange={({ text }) => field.onChange(text)}
               placeholder={placeholder}
               onImageUpload={uploadInPostImage}
-              imageAccept=".png, .jpg, .jpeg"
+              imageAccept=".png, .jpg, .jpeg, .webp"
               view={{ html: showPreview, md: true, menu: showMenu }}
               autoFocus={autoFocus}
               defaultValue={defaultValue}

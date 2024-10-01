@@ -33,12 +33,12 @@ export const ImageSchema = z.custom<Express.Multer.File>(
 
     // if there is an image, validate it
     const result = await validateBufferMIMEType(file.buffer, {
-      allowMimeTypes: ["image/jpeg", "image/jpg", "image/png"],
+      allowMimeTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
     });
     return result.ok;
   },
   {
-    message: "Invalid image type, only jpeg/jpg and png are allowed",
+    message: "Invalid image type",
   }
 );
 
