@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, useState } from "react";
+import { useState } from "react";
 import PostsAPI from "@/api/post";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Button } from "../ui/button";
@@ -14,13 +14,15 @@ import { UnauthorizedError } from "@/lib/http-errors";
 interface CommentActionsProps {
   postId: string;
   parentCommentId: string;
-  parentCommentUsername: string;
+  notTopLevelComment?: boolean;
+  usernameToReplyTo: string;
 }
 
 export default function CommentActions({
   postId,
   parentCommentId,
-  parentCommentUsername,
+  notTopLevelComment,
+  usernameToReplyTo,
 }: CommentActionsProps) {
   const { setReplyPages, setNewLocalReplies } = useCommentsLoader();
 
@@ -78,7 +80,11 @@ export default function CommentActions({
               height="10rem"
               className="-ml-3 mb-3"
               submitBtnText="Reply"
-              defaultValue={`[@${parentCommentUsername}](/users/${parentCommentUsername}) `}
+              defaultValue={
+                notTopLevelComment
+                  ? `[@${usernameToReplyTo}](/users/${usernameToReplyTo}) `
+                  : ""
+              }
             />
             <Button
               variant="secondary"

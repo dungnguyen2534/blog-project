@@ -39,19 +39,22 @@ export default function Comment({
   className,
 }: CommentProps) {
   if (replyComment && (!onEditReply || !onDeleteReply)) {
-    throw new Error("onEditReply and onDeleteReply are required for reply");
+    throw new Error(
+      "onEditReply and onDeleteReply are required for replyComment"
+    );
   }
 
+  // One level deep comment, which ever comment is being replied to will create a new direct child of the top comment
   const topLevelCommentId = comment.parentCommentId || comment._id;
+  const notTopLevelComment = comment.parentCommentId !== undefined;
 
   const { user } = useAuth();
   const isAuthor = comment.author._id === user?._id;
   const postId = comment.postId;
   const commentId = comment._id;
 
-  const { setCommentList } = useCommentsLoader();
-
   const { toast } = useToast();
+  const { setCommentList } = useCommentsLoader();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -113,7 +116,7 @@ export default function Comment({
             autoFocus
             height={
               isMobile
-                ? "12rem"
+                ? "10rem"
                 : heightRef.current?.clientHeight.toString() + "px"
             }
           />
@@ -157,7 +160,8 @@ export default function Comment({
           <CommentActions
             postId={postId}
             parentCommentId={topLevelCommentId}
-            parentCommentUsername={comment.author.username}
+            notTopLevelComment={notTopLevelComment}
+            usernameToReplyTo={comment.author.username}
           />
           <Replies postId={postId} parentCommentId={comment._id} />
         </div>

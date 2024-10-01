@@ -36,12 +36,11 @@ export default function CommentOptions({
   comment,
   onDeleteReply,
 }: CommentOptionsProps) {
-  const [showDialog, setShowDialog] = useState(false);
-
+  const { toast } = useToast();
   const { commentList, setCommentList, setReplyPages, fetchNextPage } =
     useCommentsLoader();
-  const { toast } = useToast();
 
+  const [showDialog, setShowDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function deleteComment() {
