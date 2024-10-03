@@ -7,6 +7,7 @@ import {
   Post,
   PostPage,
 } from "@/validation/schema/post";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 const PostsAPI = {
   async createPost(values: PostBody) {
@@ -34,9 +35,12 @@ const PostsAPI = {
     const res = await http.delete("/posts/images");
     return res.payload;
   },
-  async getPostList(url?: string) {
+  async getPostList(url?: string, cookie?: RequestCookie) {
     const res = await http.get<PostPage>(url || "/posts", {
       cache: "no-cache",
+      headers: {
+        cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+      },
     });
     return res.payload;
   },
@@ -84,6 +88,24 @@ const PostsAPI = {
       {
         cache: "no-cache",
       }
+    );
+    return res.payload;
+  },
+  async like(targetId: string, targetType: "post" | "comment") {
+    const res = await http.post<{ totalLikes: number }>(
+      `/${targetType}/${targetId}/like`
+    );
+    return res.payload;
+  },
+  async unlike(targetId: string, targetType: "post" | "comment") {
+    const res = await http.post<{ totalLikes: number }>(
+      `/${targetType}/${targetId}/unlike`
+    );
+    return res.payload;
+  },
+  async getLikeStatus(targetId: string, targetType: "post" | "comment") {
+    const res = await http.get<{ liked: boolean }>(
+      `/${targetType}/${targetId}/status`
     );
     return res.payload;
   },

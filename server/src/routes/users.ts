@@ -12,7 +12,10 @@ import requireAuth from "../middlewares/requireAuth";
 import { ImageUploadFilter } from "../middlewares/imageUploadFilter";
 import env from "../env";
 import setSessionReturnTo from "../middlewares/setSessionReturnTo";
-import { OTPRateLimiter, signinLimiter } from "../middlewares/rate-limiter";
+import {
+  OTPRateLimiter,
+  // signinLimiter
+} from "../middlewares/rate-limiter";
 
 const router = express.Router();
 
@@ -27,7 +30,7 @@ router.post("/signup", validateRequest(signupSchema), UserController.signup);
 
 router.post(
   "/signin",
-  signinLimiter,
+  // signinLimiter,
   passport.authenticate("local"),
   (req, res) => {
     res.status(200).json(req.user);

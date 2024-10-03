@@ -11,6 +11,8 @@ export const postSchema = z.object({
   tags: z.array(z.string()),
   images: z.array(z.string()),
   likeCount: z.number(),
+  isLoggedInUserLiked: z.boolean().optional(),
+  loggedInUserLikedId: z.string().optional(),
   commentCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -36,6 +38,9 @@ export const CommentSchema = z.object({
   parentCommentId: z.string().optional(),
   body: z.string().min(1),
   images: z.array(z.string()),
+  likeCount: z.number(),
+  isLoggedInUserLiked: z.boolean().optional(),
+  loggedInUserLikedId: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

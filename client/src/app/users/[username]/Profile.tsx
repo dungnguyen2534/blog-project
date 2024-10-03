@@ -9,7 +9,6 @@ import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
 import PostsList from "@/components/posts/PostList";
 import { PostPage } from "@/validation/schema/post";
-import PostsContextProvider from "@/context/PostsContext";
 
 interface ProfileProps {
   user: User;

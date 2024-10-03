@@ -18,6 +18,7 @@ import { nanoid } from "nanoid";
 import sharp from "sharp";
 import env from "../env";
 import PostModel from "../models/post";
+import LikeModel from "../models/like";
 
 export const createComment: RequestHandler<
   CreateCommentParams,
@@ -253,14 +254,41 @@ export const getCommentList: RequestHandler<
     const result = await query
       .limit(limit + 1)
       .populate("author")
+      .lean()
       .exec();
-    const comments = result.slice(0, limit);
+    const commentList = result.slice(0, limit);
     const lastCommentReached = result.length <= limit;
 
     const totalComments = await CommentModel.countDocuments({ postId });
 
+    const commentsWithLikeStatus = await Promise.all(
+      commentList.map(async (comment) => {
+        let isUserLikedComment;
+        if (req.user) {
+          isUserLikedComment = await LikeModel.exists({
+            userId: req.user?._id,
+            targetType: "comment",
+            targetId: comment._id,
+          });
+        }
+
+        const likeCount = await LikeModel.countDocuments({
+          targetId: comment._id,
+          targetType: "comment",
+        });
+        return {
+          ...comment,
+          likeCount,
+          ...(req.user && {
+            isLoggedInUserLiked: !!isUserLikedComment,
+            loggedInUserLikedId: isUserLikedComment ? req.user?._id : undefined,
+          }),
+        };
+      })
+    );
+
     res.status(200).json({
-      comments,
+      comments: commentsWithLikeStatus,
       lastCommentReached,
       totalComments,
     });
