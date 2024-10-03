@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import Profile from "./Profile";
 import PostsAPI from "@/api/post";
+import { cookies } from "next/headers";
 
 const getUser = cache(async (username: string) => {
   try {
@@ -34,9 +35,13 @@ export async function generateMetadata({
 export default async function UserProfilePage({
   params: { username },
 }: UserProfilePageProps) {
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("connect.sid");
+
   const user = await getUser(username);
   const userInitialPostsPage = await PostsAPI.getPostList(
-    `/posts?authorId=${user._id}`
+    `/posts?authorId=${user._id}`,
+    userCookie
   );
 
   return <Profile user={user} userInitialPostsPage={userInitialPostsPage} />;

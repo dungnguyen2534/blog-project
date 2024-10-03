@@ -2,6 +2,7 @@ import PostsAPI from "@/api/post";
 import PostsList from "@/components/posts/PostList";
 import { Button } from "@/components/ui/button";
 import PostsContextProvider from "@/context/PostsContext";
+import { cookies } from "next/headers";
 
 interface TagPageProps {
   params: { tag: string };
@@ -15,7 +16,12 @@ export async function generateMetadata({ params: { tag } }: TagPageProps) {
 }
 
 export default async function TagPage({ params: { tag } }: TagPageProps) {
-  const initialPage = await PostsAPI.getPostList(`/posts?tag=${tag}`);
+  const cookieStore = cookies();
+  const userCookie = cookieStore.get("connect.sid");
+  const initialPage = await PostsAPI.getPostList(
+    `/posts?tag=${tag}`,
+    userCookie
+  );
 
   return (
     <main className="container px-0 sm:px-8 my-[0.3rem] sm:my-3">

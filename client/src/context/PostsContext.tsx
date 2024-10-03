@@ -12,6 +12,10 @@ interface PostsContextType {
     limit?: number
   ) => Promise<void>;
   setPostList: React.Dispatch<React.SetStateAction<Post[]>>;
+  postsLikeCount: { postId: string; likeCount: number }[];
+  setPostsLikeCount: React.Dispatch<
+    React.SetStateAction<{ postId: string; likeCount: number }[]>
+  >;
   isLoading: boolean;
   lastPostReached: boolean;
   pageLoadError: boolean;
@@ -21,13 +25,21 @@ export const PostsContext = createContext<PostsContextType | null>(null);
 
 interface PostsContextProps {
   children: React.ReactNode;
+  initialPage?: Post[];
 }
 
-export default function PostsContextProvider({ children }: PostsContextProps) {
-  const [postList, setPostList] = useState<Post[]>([]);
+export default function PostsContextProvider({
+  children,
+  initialPage,
+}: PostsContextProps) {
+  const [postList, setPostList] = useState<Post[]>(initialPage || []);
   const [isLoading, setIsLoading] = useState(false);
   const [lastPostReached, setLastPostReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
+
+  const [postsLikeCount, setPostsLikeCount] = useState(
+    postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
+  );
 
   const continueAfterId = postList[postList.length - 1]?._id;
 
@@ -64,6 +76,8 @@ export default function PostsContextProvider({ children }: PostsContextProps) {
         lastPostReached,
         isLoading,
         pageLoadError,
+        postsLikeCount,
+        setPostsLikeCount,
       }}>
       {children}
     </PostsContext.Provider>

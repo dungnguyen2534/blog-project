@@ -17,6 +17,7 @@ import env from "../env";
 import path from "path";
 import fs from "fs";
 import CommentModel from "../models/comment";
+import LikeModel from "../models/like";
 
 export const createPost: RequestHandler<
   unknown,
@@ -214,7 +215,13 @@ export const deletePost: RequestHandler<
       await CommentModel.deleteMany({ postId: postToDelete._id });
     }
 
-    await postToDelete.deleteOne();
+    await Promise.all([
+      LikeModel.deleteMany({
+        targetId: postToDelete._id,
+        targetType: "post",
+      }),
+      postToDelete.deleteOne(),
+    ]);
 
     res.sendStatus(204);
   } catch (error) {
@@ -246,14 +253,40 @@ export const getPostList: RequestHandler<
     const result = await query
       .limit(limit + 1)
       .populate("author")
+      .lean()
       .exec();
 
-    const posts = result.slice(0, limit);
+    const postList = result.slice(0, limit);
     const lastPostReached = result.length <= limit;
 
-    setTimeout(() => {
-      res.status(200).json({ posts, lastPostReached });
-    }, 700);
+    const postsWithLikeStatus = await Promise.all(
+      postList.map(async (post) => {
+        let isUserLikedPost;
+        if (req.user) {
+          isUserLikedPost = await LikeModel.exists({
+            userId: req.user?._id,
+            targetType: "post",
+            targetId: post._id,
+          });
+        }
+
+        const likeCount = await LikeModel.countDocuments({
+          targetId: post._id,
+          targetType: "post",
+        });
+
+        return {
+          ...post,
+          likeCount,
+          ...(req.user && {
+            isLoggedInUserLiked: !!isUserLikedPost,
+            loggedInUserLikedId: isUserLikedPost ? req.user?._id : undefined,
+          }),
+        };
+      })
+    );
+
+    res.status(200).json({ posts: postsWithLikeStatus, lastPostReached });
   } catch (error) {
     next(error);
   }
@@ -261,10 +294,30 @@ export const getPostList: RequestHandler<
 
 export const getPost: RequestHandler = async (req, res, next) => {
   const { slug } = req.params;
+  const authenticatedUser = req.user;
 
   try {
-    const post = await PostModel.findOne({ slug }).populate("author").exec();
-    if (!post) throw createHttpError(404, "Post not found");
+    const result = await PostModel.findOne({ slug })
+      .populate("author")
+      .lean()
+      .exec();
+    if (!result) throw createHttpError(404, "Post not found");
+
+    let isUserLikedPost;
+    if (authenticatedUser) {
+      isUserLikedPost = await LikeModel.exists({
+        userId: authenticatedUser?._id,
+        targetType: "post",
+        targetId: result._id,
+      });
+    }
+
+    const likeCount = await LikeModel.countDocuments({ targetId: result._id });
+    const post = {
+      ...result,
+      likeCount,
+      ...(authenticatedUser && { userLiked: !!isUserLikedPost }),
+    };
 
     res.status(200).json(post);
   } catch (error) {
