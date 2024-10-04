@@ -20,7 +20,7 @@ export default function MobileDropdownContent() {
             <Link href="/posts/create-post">Create post</Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="text-lg" onClick={toggleTheme}>
-            Theme
+            Switch theme
           </DropdownMenuItem>
         </>
       )}

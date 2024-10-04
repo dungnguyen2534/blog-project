@@ -97,7 +97,9 @@ export default function CommentOptions({
           <div
             className="text-neutral-500 dark:text-neutral-400 
              -mt-5">
-            <DropdownMenuTrigger className="absolute -right-2 top-1">
+            <DropdownMenuTrigger
+              aria-label="Comment options"
+              className="absolute -right-2 top-1">
               <div className="rounded-full transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-100 p-2">
                 <BsThreeDots size={20} />
               </div>
@@ -167,7 +169,7 @@ function CommentAuthor({ comment }: { comment: CommentType }) {
           </TooltipTrigger>
           <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-0">
             {commentDate}
-            {comment.createdAt !== comment.updatedAt && " - Edited"}
+            {comment.createdAt !== comment.updatedAt && " - edited"}
           </div>
         </div>
       </MiniProfileProvider>

@@ -114,7 +114,7 @@ export default function PostOptions({
             className={`text-neutral-500 dark:text-neutral-400 ${
               menuOnTop ? "-mt-5" : ""
             }`}>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger aria-label="Post options">
               <div className="rounded-full transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-100 p-2">
                 <BsThreeDots size={20} />
               </div>

@@ -39,10 +39,15 @@ export default async function UserProfilePage({
   const userCookie = cookieStore.get("connect.sid");
 
   const user = await getUser(username);
-  const userInitialPostsPage = await PostsAPI.getPostList(
-    `/posts?authorId=${user._id}`,
-    userCookie
-  );
+  let userInitialPostsPage;
+  try {
+    userInitialPostsPage = await PostsAPI.getPostList(
+      `/posts?authorId=${user._id}`,
+      userCookie
+    );
+  } catch {
+    userInitialPostsPage = undefined;
+  }
 
   return <Profile user={user} userInitialPostsPage={userInitialPostsPage} />;
 }

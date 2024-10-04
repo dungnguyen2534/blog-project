@@ -43,10 +43,17 @@ export default function SignUpDialog({
   const { toast } = useToast();
 
   async function onSubmit(input: SignUpBody) {
-    setGetOTPSuccess(false);
+    if (!getOPTSuccess) {
+      toast({
+        title: "You haven't got OTP yet!",
+        description: "Click get OTP button beside email input",
+      });
+      return;
+    }
 
     try {
       const newUser = await UserAPI.signup(input);
+      setGetOTPSuccess(false);
       mutateUser(newUser);
       setShow(false);
     } catch (error) {
@@ -81,6 +88,7 @@ export default function SignUpDialog({
         description: "Please check your email",
       });
     } catch (error) {
+      setGetOTPSuccess(false);
       setIsSendingOTP(false);
       if (error instanceof ConflictError) {
         toast({
@@ -150,7 +158,6 @@ export default function SignUpDialog({
               className="w-full mt-1"
               text="Sign up"
               loading={isSubmitting}
-              disabled={!getOPTSuccess}
             />
           </FormWrapper>
           <div className="text-center text-sm mt-5">

@@ -5,11 +5,13 @@ import PostsAPI from "@/api/post";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Button } from "../ui/button";
 import { PiHeart } from "react-icons/pi";
-import { BsChatSquare } from "react-icons/bs";
+import { IoChatboxOutline } from "react-icons/io5";
 import CommentForm from "./CommentForm";
 import { CommentBody, Comment as CommentType } from "@/validation/schema/post";
 import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
+import useAuth from "@/hooks/useAuth";
+import useAuthDialogs from "@/hooks/useAuthDialogs";
 
 interface CommentActionsProps {
   postId: string;
@@ -69,6 +71,9 @@ export default function CommentActions({
     }
   }
 
+  const { user } = useAuth();
+  const { showSignIn } = useAuthDialogs();
+
   return (
     <>
       <div className="mt-1 ml-[0.65rem] flex items-center gap-3 font-light text-sm">
@@ -104,10 +109,17 @@ export default function CommentActions({
               {/* <PiHeartFill /> */}
             </Button>
             <Button
-              onClick={() => setIsReplying(true)}
+              onClick={() => {
+                if (!user) {
+                  showSignIn();
+                  return;
+                }
+
+                setIsReplying(true);
+              }}
               variant="ghost"
               className="gap-2 px-3 py-2 -ml-3 rounded-md">
-              <BsChatSquare size={18} className="mt-[3px]" /> Reply
+              <IoChatboxOutline size={22} className="mt-[0.18rem]" /> Reply
             </Button>
           </>
         )}

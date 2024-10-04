@@ -6,6 +6,7 @@ import {
   SignUpBody,
   User,
 } from "@/validation/schema/user";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 const UserAPI = {
   getOTP: async (email: string) => await http.post("/auth/get-otp", { email }),
@@ -24,8 +25,12 @@ const UserAPI = {
     return res.payload;
   },
   signout: async () => await http.post("/auth/signout"),
-  getAuthenticatedUser: async () => {
-    const res = await http.get<User>("/auth/me");
+  getAuthenticatedUser: async (cookie?: RequestCookie) => {
+    const res = await http.get<User>("/auth/me", {
+      headers: {
+        cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+      },
+    });
     return res.payload;
   },
   getUser: async (username: string) => {

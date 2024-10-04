@@ -19,15 +19,10 @@ import FormInput from "../form/FormInput";
 import LoadingButton from "../LoadingButton";
 import EmailInput from "../form/EmailInput";
 import OTPInput from "../form/OTPInput";
-import SocialSignin from "./SocialSignin";
 import useCountDown from "@/hooks/useCountDown";
 import { useState } from "react";
 import UserAPI from "@/api/user";
-import {
-  BadRequestError,
-  ConflictError,
-  NotFoundError,
-} from "@/lib/http-errors";
+import { NotFoundError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 
@@ -47,10 +42,17 @@ export default function ForgotPasswordDialog({
 
   const { mutateUser } = useAuth();
   async function onSubmit(input: ForgotPasswordBody) {
-    setGetOTPSuccess(false);
+    if (!getOTPSuccess) {
+      toast({
+        title: "You haven't got OTP yet!",
+        description: "Click get OTP button beside email input",
+      });
+      return;
+    }
 
     try {
       const user = await UserAPI.resetPassword(input);
+      setGetOTPSuccess(false);
       mutateUser(user);
       setShow(false);
     } catch (error) {
@@ -87,6 +89,7 @@ export default function ForgotPasswordDialog({
         description: "Please check your email",
       });
     } catch (error) {
+      setGetOTPSuccess(false);
       setIsSendingOTP(false);
       if (error instanceof NotFoundError) {
         toast({
@@ -150,7 +153,6 @@ export default function ForgotPasswordDialog({
               text="Reset password"
               type="submit"
               loading={isSubmitting}
-              disabled={!getOTPSuccess}
             />
           </FormWrapper>
         </div>

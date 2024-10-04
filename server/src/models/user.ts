@@ -23,6 +23,14 @@ const userSchema = new Schema(
     about: {
       type: String,
     },
+    totalFollowers: {
+      type: Number,
+      default: 0,
+    },
+    totalPosts: {
+      type: Number,
+      default: 0,
+    },
     profilePicPath: {
       type: String,
     },

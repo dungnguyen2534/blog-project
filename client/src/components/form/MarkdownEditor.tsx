@@ -23,6 +23,7 @@ interface MarkdownEditorProps {
   placeholder?: string;
   description?: string;
   className?: string;
+  id?: string;
   height?: string;
   showMenu?: boolean;
   showPreview?: boolean;
@@ -42,6 +43,7 @@ export default function MarkdownEditor({
   showPreview = true,
   forComment,
   autoFocus,
+  id,
   className,
   defaultValue,
 }: MarkdownEditorProps) {
@@ -101,6 +103,7 @@ export default function MarkdownEditor({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <MdEditor
+              id={id}
               ref={editorRef}
               className={className}
               value={field.value}

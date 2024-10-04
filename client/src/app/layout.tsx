@@ -9,6 +9,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { NavigationEvents } from "./NavigationEvents";
 import PostsContextProvider from "@/context/PostsContext";
+import UserAPI from "@/api/user";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,11 +19,20 @@ export const metadata: Metadata = {
   description: "A cool blog site for developers",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const userCookie = cookies().get("connect.sid");
+  let authenticatedUser = undefined;
+
+  try {
+    authenticatedUser = await UserAPI.getAuthenticatedUser(userCookie);
+  } catch {
+    authenticatedUser = undefined;
+  }
+
   return (
     <html
       lang="en"
@@ -36,7 +47,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           <AuthDialogsProvider>
             <PostsContextProvider>
-              <Navbar />
+              <Navbar authenticatedUser={authenticatedUser} />
               {children}
               <Toaster />
               <Suspense fallback={null}>

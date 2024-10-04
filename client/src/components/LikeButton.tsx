@@ -6,6 +6,7 @@ import { PiHeart, PiHeartFill } from "react-icons/pi";
 import PostsAPI from "@/api/post";
 import useAuth from "@/hooks/useAuth";
 import usePostsLoader from "@/hooks/usePostsLoader";
+import useAuthDialogs from "@/hooks/useAuthDialogs";
 
 interface LikeButtonProps {
   initialLikeCount: number;
@@ -46,9 +47,15 @@ export default function LikeButton({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user } = useAuth();
+  const { showSignIn } = useAuthDialogs();
 
   const handleClick = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      showSignIn();
+      return;
+    }
+
+    if (!user.username) return;
 
     setLiked(!liked);
     setLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
@@ -79,7 +86,7 @@ export default function LikeButton({
         setLiked(!liked);
       }
     }, 300);
-  }, [liked, targetId, targetType, user, setPostsLikeCount]);
+  }, [liked, targetId, targetType, user, setPostsLikeCount, showSignIn]);
 
   useEffect(() => {
     if (user && user._id === loggedInUserLikedId) {
@@ -101,7 +108,7 @@ export default function LikeButton({
   return (
     <Button onClick={handleClick} variant={variant} className={className}>
       {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
-      {likes === 0 && `Like`}
+      {likes === 0 && "Like"}
       {likes > 0 && likes < 2 && `${likes} Like`}
       {likes >= 2 && `${likes} Likes`}
     </Button>

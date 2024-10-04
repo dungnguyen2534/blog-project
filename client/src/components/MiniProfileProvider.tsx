@@ -42,19 +42,28 @@ export default function MiniProfileProvider({
           <div className="w-56 py-1">
             <Link
               href={"/users/" + author.username}
-              className="flex gap-[0.4rem] items-center mb-2">
+              className="flex gap-2 items-center mb-2">
               <UserAvatar
                 username={author.username}
                 profilePicUrl={author.profilePicPath}
+                className="h-12 w-12"
               />
-              <span className="text-sm font-medium">{author.username}</span>
+              <div className="flex flex-col">
+                <span className="text-base font-medium">{author.username}</span>
+                <span className="text-sm text-muted-foreground">
+                  {author.totalFollowers}{" "}
+                  {author.totalFollowers === 1 ? "follower" : "followers"}
+                </span>
+              </div>
             </Link>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {author._id !== LoggedInUser?._id && (
-                <Button className="w-full">Follow</Button>
+                <Button variant="secondary" className="w-full mt-1">
+                  Follow
+                </Button>
               )}
 
-              <div>{author.about}</div>
+              <div className="mt-1 mb-[0.1rem]">{author.about}</div>
               <div className="flex flex-col">
                 <div className="font-semibold text-xs text-neutral-500 uppercase">
                   JOINED
