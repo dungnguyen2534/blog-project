@@ -9,10 +9,12 @@ import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
 import PostsList from "@/components/posts/PostList";
 import { PostPage } from "@/validation/schema/post";
+import { TfiWrite } from "react-icons/tfi";
+import { BsPeople } from "react-icons/bs";
 
 interface ProfileProps {
   user: User;
-  userInitialPostsPage: PostPage;
+  userInitialPostsPage?: PostPage;
 }
 
 export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
@@ -40,17 +42,35 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
             className="h-24 w-24 sm:w-36 sm:h-36"
           />
 
-          <div className="flex flex-col md:text-center">
+          <div className="flex flex-col gap-2 md:text-center">
             <h1 className="text-3xl">{user.username}</h1>
 
-            {user.about && <p className="mt-3">{user.about}</p>}
+            {user.about && (
+              <p className="ml-[0.125rem] sm:ml-0 my-1">{user.about}</p>
+            )}
 
-            <time
-              className="text-neutral-500 text-sm flex gap-1 items-center mt-4 md:justify-center"
-              dateTime={user.createdAt}>
-              <RiCake2Line size={20} className="mb-1" /> Joined on{" "}
-              {formatDate(user.createdAt, false)}
-            </time>
+            <div className="h-[1px] w-full bg-neutral-200 dark:bg-neutral-700"></div>
+
+            <div className="flex gap-4 mt-1 md:justify-around">
+              <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center ml-[0.05rem] sm:ml-0">
+                <TfiWrite size={18} className="mb-[0.1rem]" />
+                {user.totalPosts} {user.totalPosts !== 1 ? "Posts" : "Post"}{" "}
+                written
+              </div>
+
+              <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center">
+                <BsPeople size={20} className="mb-[0.1rem]" />
+                {user.totalFollowers}{" "}
+                {user.totalFollowers !== 1 ? "Followers" : "Follower"}
+              </div>
+
+              <time
+                className="flex text-muted-foreground text-sm gap-1 items-center md:justify-center"
+                dateTime={user.createdAt}>
+                <RiCake2Line size={20} className="mb-1" /> Joined on{" "}
+                {formatDate(user.createdAt, false)}
+              </time>
+            </div>
           </div>
         </div>
       </main>

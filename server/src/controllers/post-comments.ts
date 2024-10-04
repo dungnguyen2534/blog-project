@@ -70,7 +70,11 @@ export const createComment: RequestHandler<
       images: imagesPath,
     });
 
-    await PostModel.findByIdAndUpdate(postId, { $inc: { commentCount: 1 } });
+    await PostModel.updateOne(
+      { _id: postId },
+      { $inc: { commentCount: 1 } },
+      { timestamps: false }
+    );
     await newComment.populate("author");
     res.status(201).json(newComment);
   } catch (error) {
@@ -234,7 +238,7 @@ export const getCommentList: RequestHandler<
   GetCommentsQuery
 > = async (req, res, next) => {
   const { postId } = req.params;
-  const limit = parseInt(req.query.limit || "2");
+  const limit = parseInt(req.query.limit || "12");
   const { parentCommentId, continueAfterId } = req.query;
 
   try {

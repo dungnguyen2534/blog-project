@@ -12,6 +12,7 @@ import { RxQuestionMarkCircled } from "react-icons/rx";
 import { useToast } from "../ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
+import useAuthDialogs from "@/hooks/useAuthDialogs";
 
 interface CommentFormProps {
   postId: string;
@@ -23,6 +24,7 @@ interface CommentFormProps {
   autoFocus?: boolean;
   className?: string;
   submitBtnText?: string;
+  id?: string;
 }
 
 export default function CommentForm({
@@ -34,6 +36,7 @@ export default function CommentForm({
   autoFocus,
   className,
   submitBtnText,
+  id,
 }: CommentFormProps) {
   const form = useForm<CommentBody>({
     resolver: zodResolver(CommentBodySchema),
@@ -44,10 +47,16 @@ export default function CommentForm({
   });
 
   const { user } = useAuth();
+  const { showSignIn } = useAuthDialogs();
   const { isSubmitting, isDirty } = form.formState;
 
   const { toast } = useToast();
   function onInvalidComment() {
+    if (!user) {
+      showSignIn();
+      return;
+    }
+
     toast({
       title: "Empty comment",
       description: "Please write something before submitting",
@@ -66,6 +75,13 @@ export default function CommentForm({
       <FormWrapper
         form={form}
         submitFunction={() => {
+          if (!user) {
+            showSignIn();
+            return;
+          }
+
+          if (!user.username) return;
+
           if (!isDirty) {
             toast({
               title: "No changes detected",
@@ -79,6 +95,7 @@ export default function CommentForm({
         resetAfterSubmit
         className="flex-grow">
         <MarkdownEditor
+          id={id}
           autoFocus={autoFocus}
           controller={form.control}
           name="body"
@@ -87,7 +104,7 @@ export default function CommentForm({
           height={`min(${height || "15.5rem"}, 70vh)`}
           forComment={{ postId }}
           placeholder="Share your thoughts..."
-          className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-400 dark:focus-within:outline-neutral-400"
+          className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-500 dark:focus-within:outline-neutral-400"
         />
         <div className="flex justify-between items-center sm:flex-row gap-2">
           <LoadingButton

@@ -14,7 +14,7 @@ interface PostsListProps {
   author?: User;
   tag?: string;
   continueAfterId?: string;
-  initialPage: PostPage;
+  initialPage?: PostPage;
 }
 
 export default function PostsList({
@@ -26,23 +26,32 @@ export default function PostsList({
     postList,
     setPostList,
     setPostsLikeCount,
+    fetchFirstPage,
     fetchNextPage,
+    isLoading,
     lastPostReached,
     pageLoadError,
   } = usePostsLoader();
 
   useEffect(() => {
-    setPostList(initialPage.posts);
+    if (initialPage !== undefined) {
+      setPostList(initialPage.posts);
+    } else {
+      fetchFirstPage(author?._id, tag, 12);
+    }
+  }, [initialPage, setPostList, fetchFirstPage, author?._id, tag]);
+
+  useEffect(() => {
     setPostsLikeCount(
       postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
     );
-  }, [initialPage.posts, setPostList, postList, setPostsLikeCount]);
+  }, [postList, setPostsLikeCount]);
 
   const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) router.refresh(); // when user logs in/out, refresh the page to get the correct like status
+    if (user) router.refresh(); // when user logs in/out, refresh to get the correct like status
   }, [user, router]);
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
@@ -68,57 +77,37 @@ export default function PostsList({
   );
 
   return (
-    <>
-      <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
-        {!author && !initialPage && (
-          <EmptyPostList text="Failed to load posts" className="mt-48" />
-        )}
+    <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
+      {initialPage && postList.length > 0
+        ? postList.map((post, index) => (
+            <PostEntry
+              key={post._id}
+              post={post}
+              ref={index === postList.length - 1 ? postRef : null}
+            />
+          ))
+        : initialPage?.posts.map((post, index) => (
+            <PostEntry
+              key={post._id}
+              post={post}
+              ref={index === postList.length - 1 ? postRef : null}
+            />
+          ))}
 
-        {author && !initialPage && (
-          <EmptyPostList
-            text={`Failed to load ${author.username}'s posts`}
-            hideIcon
-          />
-        )}
+      {!initialPage?.lastPostReached && !lastPostReached && !pageLoadError && (
+        <PostListSkeleton skeletonCount={4} />
+      )}
 
-        {!author && initialPage.posts.length === 0 && (
-          <EmptyPostList
-            text={
-              tag
-                ? `No posts found with tag: ${tag}`
-                : "No one has posted yet, be the fist!"
-            }
-            className="mt-48"
-          />
-        )}
+      {!author && pageLoadError && (
+        <EmptyPostList text="Failed to load posts" className="mt-48" />
+      )}
 
-        {author && initialPage.posts.length === 0 && (
-          <EmptyPostList
-            text={`${author.username} hasn't post anything yet...`}
-            hideIcon
-          />
-        )}
-
-        {initialPage && postList.length > 0
-          ? postList.map((post, index) => (
-              <PostEntry
-                key={post._id}
-                post={post}
-                ref={index === postList.length - 1 ? postRef : null}
-              />
-            ))
-          : initialPage.posts.map((post, index) => (
-              <PostEntry
-                key={post._id}
-                post={post}
-                ref={index === postList.length - 1 ? postRef : null}
-              />
-            ))}
-
-        {!initialPage.lastPostReached && !lastPostReached && !pageLoadError && (
-          <PostListSkeleton skeletonCount={3} />
-        )}
-      </div>
-    </>
+      {author && pageLoadError && (
+        <EmptyPostList
+          text={`Failed to load ${author.username}'s posts`}
+          hideIcon
+        />
+      )}
+    </div>
   );
 }

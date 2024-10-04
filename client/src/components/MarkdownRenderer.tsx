@@ -11,6 +11,7 @@ import addClasses from "rehype-class-names";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { useTheme } from "next-themes";
+import { ReactNode } from "react";
 
 interface MarkdownRendererProps {
   children: string;

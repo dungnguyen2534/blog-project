@@ -35,6 +35,8 @@ export const userSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   about: z.string(),
+  totalFollowers: z.number(),
+  totalPosts: z.number(),
   profilePicPath: z.string().url(),
   createdAt: z.string(),
 });

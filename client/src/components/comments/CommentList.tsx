@@ -35,7 +35,7 @@ export default function CommentList({ initialPage }: CommentListProps) {
               text="Load more comments"
               loading={isLoading}
               onClick={() =>
-                fetchNextPage(2, commentList[commentList.length - 1]._id)
+                fetchNextPage(12, commentList[commentList.length - 1]._id)
               }
             />
           </div>

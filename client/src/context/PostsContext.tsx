@@ -6,6 +6,11 @@ import { createContext, useCallback, useState } from "react";
 
 interface PostsContextType {
   postList: Post[];
+  fetchFirstPage: (
+    authorId?: string,
+    tag?: string,
+    limit?: number
+  ) => Promise<void>;
   fetchNextPage: (
     authorId?: string,
     tag?: string,
@@ -43,6 +48,27 @@ export default function PostsContextProvider({
 
   const continueAfterId = postList[postList.length - 1]?._id;
 
+  const fetchFirstPage = useCallback(
+    async (authorId?: string, tag?: string, limit?: number) => {
+      setIsLoading(true);
+
+      const query = `/posts?${tag ? `tag=${tag}` : ""}${
+        authorId ? `&authorId=${authorId}` : ""
+      }${limit ? `&limit=${limit}` : ""}`;
+
+      try {
+        const firstPage = await PostsAPI.getPostList(query);
+        setPostList(firstPage.posts);
+        setLastPostReached(firstPage.lastPostReached);
+      } catch (error) {
+        setPageLoadError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
   const fetchNextPage = useCallback(
     async (authorId?: string, tag?: string, limit?: number) => {
       setIsLoading(true);
@@ -72,6 +98,7 @@ export default function PostsContextProvider({
       value={{
         postList,
         setPostList,
+        fetchFirstPage,
         fetchNextPage,
         lastPostReached,
         isLoading,

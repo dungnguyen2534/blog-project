@@ -113,7 +113,7 @@ export default function NewPostPage() {
           controller={form.control}
           name="title"
           placeholder="Your new post title..."
-          className="p-8 pl-3 !text-2xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="bg-white p-8 pl-3 !text-2xl font-bold focus-visible:ring-0 focus-visible:ring-offset-0"
           autoComplete="off"
           limit={titleLimit}
         />

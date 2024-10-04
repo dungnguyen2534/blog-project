@@ -18,6 +18,7 @@ import path from "path";
 import fs from "fs";
 import CommentModel from "../models/comment";
 import LikeModel from "../models/like";
+import UserModel from "../models/user";
 
 export const createPost: RequestHandler<
   unknown,
@@ -65,15 +66,20 @@ export const createPost: RequestHandler<
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagePaths } });
     }
 
-    const newPost = await PostModel.create({
-      slug: slugify(title),
-      title,
-      body,
-      tags,
-      images: imagePaths,
-      summary,
-      author: authenticatedUser._id,
-    });
+    const [newPost] = await Promise.all([
+      PostModel.create({
+        slug: slugify(title),
+        title,
+        body,
+        tags,
+        images: imagePaths,
+        summary,
+        author: authenticatedUser._id,
+      }),
+      UserModel.findByIdAndUpdate(authenticatedUser._id, {
+        $inc: { totalPosts: 1 },
+      }),
+    ]);
 
     res.status(201).json(newPost);
   } catch (error) {
@@ -219,6 +225,9 @@ export const deletePost: RequestHandler<
       LikeModel.deleteMany({
         targetId: postToDelete._id,
         targetType: "post",
+      }),
+      UserModel.findByIdAndUpdate(authenticatedUser._id, {
+        $inc: { totalPosts: -1 },
       }),
       postToDelete.deleteOne(),
     ]);

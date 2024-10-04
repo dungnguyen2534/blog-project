@@ -2,7 +2,7 @@ import React, { forwardRef, Ref } from "react";
 import Link from "next/link";
 import PostOptions from "./PostOptions";
 import { Post } from "@/validation/schema/post";
-import { BsChatSquare } from "react-icons/bs";
+import { IoChatboxOutline } from "react-icons/io5";
 import { Button } from "../ui/button";
 import PostTags from "./PostTags";
 import LikeButton from "../LikeButton";
@@ -39,9 +39,9 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
             loggedInUserLikedId={post.loggedInUserLikedId}
           />
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
-            <Link href={`/posts/${post.slug}#comments`}>
-              <BsChatSquare size={18} className="mt-[3px]" />{" "}
-              {post.commentCount} Comments
+            <Link href={`/posts/${post.slug}#comment-section`}>
+              <IoChatboxOutline size={22} className="mt-[0.18rem]" />{" "}
+              {post.commentCount > 0 && post.commentCount} Comments
             </Link>
           </Button>
         </div>

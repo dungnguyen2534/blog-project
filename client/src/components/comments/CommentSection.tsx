@@ -29,9 +29,7 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
       initialPage={initialPage}
       initialReplyPages={initialReplyPages}
       postId={postId}>
-      <section
-        id="comment"
-        className="mt-10 rounded-t-none sm:py-7 p-3 border-t-[1px]">
+      <section className="mt-10 rounded-t-none sm:py-7 p-3 border-t-[1px]">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
             <div className="flex gap-1 text-2xl font-extrabold mb-4">

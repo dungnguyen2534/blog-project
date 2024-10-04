@@ -29,7 +29,6 @@ interface CommentsContextProps {
   postId: string;
   initialPage: CommentPage;
   initialReplyPages: CommentPage[];
-  initialCountServerSide?: number;
 }
 
 export default function CommentsContextProvider({
@@ -37,7 +36,6 @@ export default function CommentsContextProvider({
   initialPage,
   initialReplyPages,
   postId,
-  initialCountServerSide,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage.comments
