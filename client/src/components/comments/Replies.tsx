@@ -99,6 +99,8 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
     (reply) => reply.parentCommentId === parentCommentId
   );
 
+  console.log(replies);
+
   return (
     <div className="">
       <div className="-mt-3">
@@ -121,11 +123,7 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
             text="Load more replies"
             loading={isLoading}
             onClick={() =>
-              fetchNextPage(
-                parentCommentId,
-                replies[replies.length - 1]._id,
-                12
-              )
+              fetchNextPage(parentCommentId, replies[replies.length - 1]._id, 6)
             }
           />
         </div>

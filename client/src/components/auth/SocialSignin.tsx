@@ -5,10 +5,11 @@ import env from "@/validation/env-validation";
 import { FcGoogle } from "react-icons/fc";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export default function SocialSignin() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+interface SocialSigninProps {
+  previousUrl: string | null;
+}
 
+export default function SocialSignin({ previousUrl }: SocialSigninProps) {
   return (
     <div className="flex gap-3 w-full justify-between">
       {/* Google */}
@@ -16,10 +17,8 @@ export default function SocialSignin() {
         <Link
           href={
             env.NEXT_PUBLIC_SERVER_URL +
-            "/auth/signin/google?returnTo=" +
-            encodeURIComponent(
-              pathname + (searchParams?.size ? "?" + searchParams : "")
-            )
+              "/auth/signin/google?returnTo=" +
+              previousUrl || "/"
           }>
           <FcGoogle size={20} className="mr-1" /> Google
         </Link>
@@ -30,10 +29,8 @@ export default function SocialSignin() {
         <Link
           href={
             env.NEXT_PUBLIC_SERVER_URL +
-            "/auth/signin/github?returnTo=" +
-            encodeURIComponent(
-              pathname + (searchParams?.size ? "?" + searchParams : "")
-            )
+              "/auth/signin/github?returnTo=" +
+              previousUrl || "/"
           }>
           <BsGithub size={20} className="mr-1" /> Github
         </Link>

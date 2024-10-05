@@ -67,6 +67,7 @@ export const createComment: RequestHandler<
       author: authenticatedUser._id,
       parentCommentId,
       body,
+      likeCount: 0,
       images: imagesPath,
     });
 

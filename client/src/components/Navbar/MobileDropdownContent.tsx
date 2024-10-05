@@ -22,9 +22,9 @@ export default function MobileDropdownContent() {
           <DropdownMenuItem className="text-lg" onClick={toggleTheme}>
             Switch theme
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
         </>
       )}
-      <DropdownMenuSeparator />
     </div>
   );
 }

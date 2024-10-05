@@ -7,8 +7,6 @@ import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
 import { PostPage } from "@/validation/schema/post";
 import usePostsLoader from "@/hooks/usePostsLoader";
-import useAuth from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
 
 interface PostsListProps {
   author?: User;
@@ -28,7 +26,6 @@ export default function PostsList({
     setPostsLikeCount,
     fetchFirstPage,
     fetchNextPage,
-    isLoading,
     lastPostReached,
     pageLoadError,
   } = usePostsLoader();
@@ -46,13 +43,6 @@ export default function PostsList({
       postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
     );
   }, [postList, setPostsLikeCount]);
-
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user) router.refresh(); // when user logs in/out, refresh to get the correct like status
-  }, [user, router]);
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
   const postRef = useCallback(

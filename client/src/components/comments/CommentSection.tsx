@@ -3,26 +3,46 @@ import CommentList from "./CommentList";
 import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
-import { CommentPage } from "@/validation/schema/post";
+import { cookies } from "next/headers";
 
 interface CommentSectionProps {
   postId: string;
 }
 
 export default async function CommentSection({ postId }: CommentSectionProps) {
-  const initialPage = await PostsAPI.getCommentList(postId);
-
-  let initialReplyPages: CommentPage[];
-  const replyPages = initialPage.comments.map(async (comment) => {
-    const replyPage = await PostsAPI.getCommentList(
+  let initialPage;
+  const userCookie = cookies().get("connect.sid");
+  try {
+    initialPage = await PostsAPI.getCommentList(
       postId,
       undefined,
-      comment._id
+      undefined,
+      undefined,
+      userCookie
     );
-    return replyPage;
-  });
+  } catch {
+    initialPage = undefined;
+  }
 
-  initialReplyPages = await Promise.all(replyPages);
+  let initialReplyPages;
+  if (initialPage) {
+    try {
+      const replyPages = initialPage.comments.map(async (comment) => {
+        const replyPage = await PostsAPI.getCommentList(
+          postId,
+          undefined,
+          comment._id,
+          6,
+          userCookie
+        );
+        return replyPage;
+      });
+
+      initialReplyPages = await Promise.all(replyPages);
+    } catch (error) {
+      initialReplyPages = undefined;
+    }
+  }
 
   return (
     <CommentsContextProvider
@@ -38,7 +58,7 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
             </div>
             <CreateCommentBox postId={postId} />
           </div>
-          <CommentList initialPage={initialPage} />
+          <CommentList />
         </div>
       </section>
     </CommentsContextProvider>

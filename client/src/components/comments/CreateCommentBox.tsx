@@ -24,6 +24,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
         body: comment.body,
         images,
       });
+
       setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
       setCommentCount((prevCount) => prevCount + 1);
     } catch (error) {

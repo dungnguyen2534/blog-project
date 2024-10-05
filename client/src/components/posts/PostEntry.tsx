@@ -5,7 +5,7 @@ import { Post } from "@/validation/schema/post";
 import { IoChatboxOutline } from "react-icons/io5";
 import { Button } from "../ui/button";
 import PostTags from "./PostTags";
-import LikeButton from "../LikeButton";
+import LikePostButton from "./LikePostButton";
 
 interface PostEntryProps {
   post: Post;
@@ -29,12 +29,11 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
         </Link>
         <PostTags tags={post.tags} />
         <div className="mt-1 flex items-center gap-3 font-light text-sm">
-          <LikeButton
+          <LikePostButton
             className="gap-2 px-3 py-2 -ml-3"
             variant="ghost"
             initialLikeCount={post.likeCount}
-            targetId={post._id}
-            targetType="post"
+            postId={post._id}
             isLoggedInUserLiked={post.isLoggedInUserLiked}
             loggedInUserLikedId={post.loggedInUserLikedId}
           />

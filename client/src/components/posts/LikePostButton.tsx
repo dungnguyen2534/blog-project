@@ -1,17 +1,16 @@
 "use client";
 
 import { useCallback, useState, useRef, useEffect, use } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { PiHeart, PiHeartFill } from "react-icons/pi";
 import PostsAPI from "@/api/post";
 import useAuth from "@/hooks/useAuth";
 import usePostsLoader from "@/hooks/usePostsLoader";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 
-interface LikeButtonProps {
+interface LikePostButtonProps {
   initialLikeCount: number;
-  targetId: string;
-  targetType: "post" | "comment";
+  postId: string;
   isLoggedInUserLiked?: boolean;
   loggedInUserLikedId?: string;
   className?: string;
@@ -24,22 +23,19 @@ interface LikeButtonProps {
     | "link"
     | null
     | undefined;
-  forComment?: boolean;
 }
 
-export default function LikeButton({
+export default function LikePostButton({
   initialLikeCount,
-  targetId,
-  targetType,
+  postId,
   isLoggedInUserLiked,
   loggedInUserLikedId,
   className,
   variant,
-  forComment, // TODO: implement comment like
-}: LikeButtonProps) {
+}: LikePostButtonProps) {
   const { postsLikeCount, setPostsLikeCount } = usePostsLoader();
   const [likes, setLikes] = useState(
-    postsLikeCount.find((post) => post.postId === targetId)?.likeCount ||
+    postsLikeCount.find((post) => post.postId === postId)?.likeCount ||
       initialLikeCount
   );
 
@@ -57,7 +53,7 @@ export default function LikeButton({
 
     if (!user.username) return;
 
-    setLiked(!liked);
+    setLiked((prevLiked) => !prevLiked);
     setLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
 
     if (timeoutRef.current) {
@@ -67,14 +63,14 @@ export default function LikeButton({
     timeoutRef.current = setTimeout(async () => {
       try {
         if (liked) {
-          await PostsAPI.unlike(targetId, targetType);
+          await PostsAPI.unlike(postId, "post");
         } else {
-          await PostsAPI.like(targetId, targetType);
+          await PostsAPI.like(postId, "post");
         }
 
         setPostsLikeCount((prevCounts) =>
           prevCounts.map((post) =>
-            post.postId === targetId
+            post.postId === postId
               ? {
                   ...post,
                   likeCount: liked ? post.likeCount - 1 : post.likeCount + 1,
@@ -86,7 +82,7 @@ export default function LikeButton({
         setLiked(!liked);
       }
     }, 300);
-  }, [liked, targetId, targetType, user, setPostsLikeCount, showSignIn]);
+  }, [liked, postId, user, setPostsLikeCount, showSignIn]);
 
   useEffect(() => {
     if (user && user._id === loggedInUserLikedId) {
@@ -98,12 +94,12 @@ export default function LikeButton({
 
   useEffect(() => {
     const postLikeCount = postsLikeCount.find(
-      (post) => post.postId === targetId
+      (post) => post.postId === postId
     )?.likeCount;
     if (postLikeCount !== undefined) {
       setLikes(postLikeCount);
     }
-  }, [postsLikeCount, targetId]);
+  }, [postsLikeCount, postId]);
 
   return (
     <Button onClick={handleClick} variant={variant} className={className}>
