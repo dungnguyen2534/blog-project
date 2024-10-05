@@ -8,9 +8,11 @@ import { createContext, useCallback, useEffect, useRef, useState } from "react";
 interface CommentsContextType {
   commentList: CommentType[];
   setCommentList: React.Dispatch<React.SetStateAction<CommentType[]>>;
+  fetchFirstPage: (limit?: number) => Promise<void>;
   fetchNextPage: (limit?: number, continueAfterId?: string) => Promise<void>;
   isLoading: boolean;
   lastCommentReached: boolean;
+  setLastCommentReached: React.Dispatch<React.SetStateAction<boolean>>;
   pageLoadError: boolean;
   replyPages: CommentPage[];
   setReplyPages: React.Dispatch<React.SetStateAction<CommentPage[]>>;
@@ -20,6 +22,10 @@ interface CommentsContextType {
   setNewLocalReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
   commentCount: number;
   setCommentCount: React.Dispatch<React.SetStateAction<number>>;
+  commentsLikeCount: { commentId: string; likeCount: number }[];
+  setCommentsLikeCount: React.Dispatch<
+    React.SetStateAction<{ commentId: string; likeCount: number }[]>
+  >;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -27,8 +33,8 @@ export const CommentsContext = createContext<CommentsContextType | null>(null);
 interface CommentsContextProps {
   children: React.ReactNode;
   postId: string;
-  initialPage: CommentPage;
-  initialReplyPages: CommentPage[];
+  initialPage?: CommentPage;
+  initialReplyPages?: CommentPage[];
 }
 
 export default function CommentsContextProvider({
@@ -38,21 +44,64 @@ export default function CommentsContextProvider({
   postId,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
-    initialPage.comments
+    initialPage?.comments || []
   );
 
-  const [replyPages, setReplyPages] =
-    useState<CommentPage[]>(initialReplyPages);
+  const [replyPages, setReplyPages] = useState<CommentPage[]>(
+    initialReplyPages || []
+  );
 
   const [replies, setReplies] = useState<CommentType[]>(
-    initialReplyPages.flatMap((page) => page.comments)
+    initialReplyPages?.flatMap((page) => page.comments) || []
   );
 
   const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
 
+  const [commentsLikeCount, setCommentsLikeCount] = useState(
+    [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
+      commentId: comment._id,
+      likeCount: comment.likeCount,
+    }))
+  );
+
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
-  const [lastCommentReached, setLastCommentReached] = useState(false);
+  const [lastCommentReached, setLastCommentReached] = useState<boolean>(
+    initialPage?.lastCommentReached ?? true
+  );
+
+  const fetchFirstPage = useCallback(
+    async (limit?: number) => {
+      setIsLoading(true);
+      try {
+        const firstPage = await PostsAPI.getCommentList(
+          postId,
+          `posts/${postId}/comments?limit=${limit}`
+        );
+        const replyPagesPromises = firstPage.comments.map(async (comment) => {
+          const replyPage = await PostsAPI.getCommentList(
+            postId,
+            undefined,
+            comment._id
+          );
+          return replyPage;
+        });
+
+        const replyPages = await Promise.all(replyPagesPromises);
+
+        setCommentList(firstPage.comments);
+        setReplyPages(replyPages);
+        setReplies(replyPages.flatMap((page) => page.comments));
+        setLastCommentReached(firstPage.lastCommentReached);
+      } catch (error) {
+        setPageLoadError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [postId]
+  );
+
   const fetchNextPage = useCallback(
     async (limit?: number, continueAfterId?: string) => {
       const query = `posts/${postId}/comments?${
@@ -123,13 +172,30 @@ export default function CommentsContextProvider({
     !initialCount && fetchCommentCount();
   }, [postId, initialCount]);
 
+  useEffect(() => {
+    if (initialPage == undefined || initialReplyPages == undefined) {
+      fetchFirstPage(12);
+    }
+  }, [initialPage, initialReplyPages, fetchFirstPage, setCommentList]);
+
+  useEffect(() => {
+    setCommentsLikeCount(
+      [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
+        commentId: comment._id,
+        likeCount: comment.likeCount,
+      }))
+    );
+  }, [commentList, replies, newLocalReplies, setCommentsLikeCount]);
+
   return (
     <CommentsContext.Provider
       value={{
         commentList,
         setCommentList,
+        fetchFirstPage,
         fetchNextPage,
         lastCommentReached,
+        setLastCommentReached,
         isLoading,
         pageLoadError,
         replyPages,
@@ -140,6 +206,8 @@ export default function CommentsContextProvider({
         setNewLocalReplies,
         commentCount,
         setCommentCount,
+        commentsLikeCount,
+        setCommentsLikeCount,
       }}>
       {children}
     </CommentsContext.Provider>

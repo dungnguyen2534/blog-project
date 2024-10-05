@@ -52,9 +52,10 @@ export default function SignedInView({
     try {
       await PostsAPI.deleteUnusedImages();
       await UserAPI.signout();
-
       setAuthenticatedUserSSR(undefined);
       mutateUser(null);
+
+      window.location.reload();
     } catch (error) {
       setIsSigningOut(false);
       toast({
@@ -83,12 +84,9 @@ export default function SignedInView({
               username={user?.username}
               profilePicUrl={user?.profilePicPath}
             />
-
-            <Button
-              variant="ghost"
-              className="relative sm:hidden sm:my-0 p-1 px-2">
+            <div className="relative sm:hidden sm:my-0 p-1 px-2">
               <RxHamburgerMenu className="" size={35} />
-            </Button>
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[30vh] sm:w-auto">
             <DropdownMenuItem className="text-lg sm:text-base" asChild>

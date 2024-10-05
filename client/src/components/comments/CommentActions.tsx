@@ -4,7 +4,6 @@ import { useState } from "react";
 import PostsAPI from "@/api/post";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Button } from "../ui/button";
-import { PiHeart } from "react-icons/pi";
 import { IoChatboxOutline } from "react-icons/io5";
 import CommentForm from "./CommentForm";
 import { CommentBody, Comment as CommentType } from "@/validation/schema/post";
@@ -12,8 +11,10 @@ import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import useAuth from "@/hooks/useAuth";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
+import LikeCommentButton from "./LikeCommentButton";
 
 interface CommentActionsProps {
+  comment: CommentType;
   postId: string;
   parentCommentId: string;
   notTopLevelComment?: boolean;
@@ -21,6 +22,7 @@ interface CommentActionsProps {
 }
 
 export default function CommentActions({
+  comment,
   postId,
   parentCommentId,
   notTopLevelComment,
@@ -102,12 +104,14 @@ export default function CommentActions({
           </div>
         ) : (
           <>
-            <Button
+            <LikeCommentButton
+              commentId={comment._id}
+              initialLikeCount={comment.likeCount}
+              isLoggedInUserLiked={comment.isLoggedInUserLiked}
+              loggedInUserLikedId={comment.loggedInUserLikedId}
+              className="gap-2 px-3 py-2 -ml-3 rounded-md"
               variant="ghost"
-              className="gap-2 px-3 py-2 -ml-3 rounded-md">
-              <PiHeart size={22} /> Like
-              {/* <PiHeartFill /> */}
-            </Button>
+            />
             <Button
               onClick={() => {
                 if (!user) {

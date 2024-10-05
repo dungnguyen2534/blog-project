@@ -78,15 +78,24 @@ const PostsAPI = {
     );
     return res.payload;
   },
-  async getCommentList(postId: string, url?: string, parentCommentId?: string) {
+  async getCommentList(
+    postId: string,
+    url?: string,
+    parentCommentId?: string,
+    limit?: number,
+    cookie?: RequestCookie
+  ) {
     const res = await http.get<CommentPage>(
       url
         ? `${url}`
         : `/posts/${postId}/comments${
             parentCommentId ? `?parentCommentId=${parentCommentId}` : ""
-          }`,
+          }${limit ? `&limit=${limit}` : ""}`,
       {
         cache: "no-cache",
+        headers: {
+          cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+        },
       }
     );
     return res.payload;

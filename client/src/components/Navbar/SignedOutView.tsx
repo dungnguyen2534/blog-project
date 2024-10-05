@@ -8,9 +8,9 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 export default function SignedOutView() {
-  const { showSignIn, showSignUp } = useAuthDialogs();
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -19,16 +19,16 @@ export default function SignedOutView() {
 
   return (
     <div className="flex items-center gap-3">
-      <Button
-        variant="link"
-        onClick={showSignIn}
-        className="hidden sm:flex gap-3">
-        Sign in
+      <Button asChild variant="ghost" className="hidden sm:flex gap-3">
+        <Link href="/auth?signin">Sign in</Link>
       </Button>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={showSignUp} className="h-12 sm:h-10">
-          <span className="hidden sm:block">Create account</span>
-          <span className="sm:hidden text-lg">Sign up</span>
+        <Button asChild variant="outline" className="h-12 sm:h-10">
+          <Link href="/auth?signup">
+            {" "}
+            <span className="hidden sm:block">Create account</span>
+            <span className="sm:hidden text-lg">Sign up</span>
+          </Link>
         </Button>
 
         <div className="h-10 sm:hidden">
@@ -45,11 +45,11 @@ export default function SignedOutView() {
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem className="text-lg" onClick={showSignIn}>
-                Sign in
+              <DropdownMenuItem asChild className="text-lg">
+                <Link href="/auth?signin">Sign in</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-lg" onClick={toggleTheme}>
-                Theme
+                Switch theme
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

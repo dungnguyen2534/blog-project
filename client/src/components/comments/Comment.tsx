@@ -135,7 +135,7 @@ export default function Comment({
             <CommentOptions
               comment={comment}
               onDeleteReply={replyComment ? onDeleteReply : undefined}>
-              {isAuthor && (
+              {isAuthor ? (
                 <>
                   <DropdownMenuItem
                     className="flex items-center gap-2 w-full h-full py-2 cursor-pointer"
@@ -153,11 +153,14 @@ export default function Comment({
                     </DropdownMenuItem>
                   </DialogTrigger>
                 </>
+              ) : (
+                <DropdownMenuItem>Feature coming soon</DropdownMenuItem>
               )}
             </CommentOptions>
             <MarkdownRenderer>{comment.body}</MarkdownRenderer>
           </div>
           <CommentActions
+            comment={comment}
             postId={postId}
             parentCommentId={topLevelCommentId}
             notTopLevelComment={notTopLevelComment}

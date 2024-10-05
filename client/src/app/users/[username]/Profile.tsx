@@ -67,7 +67,7 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
               <time
                 className="flex text-muted-foreground text-sm gap-1 items-center md:justify-center"
                 dateTime={user.createdAt}>
-                <RiCake2Line size={20} className="mb-1" /> Joined on{" "}
+                <RiCake2Line size={20} className="mb-1" /> Joined{" "}
                 {formatDate(user.createdAt, false)}
               </time>
             </div>
