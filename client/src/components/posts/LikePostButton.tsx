@@ -34,12 +34,14 @@ export default function LikePostButton({
   variant,
 }: LikePostButtonProps) {
   const { postsLikeCount, setPostsLikeCount } = usePostsLoader();
-  const [likes, setLikes] = useState(
-    postsLikeCount.find((post) => post.postId === postId)?.likeCount ||
-      initialLikeCount
-  );
 
   const [liked, setLiked] = useState(isLoggedInUserLiked);
+  const [likes, setLikes] = useState(
+    postsLikeCount.find((post) => post.postId === postId)?.likeCount ||
+      initialLikeCount ||
+      0
+  );
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user } = useAuth();
@@ -53,8 +55,11 @@ export default function LikePostButton({
 
     if (!user.username) return;
 
-    setLiked((prevLiked) => !prevLiked);
-    setLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
+    const newLiked = !liked;
+    const newLikes = newLiked ? likes + 1 : likes - 1;
+
+    setLiked(newLiked);
+    setLikes(newLikes);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -62,27 +67,30 @@ export default function LikePostButton({
 
     timeoutRef.current = setTimeout(async () => {
       try {
-        if (liked) {
-          await PostsAPI.unlike(postId, "post");
+        let newLikeCount;
+
+        if (!newLiked) {
+          newLikeCount = (await PostsAPI.unlike(postId, "post")).totalLikes;
         } else {
-          await PostsAPI.like(postId, "post");
+          newLikeCount = (await PostsAPI.like(postId, "post")).totalLikes;
         }
 
-        setPostsLikeCount((prevCounts) =>
-          prevCounts.map((post) =>
+        setPostsLikeCount((prevCounts) => {
+          return prevCounts.map((post) =>
             post.postId === postId
               ? {
                   ...post,
-                  likeCount: liked ? post.likeCount - 1 : post.likeCount + 1,
+                  likeCount: newLikeCount,
                 }
               : post
-          )
-        );
+          );
+        });
       } catch {
-        setLiked(!liked);
+        setLiked(!newLiked);
+        setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [liked, postId, user, setPostsLikeCount, showSignIn]);
+  }, [liked, postId, user, setPostsLikeCount, showSignIn, likes]);
 
   useEffect(() => {
     if (user && user._id === loggedInUserLikedId) {
@@ -91,15 +99,6 @@ export default function LikePostButton({
       setLiked(false);
     }
   }, [user, loggedInUserLikedId]);
-
-  useEffect(() => {
-    const postLikeCount = postsLikeCount.find(
-      (post) => post.postId === postId
-    )?.likeCount;
-    if (postLikeCount !== undefined) {
-      setLikes(postLikeCount);
-    }
-  }, [postsLikeCount, postId]);
 
   return (
     <Button onClick={handleClick} variant={variant} className={className}>
