@@ -42,6 +42,7 @@ export default function SignIn({
       router.push(previousUrl || "/");
       router.refresh();
     } catch (error) {
+      setIsLoading(false);
       if (error instanceof UnauthorizedError) {
         toast({
           title: "Invalid username or password",

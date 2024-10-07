@@ -49,11 +49,11 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
               <p className="ml-[0.125rem] sm:ml-0 my-1">{user.about}</p>
             )}
 
-            <div className="h-[1px] w-full bg-neutral-200 dark:bg-neutral-700"></div>
+            <div className="h-[1px] w-full bg-[#f2f2f2] dark:bg-neutral-800"></div>
 
             <div className="flex gap-4 mt-1 md:justify-around">
               <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center ml-[0.05rem] sm:ml-0">
-                <TfiWrite size={18} className="mb-[0.1rem]" />
+                <TfiWrite size={18} className="mb-[0.2rem]" />
                 {user.totalPosts} {user.totalPosts !== 1 ? "Posts" : "Post"}{" "}
                 written
               </div>
@@ -67,7 +67,7 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
               <time
                 className="flex text-muted-foreground text-sm gap-1 items-center md:justify-center"
                 dateTime={user.createdAt}>
-                <RiCake2Line size={20} className="mb-1" /> Joined{" "}
+                <RiCake2Line size={20} className="mb-[0.15rem]" /> Joined{" "}
                 {formatDate(user.createdAt, false)}
               </time>
             </div>
@@ -76,7 +76,11 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
       </main>
 
       <div className="container px-0 my-[0.35rem] md:my-2">
-        <PostsList author={user} initialPage={userInitialPostsPage} />
+        <PostsList
+          author={user}
+          initialPage={userInitialPostsPage}
+          key={user._id}
+        />
       </div>
     </>
   );

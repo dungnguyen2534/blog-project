@@ -33,22 +33,14 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
   const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(input: SignUpBody) {
-    if (!getOPTSuccess) {
-      toast({
-        title: "You haven't got OTP yet!",
-        description: "Click get OTP button beside email input",
-      });
-      return;
-    }
-
     setIsLoading(true);
     try {
       const newUser = await UserAPI.signup(input);
-      setGetOTPSuccess(false);
       mutateUser(newUser);
       router.push(previousUrl || "/");
       router.refresh();
     } catch (error) {
+      setIsLoading(false);
       if (error instanceof ConflictError || error instanceof BadRequestError) {
         toast({
           title: error.message,
@@ -65,7 +57,6 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
   const { trigger } = form;
   const { startCountDown, timeLeft } = useCountDown();
   const [isSendingOTP, setIsSendingOTP] = useState(false);
-  const [getOPTSuccess, setGetOTPSuccess] = useState(false);
 
   async function getOTP() {
     const validEmail = await trigger("email");
@@ -74,13 +65,11 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
     setIsSendingOTP(true);
     try {
       await UserAPI.getOTP(form.getValues("email"));
-      setGetOTPSuccess(true);
       toast({
         title: "OTP sent!",
         description: "Please check your email",
       });
     } catch (error) {
-      setGetOTPSuccess(false);
       setIsSendingOTP(false);
       if (error instanceof ConflictError) {
         toast({

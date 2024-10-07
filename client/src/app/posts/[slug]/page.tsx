@@ -6,7 +6,8 @@ import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
 import CommentSection from "@/components/comments/CommentSection";
 import PostTags from "@/components/posts/PostTags";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
+import InPostAsideSection from "@/components/posts/InPostAsideSection";
 
 const getPost = cache(async (slug: string) => {
   try {

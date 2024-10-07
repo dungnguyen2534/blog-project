@@ -14,7 +14,7 @@ import { extractImageUrls, generateTags } from "@/lib/utils";
 import { PostBody, Post, PostBodySchema } from "@/validation/schema/post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import revalidateCachedData from "@/lib/revalidate";
 import {
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import TextInput from "@/components/form/TextInput";
+import useAutoSave from "@/hooks/useAutoSave";
 
 interface PostUpdaterProps {
   post: Post;
@@ -51,6 +52,28 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
 
   const [tagsString, setTagsString] = useState(post.tags.join(" "));
   const [openDialog, setOpenDialog] = useState(false);
+
+  const { getAutoSavedValue, clearAutoSavedValue } = useAutoSave(
+    "update-post-" + post._id,
+    {
+      ...form.getValues(),
+      ...{ tags: tagsString },
+      ...{ images: [] }, // images are not saved
+    }
+  );
+
+  useEffect(() => {
+    const autoSavedValue = getAutoSavedValue();
+
+    if (autoSavedValue) {
+      form.reset({
+        ...autoSavedValue,
+        tags: [], // tags are saved as a string
+      });
+
+      setTagsString(autoSavedValue.tags);
+    }
+  }, [getAutoSavedValue, clearAutoSavedValue, form]);
 
   async function onSubmit(values: PostBody) {
     if (
@@ -107,7 +130,6 @@ export default function PostUpdater({ post }: PostUpdaterProps) {
           description: "You need to login to create a post",
         });
       } else {
-        console.log(error);
         toast({
           title: "Error",
           description: "An error occurred, please try again later",
