@@ -72,7 +72,7 @@ export const signup: RequestHandler<
     }).exec();
 
     if (!OTPCode) {
-      throw createHttpError(400, "Invalid or expired verification code");
+      throw createHttpError(404, "Invalid or expired verification code");
     } else {
       await EmailVerificationToken.deleteOne();
     }
@@ -140,9 +140,19 @@ export const resetPassword: RequestHandler<
   try {
     const { email, password: rawPassword, otp } = req.body;
 
-    const user = await UserModel.findOne({ email }).exec();
+    const user = await UserModel.findOne({ email }).select("+password").exec();
     if (!user) {
       throw createHttpError(404, "No user found with this email");
+    }
+
+    const matchedOldPassword = user.password
+      ? await bcrypt.compare(rawPassword, user.password)
+      : false;
+    if (matchedOldPassword) {
+      throw createHttpError(
+        409,
+        "New password must be different from the old one"
+      );
     }
 
     const OTPCode = await passwordResetToken
@@ -153,7 +163,7 @@ export const resetPassword: RequestHandler<
       .exec();
 
     if (!OTPCode) {
-      throw createHttpError(400, "Invalid or expired verification code");
+      throw createHttpError(404, "Invalid or expired verification code");
     } else {
       await OTPCode.deleteOne();
     }

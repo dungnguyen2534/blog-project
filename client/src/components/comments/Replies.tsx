@@ -99,8 +99,6 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
     (reply) => reply.parentCommentId === parentCommentId
   );
 
-  console.log(replies);
-
   return (
     <div className="">
       <div className="-mt-3">

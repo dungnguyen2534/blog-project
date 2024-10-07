@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import TextInput from "@/components/form/TextInput";
+import useAutoSave from "@/hooks/useAutoSave";
 
 export default function NewPostPage() {
   const form = useForm<PostBody>({
@@ -56,6 +57,25 @@ export default function NewPostPage() {
   const [tagsString, setTagsString] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
 
+  const { getAutoSavedValue, clearAutoSavedValue } = useAutoSave("new-post", {
+    ...form.getValues(),
+    ...{ tags: tagsString },
+    ...{ images: [] }, // images are not saved
+  });
+
+  useEffect(() => {
+    const autoSavedValue = getAutoSavedValue();
+
+    if (autoSavedValue) {
+      form.reset({
+        ...autoSavedValue,
+        tags: [], // tags are saved as a string
+      });
+
+      setTagsString(autoSavedValue.tags);
+    }
+  }, [getAutoSavedValue, clearAutoSavedValue, form]);
+
   async function onSubmit(values: PostBody) {
     let tags: string[] = [];
 
@@ -83,6 +103,7 @@ export default function NewPostPage() {
 
     try {
       const { slug } = await PostsAPI.createPost({ ...values, tags, images });
+      clearAutoSavedValue();
       router.push("/posts/" + slug);
     } catch (error) {
       setIsSubmitting(false);
@@ -97,7 +118,6 @@ export default function NewPostPage() {
           description: "You are creating too many posts, take a break",
         });
       } else {
-        console.log(error);
         toast({
           title: "Error",
           description: "An error occurred, please try again later",
@@ -165,6 +185,7 @@ export default function NewPostPage() {
                 description="Example: #javascript #react #webdev"
                 className="dark:bg-neutral-900"
                 placeholder="Enter your post tags here... (5 tags at most)"
+                defaultValue={tagsString}
               />
 
               <LoadingButton

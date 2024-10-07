@@ -11,7 +11,7 @@ import {
 } from "@/validation/schema/user";
 import useAuth from "@/hooks/useAuth";
 import UserAPI from "@/api/user";
-import { NotFoundError } from "@/lib/http-errors";
+import { ConflictError, NotFoundError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 import useCountDown from "@/hooks/useCountDown";
 import { useState } from "react";
@@ -39,26 +39,21 @@ export default function ForgotPassword({
 
   const { mutateUser } = useAuth();
   async function onSubmit(input: ForgotPasswordBody) {
-    if (!getOTPSuccess) {
-      toast({
-        title: "You haven't got OTP yet!",
-        description: "Click get OTP button beside email input",
-      });
-      return;
-    }
-
     setIsLoading(true);
     try {
       const user = await UserAPI.resetPassword(input);
-      setGetOTPSuccess(false);
       mutateUser(user);
       router.push(previousUrl || "/");
       router.refresh();
     } catch (error) {
+      setIsLoading(false);
       if (error instanceof NotFoundError) {
         toast({
-          title: "No user found with this email",
-          description: "Try remembering the email you used to sign up",
+          title: error.message,
+        });
+      } else if (error instanceof ConflictError) {
+        toast({
+          title: error.message,
         });
       } else {
         toast({
@@ -73,7 +68,6 @@ export default function ForgotPassword({
   const { trigger } = form;
   const { startCountDown, timeLeft } = useCountDown();
   const [isSendingOTP, setIsSendingOTP] = useState(false);
-  const [getOTPSuccess, setGetOTPSuccess] = useState(false);
 
   async function getResetPasswordOTP() {
     const validEmail = await trigger("email");
@@ -82,13 +76,11 @@ export default function ForgotPassword({
     setIsSendingOTP(true);
     try {
       await UserAPI.getResetPasswordOTP(form.getValues("email"));
-      setGetOTPSuccess(true);
       toast({
         title: "OTP sent!",
         description: "Please check your email",
       });
     } catch (error) {
-      setGetOTPSuccess(false);
       setIsSendingOTP(false);
       if (error instanceof NotFoundError) {
         toast({

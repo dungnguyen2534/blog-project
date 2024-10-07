@@ -4,7 +4,7 @@ import ForgotPassword from "@/components/auth/ForgotPassword";
 import SignIn from "@/components/auth/SignIn";
 import SignUp from "@/components/auth/SignUp";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface AuthPageProps {
   previousUrl: string | null;
@@ -14,6 +14,8 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showSignIn, setShowSignIn] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  const previousUrlRef = useRef(previousUrl).current; // keep actual previousUrl in ref so it not changes on query change
 
   const router = useRouter();
   const params = useSearchParams();
@@ -35,7 +37,7 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
       <div className="container w-full sm:w-[30rem]">
         {!showSignIn && !showSignUp && !showForgotPassword && (
           <SignIn
-            previousUrl={previousUrl}
+            previousUrl={previousUrlRef}
             onSignUpClick={() => {
               setShowSignUp(true);
               setShowSignIn(false);
@@ -51,7 +53,7 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
 
         {showSignIn && (
           <SignIn
-            previousUrl={previousUrl}
+            previousUrl={previousUrlRef}
             onSignUpClick={() => {
               setShowSignUp(true);
               setShowSignIn(false);
@@ -67,7 +69,7 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
 
         {showSignUp && (
           <SignUp
-            previousUrl={previousUrl}
+            previousUrl={previousUrlRef}
             onSignInClick={() => {
               setShowSignUp(false);
               setShowSignIn(true);
@@ -78,7 +80,7 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
 
         {showForgotPassword && (
           <ForgotPassword
-            previousUrl={previousUrl}
+            previousUrl={previousUrlRef}
             onSignInClick={() => {
               setShowForgotPassword(false);
               setShowSignIn(true);
