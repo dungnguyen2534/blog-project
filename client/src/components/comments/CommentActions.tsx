@@ -108,7 +108,6 @@ export default function CommentActions({
               commentId={comment._id}
               initialLikeCount={comment.likeCount}
               isLoggedInUserLiked={comment.isLoggedInUserLiked}
-              loggedInUserLikedId={comment.loggedInUserLikedId}
               className="gap-2 px-3 py-2 -ml-3 rounded-md"
               variant="ghost"
             />

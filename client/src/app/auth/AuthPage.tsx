@@ -31,7 +31,7 @@ export default function AuthPage({ previousUrl }: AuthPageProps) {
   }, [params]);
 
   return (
-    <main className="h-dvh w-full grid place-items-center bg-white dark:bg-black">
+    <main className="min-h-dvh w-full grid place-items-center bg-white dark:bg-black">
       <div className="container w-full sm:w-[30rem]">
         {!showSignIn && !showSignUp && !showForgotPassword && (
           <SignIn

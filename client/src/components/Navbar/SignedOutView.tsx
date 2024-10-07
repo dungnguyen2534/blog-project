@@ -19,7 +19,7 @@ export default function SignedOutView() {
 
   return (
     <div className="flex items-center gap-3">
-      <Button asChild variant="ghost" className="hidden sm:flex gap-3">
+      <Button asChild variant="link" className="hidden sm:flex gap-3">
         <Link href="/auth?signin">Sign in</Link>
       </Button>
       <div className="flex gap-2">

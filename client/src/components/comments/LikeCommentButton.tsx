@@ -12,7 +12,6 @@ interface LikeCommentButtonProps {
   initialLikeCount?: number;
   commentId: string;
   isLoggedInUserLiked?: boolean;
-  loggedInUserLikedId?: string;
   className?: string;
   variant?:
     | "default"
@@ -29,7 +28,6 @@ export default function LikeCommentButton({
   commentId,
   initialLikeCount,
   isLoggedInUserLiked,
-  loggedInUserLikedId,
   variant,
   className,
 }: LikeCommentButtonProps) {
@@ -55,8 +53,11 @@ export default function LikeCommentButton({
 
     if (!user.username) return;
 
-    setLiked((prevLiked) => !prevLiked);
-    setLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
+    const newLiked = !liked;
+    const newLikes = newLiked ? likes + 1 : likes - 1;
+
+    setLiked(newLiked);
+    setLikes(newLikes);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -64,10 +65,12 @@ export default function LikeCommentButton({
 
     timeoutRef.current = setTimeout(async () => {
       try {
-        if (liked) {
-          await PostsAPI.unlike(commentId, "comment");
+        let newLikeCount;
+        if (!newLiked) {
+          newLikeCount = (await PostsAPI.unlike(commentId, "comment"))
+            .totalLikes;
         } else {
-          await PostsAPI.like(commentId, "comment");
+          newLikeCount = (await PostsAPI.like(commentId, "comment")).totalLikes;
         }
 
         setCommentsLikeCount((prevCounts) =>
@@ -75,18 +78,17 @@ export default function LikeCommentButton({
             comment.commentId === commentId
               ? {
                   ...comment,
-                  likeCount: liked
-                    ? comment.likeCount - 1
-                    : comment.likeCount + 1,
+                  likeCount: newLikeCount,
                 }
               : comment
           )
         );
       } catch {
-        setLiked(!liked);
+        setLiked(!newLiked);
+        setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [liked, commentId, user, setCommentsLikeCount, showSignIn]);
+  }, [liked, commentId, user, setCommentsLikeCount, showSignIn, likes]);
 
   return (
     <Button onClick={handleClick} variant={variant} className={className}>
