@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import PostsAPI from "@/api/post";
 import useAuth from "@/hooks/useAuth";
+import useNavigation from "@/hooks/useNavigation";
 
 export function NavigationEvents() {
   const { user: authenticatedUser } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { pathname, prevUrl } = useNavigation();
 
-  const pathRef = useRef(pathname);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -40,14 +40,12 @@ export function NavigationEvents() {
     }
 
     window.addEventListener("beforeunload", deleteUnusedImages);
-    if (pathRef.current.startsWith("/posts/") && pathRef.current !== pathname) {
+    if (prevUrl.startsWith("/posts/") && prevUrl !== pathname) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = setTimeout(deleteUnusedImages, 1500);
     }
-
-    pathRef.current = pathname;
 
     return () => {
       window.removeEventListener("beforeunload", deleteUnusedImages);
@@ -55,7 +53,7 @@ export function NavigationEvents() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, [pathname, router, searchParams, authenticatedUser]);
+  }, [pathname, router, searchParams, authenticatedUser, prevUrl]);
 
   return null;
 }

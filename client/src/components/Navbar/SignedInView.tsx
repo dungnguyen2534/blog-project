@@ -78,14 +78,14 @@ export default function SignedInView({
         )}
       {user?.username && !(pathname === "/onboarding") && (
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger aria-label="menu">
             <UserAvatar
               className="hidden sm:block"
               username={user?.username}
               profilePicUrl={user?.profilePicPath}
             />
             <div className="relative sm:hidden sm:my-0 p-1 px-2">
-              <RxHamburgerMenu className="" size={35} />
+              <RxHamburgerMenu className="" size={40} />
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[30vh] sm:w-auto">

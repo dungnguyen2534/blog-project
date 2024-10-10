@@ -121,7 +121,11 @@ export const editComment: RequestHandler<
       if (oldUnusedImages.length > 0) {
         const deletePromises = oldUnusedImages.map(async (imagePath) => {
           const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-          return fs.promises.unlink(imagesPathToDelete);
+          return fs.promises.unlink(imagesPathToDelete).catch((error) => {
+            if (error.code !== "ENOENT") {
+              throw error;
+            }
+          });
         });
 
         await Promise.all(deletePromises);
@@ -188,7 +192,11 @@ export const deleteComment: RequestHandler<
 
     const deletePromises = commentToDelete.images.map(async (imagePath) => {
       const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-      return fs.promises.unlink(imagePathToDelete);
+      return fs.promises.unlink(imagePathToDelete).catch((error) => {
+        if (error.code !== "ENOENT") {
+          throw error;
+        }
+      });
     });
 
     await Promise.all(deletePromises);
@@ -216,9 +224,11 @@ export const deleteComment: RequestHandler<
       await CommentModel.deleteMany({ parentCommentId: commentId });
     }
 
-    await PostModel.findByIdAndUpdate(commentToDelete.postId, {
-      $inc: { commentCount: -1 * commentCountDecrement },
-    });
+    await PostModel.updateOne(
+      { _id: commentToDelete.postId },
+      { $inc: { commentCount: -1 * commentCountDecrement } },
+      { timestamps: false }
+    );
 
     await commentToDelete.deleteOne();
 

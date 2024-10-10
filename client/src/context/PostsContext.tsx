@@ -24,23 +24,21 @@ interface PostsContextType {
   isLoading: boolean;
   lastPostReached: boolean;
   pageLoadError: boolean;
+  firstPageLoadError: boolean;
 }
 
 export const PostsContext = createContext<PostsContextType | null>(null);
 
 interface PostsContextProps {
   children: React.ReactNode;
-  initialPage?: Post[];
 }
 
-export default function PostsContextProvider({
-  children,
-  initialPage,
-}: PostsContextProps) {
-  const [postList, setPostList] = useState<Post[]>(initialPage || []);
+export default function PostsContextProvider({ children }: PostsContextProps) {
+  const [postList, setPostList] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastPostReached, setLastPostReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
+  const [firstPageLoadError, setFirstPageLoadError] = useState(false);
 
   const [postsLikeCount, setPostsLikeCount] = useState(
     postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
@@ -50,6 +48,7 @@ export default function PostsContextProvider({
 
   const fetchFirstPage = useCallback(
     async (authorId?: string, tag?: string, limit?: number) => {
+      setFirstPageLoadError(false);
       setIsLoading(true);
 
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
@@ -60,8 +59,8 @@ export default function PostsContextProvider({
         const firstPage = await PostsAPI.getPostList(query);
         setPostList(firstPage.posts);
         setLastPostReached(firstPage.lastPostReached);
-      } catch (error) {
-        setPageLoadError(true);
+      } catch {
+        setFirstPageLoadError(true);
       } finally {
         setIsLoading(false);
       }
@@ -71,6 +70,7 @@ export default function PostsContextProvider({
 
   const fetchNextPage = useCallback(
     async (authorId?: string, tag?: string, limit?: number) => {
+      setPageLoadError(false);
       setIsLoading(true);
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
         authorId ? `&authorId=${authorId}` : ""
@@ -103,6 +103,7 @@ export default function PostsContextProvider({
         lastPostReached,
         isLoading,
         pageLoadError,
+        firstPageLoadError,
         postsLikeCount,
         setPostsLikeCount,
       }}>

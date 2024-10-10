@@ -30,12 +30,10 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
         <PostTags tags={post.tags} />
         <div className="mt-1 flex items-center gap-3 font-light text-sm">
           <LikePostButton
-            className="gap-2 px-3 py-2 -ml-3"
+            postEntry
+            className="-ml-3"
             variant="ghost"
-            initialLikeCount={post.likeCount}
-            postId={post._id}
-            isLoggedInUserLiked={post.isLoggedInUserLiked}
-            loggedInUserLikedId={post.loggedInUserLikedId}
+            post={post}
           />
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
             <Link href={`/posts/${post.slug}#comment-section`}>

@@ -10,14 +10,17 @@ interface CommentSectionProps {
 }
 
 export default async function CommentSection({ postId }: CommentSectionProps) {
+  console.log(postId);
+
   let initialPage;
   const userCookie = cookies().get("connect.sid");
+
   try {
     initialPage = await PostsAPI.getCommentList(
       postId,
       undefined,
       undefined,
-      undefined,
+      12,
       userCookie
     );
   } catch {
@@ -27,11 +30,11 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
   let initialReplyPages;
   if (initialPage) {
     try {
-      const replyPages = initialPage.comments.map(async (comment) => {
+      const replyPages = initialPage.comments.map(async (parentComment) => {
         const replyPage = await PostsAPI.getCommentList(
           postId,
           undefined,
-          comment._id,
+          parentComment._id,
           6,
           userCookie
         );
@@ -49,7 +52,7 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
       initialPage={initialPage}
       initialReplyPages={initialReplyPages}
       postId={postId}>
-      <section className="mt-10 rounded-t-none sm:py-7 p-3 border-t-[1px]">
+      <section className="rounded-t-none sm:py-5 p-3">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
             <div className="flex gap-1 text-2xl font-extrabold mb-4">

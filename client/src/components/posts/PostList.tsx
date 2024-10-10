@@ -28,6 +28,7 @@ export default function PostsList({
     fetchNextPage,
     lastPostReached,
     pageLoadError,
+    firstPageLoadError,
   } = usePostsLoader();
 
   useEffect(() => {
@@ -36,13 +37,13 @@ export default function PostsList({
     } else {
       fetchFirstPage(author?._id, tag, 12);
     }
-  }, [initialPage, setPostList, fetchFirstPage, author?._id, tag]);
+  }, [initialPage, fetchFirstPage, author?._id, tag, setPostList]);
 
   useEffect(() => {
     setPostsLikeCount(
       postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
     );
-  }, [postList, setPostsLikeCount]);
+  }, [postList, setPostsLikeCount, initialPage, setPostList]);
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
   const postRef = useCallback(
@@ -68,7 +69,7 @@ export default function PostsList({
 
   return (
     <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
-      {initialPage && postList.length > 0
+      {postList.length > 0
         ? postList.map((post, index) => (
             <PostEntry
               key={post._id}
@@ -84,17 +85,40 @@ export default function PostsList({
             />
           ))}
 
-      {!initialPage?.lastPostReached && !lastPostReached && !pageLoadError && (
-        <PostListSkeleton skeletonCount={4} />
+      {!firstPageLoadError &&
+        !initialPage?.lastPostReached &&
+        !lastPostReached &&
+        !pageLoadError && <PostListSkeleton skeletonCount={4} />}
+
+      {!author && firstPageLoadError && (
+        <EmptyPostList
+          retryFunction={() => fetchFirstPage(undefined, tag, 12)}
+          text="Failed to load posts"
+          className="mt-48"
+        />
+      )}
+
+      {author && firstPageLoadError && (
+        <EmptyPostList
+          text={`Failed to load ${author.username}'s posts`}
+          retryFunction={() => fetchFirstPage(author._id, tag, 12)}
+          className="mt-48"
+          hideIcon
+        />
       )}
 
       {!author && pageLoadError && (
-        <EmptyPostList text="Failed to load posts" className="mt-48" />
+        <EmptyPostList
+          text="Failed to load posts"
+          retryFunction={() => fetchNextPage(undefined, tag, 12)}
+          hideIcon
+        />
       )}
 
       {author && pageLoadError && (
         <EmptyPostList
-          text={`Failed to load ${author.username}'s posts`}
+          text="Failed to load posts"
+          retryFunction={() => fetchNextPage(author._id, tag, 12)}
           hideIcon
         />
       )}

@@ -45,7 +45,7 @@ export const likeTarget: RequestHandler<
     }
 
     const likeCount = await LikeModel.countDocuments({ targetId, targetType });
-    res.status(200).json({ likes: likeCount });
+    res.status(200).json({ totalLikes: likeCount });
   } catch (error) {
     next(error);
   }
@@ -84,7 +84,7 @@ export const unlikeTarget: RequestHandler<
     });
 
     const likeCount = await LikeModel.countDocuments({ targetId, targetType });
-    res.status(200).json({ likes: likeCount });
+    res.status(200).json({ totalLikes: likeCount });
   } catch (error) {
     next(error);
   }

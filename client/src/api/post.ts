@@ -48,8 +48,12 @@ const PostsAPI = {
     const res = await http.get<string[]>("/posts/slugs");
     return res.payload;
   },
-  async getPost(slug: string) {
-    const res = await http.get<Post>("/posts/" + slug);
+  async getPost(slug: string, userCookie?: RequestCookie) {
+    const res = await http.get<Post>("/posts/" + slug, {
+      headers: {
+        cookie: userCookie ? `${userCookie.name}=${userCookie.value}` : "",
+      },
+    });
     return res.payload;
   },
   async createComment(postId: string, values: CommentBody) {
@@ -88,9 +92,9 @@ const PostsAPI = {
     const res = await http.get<CommentPage>(
       url
         ? `${url}`
-        : `/posts/${postId}/comments${
-            parentCommentId ? `?parentCommentId=${parentCommentId}` : ""
-          }${limit ? `&limit=${limit}` : ""}`,
+        : `/posts/${postId}/comments?${
+            parentCommentId ? `parentCommentId=${parentCommentId}&` : ""
+          }${limit ? `limit=${limit}` : ""}`,
       {
         cache: "no-cache",
         headers: {

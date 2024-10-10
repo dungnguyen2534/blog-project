@@ -100,7 +100,7 @@ export default function Comment({
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`flex gap-2 mt-5 ${className}`}>
+    <div className={`flex gap-2 mt-3 md:mt-4 ${className}`}>
       <UserAvatar
         username={comment.author.username}
         profilePicUrl={comment.author.profilePicPath}
@@ -154,7 +154,7 @@ export default function Comment({
                   </DialogTrigger>
                 </>
               ) : (
-                <DropdownMenuItem>Feature coming soon</DropdownMenuItem>
+                <DropdownMenuItem>(to be implemented)</DropdownMenuItem>
               )}
             </CommentOptions>
             <MarkdownRenderer>{comment.body}</MarkdownRenderer>

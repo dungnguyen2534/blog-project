@@ -6,13 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CommentBody, CommentBodySchema } from "@/validation/schema/post";
 import FormWrapper from "../form/FormWrapper";
 import LoadingButton from "../LoadingButton";
-import { Button } from "../ui/button";
-import Link from "next/link";
-import { RxQuestionMarkCircled } from "react-icons/rx";
 import { useToast } from "../ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 import UserAvatar from "../UserAvatar";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
+import EditorGuideButton from "../EditorGuideButton";
 
 interface CommentFormProps {
   postId: string;
@@ -113,15 +111,7 @@ export default function CommentForm({
             type="submit"
             loading={isSubmitting}
           />
-          <Button asChild variant="link">
-            <Link
-              className="text-sm text-[#5a5a5a] dark:text-neutral-400 flex items-center gap-1"
-              href="/editor-guide"
-              target="_blank">
-              <RxQuestionMarkCircled size={22} />
-              <span className="hidden sm:block">Editor Guide</span>
-            </Link>
-          </Button>
+          <EditorGuideButton />
         </div>
       </FormWrapper>
     </div>

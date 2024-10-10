@@ -125,9 +125,13 @@ export const updatePost: RequestHandler<
       );
 
       if (oldUnusedImages.length > 0) {
-        const deletePromises = oldUnusedImages.map((imagePath) => {
+        const deletePromises = oldUnusedImages.map(async (imagePath) => {
           const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-          return fs.promises.unlink(imagePathToDelete);
+          return fs.promises.unlink(imagePathToDelete).catch((error) => {
+            if (error.code !== "ENOENT") {
+              throw error;
+            }
+          });
         });
 
         await Promise.all(deletePromises);
@@ -194,9 +198,13 @@ export const deletePost: RequestHandler<
       throw createHttpError(403, "You are not authorized to delete this post");
     }
 
-    const deletePromises = postToDelete.images.map((imagePath) => {
+    const deletePromises = postToDelete.images.map(async (imagePath) => {
       const imagePathToDelete = path.join(__dirname, "../..", imagePath);
-      return fs.promises.unlink(imagePathToDelete);
+      return fs.promises.unlink(imagePathToDelete).catch((error) => {
+        if (error.code !== "ENOENT") {
+          throw error;
+        }
+      });
     });
 
     await Promise.all(deletePromises);
@@ -322,10 +330,13 @@ export const getPost: RequestHandler = async (req, res, next) => {
     }
 
     const likeCount = await LikeModel.countDocuments({ targetId: result._id });
+
     const post = {
       ...result,
       likeCount,
-      ...(authenticatedUser && { userLiked: !!isUserLikedPost }),
+      ...(authenticatedUser && {
+        isLoggedInUserLiked: !!isUserLikedPost,
+      }),
     };
 
     res.status(200).json(post);
