@@ -1,5 +1,3 @@
-"use client";
-
 import Markdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
@@ -10,8 +8,6 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import addClasses from "rehype-class-names";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import { useTheme } from "next-themes";
-import { ReactNode } from "react";
 
 interface MarkdownRendererProps {
   children: string;
@@ -22,8 +18,6 @@ export default function MarkdownRenderer({
   children,
   className,
 }: MarkdownRendererProps) {
-  const { theme } = useTheme();
-
   return (
     <Markdown
       className={`markdown max-w-full ${className}`}
@@ -59,8 +53,8 @@ export default function MarkdownRenderer({
               wrapLongLines
               style={vs2015}
               customStyle={{
-                backgroundColor: theme === "dark" ? "#121212" : "#222",
                 padding: "1rem",
+                backgroundColor: "var(--markdown-pre)",
               }}>
               {String(children ?? " ").replace(/\n$/, "")}
             </SyntaxHighlighter>

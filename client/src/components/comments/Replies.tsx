@@ -121,7 +121,11 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
             text="Load more replies"
             loading={isLoading}
             onClick={() =>
-              fetchNextPage(parentCommentId, replies[replies.length - 1]._id, 6)
+              fetchNextPage(
+                parentCommentId,
+                repliesToShow[repliesToShow.length - 1]._id,
+                6
+              )
             }
           />
         </div>

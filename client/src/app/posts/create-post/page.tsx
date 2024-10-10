@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import TextInput from "@/components/form/TextInput";
 import useAutoSave from "@/hooks/useAutoSave";
+import EditorGuideButton from "@/components/EditorGuideButton";
 
 export default function NewPostPage() {
   const form = useForm<PostBody>({
@@ -199,16 +200,7 @@ export default function NewPostPage() {
               />
             </DialogContent>
           </Dialog>
-
-          <Button asChild variant="link">
-            <Link
-              className="text-sm text-[#5a5a5a] dark:text-neutral-400 flex items-center gap-1"
-              href="/editor-guide"
-              target="_blank">
-              <RxQuestionMarkCircled size={22} />
-              Editor Guide
-            </Link>
-          </Button>
+          <EditorGuideButton />
         </div>
       </FormWrapper>
     </main>

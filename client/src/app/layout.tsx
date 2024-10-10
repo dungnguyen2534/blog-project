@@ -11,6 +11,7 @@ import { NavigationEvents } from "./NavigationEvents";
 import PostsContextProvider from "@/context/PostsContext";
 import UserAPI from "@/api/user";
 import { cookies } from "next/headers";
+import NavigationContextProvider from "@/context/NavigationContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,16 +46,18 @@ export default async function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <AuthDialogsProvider>
-            <PostsContextProvider>
-              <Navbar authenticatedUser={authenticatedUser} />
-              {children}
-              <Toaster />
-              <Suspense fallback={null}>
-                <NavigationEvents />
-              </Suspense>
-            </PostsContextProvider>
-          </AuthDialogsProvider>
+          <NavigationContextProvider>
+            <AuthDialogsProvider>
+              <PostsContextProvider>
+                <Navbar authenticatedUser={undefined} />
+                {children}
+                <Toaster />
+                <Suspense fallback={null}>
+                  <NavigationEvents />
+                </Suspense>
+              </PostsContextProvider>
+            </AuthDialogsProvider>
+          </NavigationContextProvider>
         </ThemeProvider>
       </body>
     </html>

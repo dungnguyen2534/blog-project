@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { usePathname, useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
@@ -34,19 +34,18 @@ import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";
 import PostAuthor from "./PostAuthor";
 import usePostsLoader from "@/hooks/usePostsLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface PostOptionsProps {
   post: Post;
   author: User;
   menuOnTop?: boolean;
-  previousUrl?: string | null;
 }
 
 export default function PostOptions({
   post,
   author,
   menuOnTop,
-  previousUrl,
 }: PostOptionsProps) {
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
@@ -66,9 +65,9 @@ export default function PostOptions({
   }
 
   const router = useRouter();
-  const pathname = usePathname();
 
   const { setPostList } = usePostsLoader();
+  const { pathname, prevUrl } = useNavigation();
 
   // TODO: prevent user interaction while deleting
   async function deletePost() {
@@ -82,10 +81,11 @@ export default function PostOptions({
       );
 
       revalidateCachedData("/posts/" + post.slug);
+
       if (pathname === "/posts/" + post.slug) {
-        previousUrl === "/posts/create-post"
+        prevUrl === "/posts/create-post"
           ? router.push("/")
-          : router.push(previousUrl || "/");
+          : router.push(prevUrl || "/");
       }
 
       setShowDialog(false);
@@ -123,7 +123,7 @@ export default function PostOptions({
           <DropdownMenuContent>
             <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
               <PiBookmarkSimpleBold size={22} className="-ml-[0.35rem]" />
-              Bookmark
+              (to be implemented)
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer flex items-center gap-2"
@@ -169,7 +169,7 @@ export default function PostOptions({
               loading={isDeleting}
               text="Sure, delete it"
               onClick={deletePost}
-              className="bg-red-600 dark:hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             />
           </div>
         </DialogContent>

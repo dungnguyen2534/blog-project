@@ -12,7 +12,6 @@ export const postSchema = z.object({
   images: z.array(z.string()),
   likeCount: z.number(),
   isLoggedInUserLiked: z.boolean().optional(),
-  loggedInUserLikedId: z.string().optional(),
   commentCount: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),

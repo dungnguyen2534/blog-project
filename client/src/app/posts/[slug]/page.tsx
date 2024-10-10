@@ -6,8 +6,7 @@ import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
 import CommentSection from "@/components/comments/CommentSection";
 import PostTags from "@/components/posts/PostTags";
-import { cookies, headers } from "next/headers";
-import InPostAsideSection from "@/components/posts/InPostAsideSection";
+import InPostLikeSection from "./InPostLikeSection";
 
 const getPost = cache(async (slug: string) => {
   try {
@@ -40,28 +39,23 @@ export async function generateMetadata({ params: { slug } }: PostPageProps) {
 
 export default async function PostPage({ params: { slug } }: PostPageProps) {
   const post = await getPost(slug);
-  const referer = headers().get("referer");
-  const previousUrl = referer ? new URL(referer).pathname : null;
 
   return (
     <article className="secondary-container md:my-[0.7rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
-      <div className="max-w-prose m-auto flex flex-col gap-2 break-words">
+      <div className="max-w-prose m-auto flex flex-col gap-3 break-words pb-5 border-b-[1px]">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
             {post.title}
           </h1>
           <PostTags tags={post.tags} className="mb-3" />
-          <PostOptions
-            post={post}
-            author={post.author}
-            previousUrl={previousUrl}
-          />
+          <PostOptions post={post} author={post.author} />
         </header>
         <div>
           <MarkdownRenderer>{post.body}</MarkdownRenderer>
         </div>
       </div>
-      <span id="comment-section"></span>
+      <InPostLikeSection slug={post.slug} />
+
       <CommentSection postId={post._id} />
     </article>
   );

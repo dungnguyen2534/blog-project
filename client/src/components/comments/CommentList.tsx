@@ -1,7 +1,6 @@
 "use client";
 
 import Comment from "./Comment";
-import { CommentPage } from "@/validation/schema/post";
 import LoadingButton from "../LoadingButton";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 

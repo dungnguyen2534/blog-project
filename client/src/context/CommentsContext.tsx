@@ -82,7 +82,8 @@ export default function CommentsContextProvider({
           const replyPage = await PostsAPI.getCommentList(
             postId,
             undefined,
-            comment._id
+            comment._id,
+            6
           );
           return replyPage;
         });
@@ -116,7 +117,8 @@ export default function CommentsContextProvider({
             const replyPage = await PostsAPI.getCommentList(
               postId,
               undefined,
-              comment._id
+              comment._id,
+              6
             );
             return replyPage;
           }

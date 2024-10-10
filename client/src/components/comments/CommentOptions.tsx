@@ -122,7 +122,7 @@ export default function CommentOptions({
               text="Sure, delete it"
               loadingText="Deleting..."
               onClick={deleteComment}
-              className="bg-red-600 dark:hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             />
           </div>
         </DialogContent>
