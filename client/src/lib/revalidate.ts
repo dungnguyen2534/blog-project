@@ -9,4 +9,4 @@ export default async function revalidateCachedData(
   revalidatePath(path, type);
 }
 
-// according to the Next.js docs, the revalidatePath must be used in server actions or route handler
+// revalidatePath must be used in server actions or route handler

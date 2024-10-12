@@ -1,16 +1,17 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import UserAvatar from "@/components/UserAvatar";
 import useAuth from "@/hooks/useAuth";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/validation/schema/user";
 import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
-import PostsList from "@/components/posts/PostList";
+import PostList from "@/components/posts/PostList";
 import { PostPage } from "@/validation/schema/post";
 import { TfiWrite } from "react-icons/tfi";
 import { BsPeople } from "react-icons/bs";
+import FollowButton from "@/components/FollowButton";
+import { useState } from "react";
 
 interface ProfileProps {
   user: User;
@@ -19,6 +20,7 @@ interface ProfileProps {
 
 export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
   const { user: loggedInUser } = useAuth();
+  const [totalFollowers, setTotalFollowers] = useState(user.totalFollowers);
 
   const isLoggedInUser = loggedInUser?._id === user._id;
 
@@ -31,7 +33,12 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
               {isLoggedInUser ? (
                 <ProfileEditor user={user} />
               ) : (
-                <Button variant="outline">Follow</Button>
+                <FollowButton
+                  userId={user._id}
+                  isLoggedInUserFollowing={user.isLoggedInUserFollowing}
+                  setTotalFollowers={setTotalFollowers}
+                  variant="outline"
+                />
               )}
             </div>
           )}
@@ -60,8 +67,8 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
 
               <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center">
                 <BsPeople size={20} className="mb-[0.1rem]" />
-                {user.totalFollowers}{" "}
-                {user.totalFollowers !== 1 ? "Followers" : "Follower"}
+                {totalFollowers}{" "}
+                {totalFollowers !== 1 ? "Followers" : "Follower"}
               </div>
 
               <time
@@ -76,7 +83,7 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
       </main>
 
       <div className="container px-0 my-[0.35rem] md:my-2">
-        <PostsList
+        <PostList
           author={user}
           initialPage={userInitialPostsPage}
           key={user._id}

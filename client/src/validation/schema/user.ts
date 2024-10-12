@@ -36,9 +36,11 @@ export const userSchema = z.object({
   password: passwordSchema,
   about: z.string(),
   totalFollowers: z.number(),
+  totalFollowing: z.number(),
   totalPosts: z.number(),
   profilePicPath: z.string().url(),
   createdAt: z.string(),
+  isLoggedInUserFollowing: z.boolean().optional(),
 });
 
 export const SignUpBodySchema = z.object({

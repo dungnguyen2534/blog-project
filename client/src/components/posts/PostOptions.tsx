@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import LoadingButton from "../LoadingButton";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
 import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";

@@ -5,10 +5,11 @@ import { cache } from "react";
 import Profile from "./Profile";
 import PostsAPI from "@/api/post";
 import { cookies } from "next/headers";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
-const getUser = cache(async (username: string) => {
+const getUser = cache(async (username: string, cookie?: RequestCookie) => {
   try {
-    const user = await UserAPI.getUser(username);
+    const user = await UserAPI.getUser(username, cookie);
     return user;
   } catch (error) {
     if (error instanceof NotFoundError) {
@@ -38,7 +39,7 @@ export default async function UserProfilePage({
   const cookieStore = cookies();
   const userCookie = cookieStore.get("connect.sid");
 
-  const user = await getUser(username);
+  const user = await getUser(username, userCookie);
   let userInitialPostsPage;
   try {
     userInitialPostsPage = await PostsAPI.getPostList(

@@ -49,7 +49,7 @@ export default async function RootLayout({
           <NavigationContextProvider>
             <AuthDialogsProvider>
               <PostsContextProvider>
-                <Navbar authenticatedUser={undefined} />
+                <Navbar authenticatedUser={authenticatedUser} />
                 {children}
                 <Toaster />
                 <Suspense fallback={null}>

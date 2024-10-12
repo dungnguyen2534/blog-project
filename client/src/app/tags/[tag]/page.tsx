@@ -1,5 +1,5 @@
 import PostsAPI from "@/api/post";
-import PostsList from "@/components/posts/PostList";
+import PostList from "@/components/posts/PostList";
 import { Button } from "@/components/ui/button";
 import { NotFoundError } from "@/lib/http-errors";
 import { cookies } from "next/headers";
@@ -44,7 +44,7 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
         </div>
       </div>
 
-      <PostsList tag={tag} initialPage={initialPage} />
+      <PostList tag={tag} initialPage={initialPage} />
     </main>
   );
 }

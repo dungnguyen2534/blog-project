@@ -19,6 +19,7 @@ import fs from "fs";
 import CommentModel from "../models/comment";
 import LikeModel from "../models/like";
 import UserModel from "../models/user";
+import FollowerModel from "../models/follower";
 
 export const createPost: RequestHandler<
   unknown,
@@ -254,6 +255,7 @@ export const getPostList: RequestHandler<
 > = async (req, res, next) => {
   const limit = parseInt(req.query.limit || "12");
   const { authorId, tag, continueAfterId } = req.query;
+  const authenticatedUser = req.user;
 
   const filter = {
     ...(authorId ? { author: authorId } : {}),
@@ -276,34 +278,44 @@ export const getPostList: RequestHandler<
     const postList = result.slice(0, limit);
     const lastPostReached = result.length <= limit;
 
-    const postsWithLikeStatus = await Promise.all(
+    const postsWithStatus = await Promise.all(
       postList.map(async (post) => {
-        let isUserLikedPost;
-        if (req.user) {
-          isUserLikedPost = await LikeModel.exists({
-            userId: req.user?._id,
-            targetType: "post",
-            targetId: post._id,
-          });
-        }
-
-        const likeCount = await LikeModel.countDocuments({
-          targetId: post._id,
-          targetType: "post",
-        });
+        const [isUserLikedPost, isLoggedInUserFollowing, likeCount] =
+          await Promise.all([
+            authenticatedUser
+              ? LikeModel.exists({
+                  userId: authenticatedUser._id,
+                  targetType: "post",
+                  targetId: post._id,
+                })
+              : Promise.resolve(false),
+            authenticatedUser
+              ? FollowerModel.exists({
+                  user: post.author._id,
+                  follower: authenticatedUser._id,
+                })
+              : Promise.resolve(false),
+            LikeModel.countDocuments({
+              targetId: post._id,
+              targetType: "post",
+            }),
+          ]);
 
         return {
           ...post,
           likeCount,
-          ...(req.user && {
+          ...(authenticatedUser && {
             isLoggedInUserLiked: !!isUserLikedPost,
-            loggedInUserLikedId: isUserLikedPost ? req.user?._id : undefined,
+            author: {
+              ...post.author,
+              isLoggedInUserFollowing: !!isLoggedInUserFollowing,
+            },
           }),
         };
       })
     );
 
-    res.status(200).json({ posts: postsWithLikeStatus, lastPostReached });
+    res.status(200).json({ posts: postsWithStatus, lastPostReached });
   } catch (error) {
     next(error);
   }
@@ -320,22 +332,33 @@ export const getPost: RequestHandler = async (req, res, next) => {
       .exec();
     if (!result) throw createHttpError(404, "Post not found");
 
-    let isUserLikedPost;
-    if (authenticatedUser) {
-      isUserLikedPost = await LikeModel.exists({
-        userId: authenticatedUser?._id,
-        targetType: "post",
-        targetId: result._id,
-      });
-    }
-
-    const likeCount = await LikeModel.countDocuments({ targetId: result._id });
+    const [isUserLikedPost, isLoggedInUserFollowing, likeCount] =
+      await Promise.all([
+        authenticatedUser
+          ? LikeModel.exists({
+              userId: authenticatedUser._id,
+              targetType: "post",
+              targetId: result._id,
+            })
+          : Promise.resolve(false),
+        authenticatedUser
+          ? FollowerModel.exists({
+              user: result.author._id,
+              follower: authenticatedUser._id,
+            })
+          : Promise.resolve(false),
+        LikeModel.countDocuments({ targetId: result._id }),
+      ]);
 
     const post = {
       ...result,
       likeCount,
       ...(authenticatedUser && {
         isLoggedInUserLiked: !!isUserLikedPost,
+        author: {
+          ...result.author,
+          isLoggedInUserFollowing: !!isLoggedInUserFollowing,
+        },
       }),
     };
 

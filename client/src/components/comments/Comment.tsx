@@ -22,6 +22,7 @@ import { UnauthorizedError } from "@/lib/http-errors";
 import { Button } from "../ui/button";
 import CommentActions from "./CommentActions";
 import Replies from "./Replies";
+import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 
 interface CommentProps {
   comment: CommentType;
@@ -93,10 +94,7 @@ export default function Comment({
     }
   }
 
-  let isMobile = false;
-  if (typeof window !== "undefined") {
-    isMobile = window.matchMedia("(max-width: 640px)").matches;
-  }
+  const isMobile = useMobileDeviceDetecter();
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (

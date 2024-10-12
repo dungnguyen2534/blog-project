@@ -16,6 +16,7 @@ import crypto from "crypto";
 import sendVerificationCode from "../utils/nodeMailer";
 import passwordResetToken from "../models/passwordResetToken";
 import { invalidateSessions } from "../utils/invalidateSessions";
+import FollowerModel from "../models/follower";
 
 export const getOTP: RequestHandler<
   unknown,
@@ -196,10 +197,26 @@ export const signout: RequestHandler = (req, res) => {
 
 export const getUser: RequestHandler = async (req, res, next) => {
   const { username } = req.params;
+  const authenticatedUser = req.user;
+
   try {
-    const user = await UserModel.findOne({ username }).select("+email").exec();
+    const user = await UserModel.findOne({ username })
+      .select("+email")
+      .lean()
+      .exec();
     if (!user) throw createHttpError(404, "User not found");
-    res.status(200).json(user);
+
+    let isLoggedInUserFollowing;
+    if (authenticatedUser) {
+      isLoggedInUserFollowing = await FollowerModel.exists({
+        user: user._id,
+        follower: authenticatedUser._id,
+      });
+    }
+
+    res
+      .status(200)
+      .json({ ...user, isLoggedInUserFollowing: !!isLoggedInUserFollowing });
   } catch (error) {
     next(error);
   }

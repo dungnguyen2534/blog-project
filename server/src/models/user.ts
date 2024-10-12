@@ -27,6 +27,10 @@ const userSchema = new Schema(
       type: Number,
       default: 0,
     },
+    totalFollowing: {
+      type: Number,
+      default: 0,
+    },
     totalPosts: {
       type: Number,
       default: 0,

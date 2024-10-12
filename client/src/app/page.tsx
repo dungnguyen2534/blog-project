@@ -1,4 +1,4 @@
-import PostsList from "@/components/posts/PostList";
+import PostList from "@/components/posts/PostList";
 import PostsAPI from "@/api/post";
 import { cookies } from "next/headers";
 
@@ -13,7 +13,7 @@ export default async function Home() {
 
   return (
     <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
-      <PostsList initialPage={initialPage} />
+      <PostList initialPage={initialPage} />
     </main>
   );
 }
