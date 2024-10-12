@@ -20,41 +20,44 @@ export const followUser: RequestHandler<
 
   try {
     assertIsDefined(authenticatedUser);
+    if (userId === authenticatedUser._id.toString()) {
+      throw createHttpError(400, "You cannot follow yourself");
+    }
 
-    const existingUser = await UserModel.exists({ _id: userId });
+    const [existingUser, existingFollower] = await Promise.all([
+      UserModel.exists({ _id: userId }),
+      FollowerModel.exists({ user: userId, follower: authenticatedUser._id }),
+    ]);
+
     if (!existingUser) {
       throw createHttpError(404, "User not found");
     }
 
-    const existingFollower = await FollowerModel.exists({
-      user: userId,
-      follower: authenticatedUser._id,
-    });
+    if (!existingFollower) {
+      await FollowerModel.create({
+        user: userId,
+        follower: authenticatedUser._id,
+      });
 
-    if (existingFollower) {
-      throw createHttpError(400, "You are already following this user");
-    } else if (userId === authenticatedUser._id.toString()) {
-      throw createHttpError(400, "You cannot follow yourself");
+      const totalFollowers = await FollowerModel.countDocuments({
+        user: userId,
+      }).exec();
+
+      await Promise.all([
+        UserModel.findByIdAndUpdate(authenticatedUser._id, {
+          $inc: { totalFollowing: 1 },
+        }),
+        UserModel.findByIdAndUpdate(userId, { totalFollowers }),
+      ]);
+
+      res.status(201).json({ totalFollowers });
+    } else {
+      const totalFollowers = await FollowerModel.countDocuments({
+        user: userId,
+      }).exec();
+
+      res.status(204).json({ totalFollowers });
     }
-
-    await FollowerModel.create({
-      user: userId,
-      follower: authenticatedUser._id,
-    });
-
-    await Promise.all([
-      UserModel.findByIdAndUpdate(authenticatedUser._id, {
-        $inc: { totalFollowing: 1 },
-      }),
-      UserModel.findByIdAndUpdate(userId, {
-        $inc: { totalFollowers: 1 },
-      }),
-    ]);
-
-    const totalFollowers = await FollowerModel.countDocuments({
-      user: userId,
-    }).exec();
-    res.status(201).json({ totalFollowers });
   } catch (error) {
     next(error);
   }
@@ -72,38 +75,39 @@ export const unFollowUser: RequestHandler<
   try {
     assertIsDefined(authenticatedUser);
 
-    const existingUser = await UserModel.exists({ _id: userId });
+    const [existingUser, existingFollower] = await Promise.all([
+      UserModel.exists({ _id: userId }),
+      FollowerModel.exists({ user: userId, follower: authenticatedUser._id }),
+    ]);
+
     if (!existingUser) {
       throw createHttpError(404, "User not found");
     }
 
-    const existingFollower = await FollowerModel.exists({
-      user: userId,
-      follower: authenticatedUser._id,
-    });
-
     if (!existingFollower) {
-      throw createHttpError(400, "You are not following this user");
+      const totalFollowers = await FollowerModel.countDocuments({
+        user: userId,
+      }).exec();
+
+      res.status(204).json({ totalFollowers });
+    } else {
+      await FollowerModel.deleteOne({
+        user: userId,
+        follower: authenticatedUser._id,
+      });
+      const totalFollowers = await FollowerModel.countDocuments({
+        user: userId,
+      }).exec();
+
+      await Promise.all([
+        UserModel.findByIdAndUpdate(authenticatedUser._id, {
+          $inc: { totalFollowing: -1 },
+        }),
+        UserModel.findByIdAndUpdate(userId, { totalFollowers }),
+      ]);
+
+      res.status(201).json({ totalFollowers });
     }
-
-    await FollowerModel.deleteOne({
-      user: userId,
-      follower: authenticatedUser._id,
-    });
-
-    await Promise.all([
-      UserModel.findByIdAndUpdate(authenticatedUser._id, {
-        $inc: { totalFollowing: -1 },
-      }),
-      UserModel.findByIdAndUpdate(userId, {
-        $inc: { totalFollowers: -1 },
-      }),
-    ]);
-
-    const totalFollowers = await FollowerModel.countDocuments({
-      user: userId,
-    }).exec();
-    res.status(201).json({ totalFollowers });
   } catch (error) {
     next(error);
   }

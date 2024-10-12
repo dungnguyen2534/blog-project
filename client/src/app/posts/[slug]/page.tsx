@@ -55,7 +55,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
         </div>
       </div>
       <InPostLikeSection slug={post.slug} />
-      <CommentSection postId={post._id} />
+      <CommentSection post={post} />
     </article>
   );
 }

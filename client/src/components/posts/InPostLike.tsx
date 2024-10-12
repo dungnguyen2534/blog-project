@@ -1,10 +1,10 @@
 "use client";
 
 import { Post } from "@/validation/schema/post";
-import LikePostButton from "./LikePostButton";
 import { Button } from "../ui/button";
 import { BiShareAlt } from "react-icons/bi";
 import { useToast } from "../ui/use-toast";
+import InPostLikeButton from "./InPostLikeButton";
 
 interface InPostLikeProps {
   post: Post;
@@ -29,7 +29,7 @@ export default function InPostLike({ post }: InPostLikeProps) {
         Do you like this post?
       </span>
 
-      <LikePostButton variant="outline" post={post} className="ml-3" />
+      <InPostLikeButton variant="outline" post={post} className="ml-3" />
       <Button onClick={handleCopyLink} variant="outline" className="gap-2 ml-1">
         <BiShareAlt size={22} className="-ml-1" />
         <span>

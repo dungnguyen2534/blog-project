@@ -6,6 +6,7 @@ import Profile from "./Profile";
 import PostsAPI from "@/api/post";
 import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import PostsContextProvider from "@/context/PostsContext";
 
 const getUser = cache(async (username: string, cookie?: RequestCookie) => {
   try {
@@ -50,5 +51,11 @@ export default async function UserProfilePage({
     userInitialPostsPage = undefined;
   }
 
-  return <Profile user={user} userInitialPostsPage={userInitialPostsPage} />;
+  return (
+    <PostsContextProvider
+      initialPage={userInitialPostsPage}
+      authorId={user._id}>
+      <Profile user={user} />
+    </PostsContextProvider>
+  );
 }
