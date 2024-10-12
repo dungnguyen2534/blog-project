@@ -84,6 +84,7 @@ export default function MiniProfileProvider({
                   <FollowButton
                     userId={author._id}
                     isLoggedInUserFollowing={author.isLoggedInUserFollowing}
+                    totalFollowers={totalFollowers}
                     setTotalFollowers={setTotalFollowers}
                     variant="secondary"
                   />

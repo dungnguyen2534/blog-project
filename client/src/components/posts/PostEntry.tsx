@@ -5,7 +5,8 @@ import { Post } from "@/validation/schema/post";
 import { IoChatboxOutline } from "react-icons/io5";
 import { Button } from "../ui/button";
 import PostTags from "./PostTags";
-import LikePostButton from "./LikePostButton";
+import LikePostButton from "./InPostLikeButton";
+import PostEntryLikeButton from "./PostEntryLikeButton";
 
 interface PostEntryProps {
   post: Post;
@@ -29,12 +30,7 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
         </Link>
         <PostTags tags={post.tags} />
         <div className="mt-1 flex items-center gap-3 font-light text-sm">
-          <LikePostButton
-            postEntry
-            className="-ml-3"
-            variant="ghost"
-            post={post}
-          />
+          <PostEntryLikeButton post={post} className="-ml-3" variant="ghost" />
           <Button asChild variant="ghost" className="gap-2 px-3 py-2 -ml-3">
             <Link href={`/posts/${post.slug}#comment-section`}>
               <IoChatboxOutline size={22} className="mt-[0.18rem]" />{" "}

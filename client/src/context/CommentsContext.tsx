@@ -1,8 +1,11 @@
 "use client";
 
 import PostsAPI from "@/api/post";
-import usePostsLoader from "@/hooks/usePostsLoader";
-import { CommentPage, Comment as CommentType } from "@/validation/schema/post";
+import {
+  CommentPage,
+  Comment as CommentType,
+  Post,
+} from "@/validation/schema/post";
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 interface CommentsContextType {
@@ -32,7 +35,7 @@ export const CommentsContext = createContext<CommentsContextType | null>(null);
 
 interface CommentsContextProps {
   children: React.ReactNode;
-  postId: string;
+  post: Post;
   initialPage?: CommentPage;
   initialReplyPages?: CommentPage[];
 }
@@ -41,7 +44,7 @@ export default function CommentsContextProvider({
   children,
   initialPage,
   initialReplyPages,
-  postId,
+  post,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage?.comments || []
@@ -70,6 +73,7 @@ export default function CommentsContextProvider({
     initialPage?.lastCommentReached ?? true
   );
 
+  const postId = post._id;
   const fetchFirstPage = useCallback(
     async (limit?: number) => {
       setIsLoading(true);
@@ -152,12 +156,7 @@ export default function CommentsContextProvider({
     [postId]
   );
 
-  const { postList } = usePostsLoader();
-  const initialCount = postList.find(
-    (post) => post._id === postId
-  )?.commentCount;
-
-  const [commentCount, setCommentCount] = useState(initialCount || 0);
+  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   useEffect(() => {
     async function fetchCommentCount() {
       try {
@@ -167,12 +166,12 @@ export default function CommentsContextProvider({
         );
         setCommentCount(totalComments);
       } catch (error) {
-        setCommentCount(initialCount || 0);
+        setCommentCount(post.commentCount || 0);
       }
     }
 
-    !initialCount && fetchCommentCount();
-  }, [postId, initialCount]);
+    fetchCommentCount();
+  }, [postId, post.commentCount]);
 
   useEffect(() => {
     if (initialPage == undefined || initialReplyPages == undefined) {

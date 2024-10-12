@@ -4,12 +4,14 @@ import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
 import { cookies } from "next/headers";
+import { Post } from "@/validation/schema/post";
 
 interface CommentSectionProps {
-  postId: string;
+  post: Post;
 }
 
-export default async function CommentSection({ postId }: CommentSectionProps) {
+export default async function CommentSection({ post }: CommentSectionProps) {
+  const postId = post._id;
   let initialPage;
   const userCookie = cookies().get("connect.sid");
 
@@ -49,7 +51,7 @@ export default async function CommentSection({ postId }: CommentSectionProps) {
     <CommentsContextProvider
       initialPage={initialPage}
       initialReplyPages={initialReplyPages}
-      postId={postId}>
+      post={post}>
       <section className="rounded-t-none sm:py-5 p-3">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">

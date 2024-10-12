@@ -36,6 +36,7 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
                 <FollowButton
                   userId={user._id}
                   isLoggedInUserFollowing={user.isLoggedInUserFollowing}
+                  totalFollowers={totalFollowers}
                   setTotalFollowers={setTotalFollowers}
                   variant="outline"
                 />
@@ -83,11 +84,7 @@ export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
       </main>
 
       <div className="container px-0 my-[0.35rem] md:my-2">
-        <PostList
-          author={user}
-          initialPage={userInitialPostsPage}
-          key={user._id}
-        />
+        <PostList author={user} key={user._id} />
       </div>
     </>
   );

@@ -19,33 +19,39 @@ export const likeTarget: RequestHandler<
     assertIsDefined(authenticatedUser);
     const userId = authenticatedUser._id;
 
-    let targetModel;
-    if (targetType === "post") {
-      targetModel = PostModel;
-    } else if (targetType === "comment") {
-      targetModel = CommentModel;
-    } else {
+    const targetModel =
+      targetType === "post"
+        ? PostModel
+        : targetType === "comment"
+        ? CommentModel
+        : null;
+    if (!targetModel) {
       throw createHttpError(400, "Invalid target type");
     }
 
-    const target = await (
-      targetModel as typeof PostModel & typeof CommentModel
-    ).findById(targetId);
+    const [target, existingLike] = await Promise.all([
+      (targetModel as typeof PostModel & typeof CommentModel).findById(
+        targetId
+      ),
+      LikeModel.findOne({ userId, targetType, targetId }),
+    ]);
 
     if (!target) throw createHttpError(404, `${targetType} not found`);
 
-    const existingLike = await LikeModel.findOne({
-      userId,
-      targetType,
-      targetId,
-    });
-
     if (!existingLike) {
       await LikeModel.create({ userId, targetType, targetId });
+      const likeCount = await LikeModel.countDocuments({
+        targetId,
+        targetType,
+      });
+      res.status(201).json({ totalLikes: likeCount });
+    } else {
+      const likeCount = await LikeModel.countDocuments({
+        targetId,
+        targetType,
+      });
+      res.status(200).json({ totalLikes: likeCount });
     }
-
-    const likeCount = await LikeModel.countDocuments({ targetId, targetType });
-    res.status(200).json({ totalLikes: likeCount });
   } catch (error) {
     next(error);
   }
@@ -62,29 +68,41 @@ export const unlikeTarget: RequestHandler<
 
   try {
     assertIsDefined(authenticatedUser);
+    const userId = authenticatedUser._id;
 
-    let targetModel;
-    if (targetType === "post") {
-      targetModel = PostModel;
-    } else if (targetType === "comment") {
-      targetModel = CommentModel;
-    } else {
+    const targetModel =
+      targetType === "post"
+        ? PostModel
+        : targetType === "comment"
+        ? CommentModel
+        : null;
+    if (!targetModel) {
       throw createHttpError(400, "Invalid target type");
     }
 
-    const target = await (
-      targetModel as typeof PostModel & typeof CommentModel
-    ).findById(targetId);
+    const [target, existingLike] = await Promise.all([
+      (targetModel as typeof PostModel & typeof CommentModel).findById(
+        targetId
+      ),
+      LikeModel.findOne({ userId, targetType, targetId }),
+    ]);
+
     if (!target) throw createHttpError(404, `${targetType} not found`);
 
-    await LikeModel.deleteOne({
-      userId: authenticatedUser._id,
-      targetType,
-      targetId,
-    });
-
-    const likeCount = await LikeModel.countDocuments({ targetId, targetType });
-    res.status(200).json({ totalLikes: likeCount });
+    if (existingLike) {
+      await LikeModel.deleteOne({ userId, targetType, targetId });
+      const likeCount = await LikeModel.countDocuments({
+        targetId,
+        targetType,
+      });
+      res.status(204).json({ totalLikes: likeCount });
+    } else {
+      const likeCount = await LikeModel.countDocuments({
+        targetId,
+        targetType,
+      });
+      res.status(200).json({ totalLikes: likeCount });
+    }
   } catch (error) {
     next(error);
   }

@@ -19,6 +19,7 @@ import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -33,19 +34,20 @@ import revalidateCachedData from "@/lib/revalidate";
 import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";
 import PostAuthor from "./PostAuthor";
-import usePostsLoader from "@/hooks/usePostsLoader";
 import useNavigation from "@/hooks/useNavigation";
 
 interface PostOptionsProps {
   post: Post;
   author: User;
   menuOnTop?: boolean;
+  postEntry?: boolean;
 }
 
 export default function PostOptions({
   post,
   author,
   menuOnTop,
+  postEntry,
 }: PostOptionsProps) {
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
@@ -65,31 +67,21 @@ export default function PostOptions({
   }
 
   const router = useRouter();
-
-  const { setPostList } = usePostsLoader();
   const { pathname, prevUrl } = useNavigation();
 
-  // TODO: prevent user interaction while deleting
   async function deletePost() {
     setIsDeleting(true);
 
     try {
       await PostsAPI.deletePost(post._id);
-
-      setPostList((prevList) =>
-        prevList.filter((currentPost) => currentPost._id !== post._id)
-      );
-
       revalidateCachedData("/posts/" + post.slug);
-
       if (pathname === "/posts/" + post.slug) {
         prevUrl === "/posts/create-post"
           ? router.push("/")
           : router.push(prevUrl || "/");
       }
-
-      setShowDialog(false);
     } catch (error) {
+      setShowDialog(false);
       setIsDeleting(false);
       if (error instanceof UnauthorizedError) {
         toast({
@@ -102,6 +94,8 @@ export default function PostOptions({
           description: "An error occurred, please try again later",
         });
       }
+    } finally {
+      postEntry && setShowDialog(false);
     }
   }
 
@@ -155,7 +149,9 @@ export default function PostOptions({
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-        <DialogContent>
+        <DialogContent
+          className="[&>button]:hidden"
+          onInteractOutside={(e) => isDeleting && e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Are you sure to delete this post?</DialogTitle>
             <DialogDescription>
@@ -164,12 +160,14 @@ export default function PostOptions({
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => setShowDialog(false)}>Turn back</Button>
+            <Button onClick={() => setShowDialog(false)} disabled={isDeleting}>
+              Turn back
+            </Button>
             <LoadingButton
               loading={isDeleting}
               text="Sure, delete it"
               onClick={deletePost}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:!bg-red-700 text-white"
             />
           </div>
         </DialogContent>

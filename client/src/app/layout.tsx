@@ -48,14 +48,12 @@ export default async function RootLayout({
           disableTransitionOnChange>
           <NavigationContextProvider>
             <AuthDialogsProvider>
-              <PostsContextProvider>
-                <Navbar authenticatedUser={authenticatedUser} />
-                {children}
-                <Toaster />
-                <Suspense fallback={null}>
-                  <NavigationEvents />
-                </Suspense>
-              </PostsContextProvider>
+              <Navbar authenticatedUser={authenticatedUser} />
+              {children}
+              <Toaster />
+              <Suspense fallback={null}>
+                <NavigationEvents />
+              </Suspense>
             </AuthDialogsProvider>
           </NavigationContextProvider>
         </ThemeProvider>
