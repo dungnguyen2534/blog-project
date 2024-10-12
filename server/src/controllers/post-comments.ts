@@ -266,37 +266,39 @@ export const getCommentList: RequestHandler<
       }
     }
 
-    const result = await query
-      .limit(limit + 1)
-      .populate("author")
-      .lean()
-      .exec();
+    const [result, totalComments] = await Promise.all([
+      query
+        .limit(limit + 1)
+        .populate("author")
+        .lean()
+        .exec(),
+      CommentModel.countDocuments({ postId }),
+    ]);
+
     const commentList = result.slice(0, limit);
     const lastCommentReached = result.length <= limit;
 
-    const totalComments = await CommentModel.countDocuments({ postId });
-
     const commentsWithLikeStatus = await Promise.all(
       commentList.map(async (comment) => {
-        let isUserLikedComment;
-        if (req.user) {
-          isUserLikedComment = await LikeModel.exists({
-            userId: req.user?._id,
-            targetType: "comment",
+        const [isUserLikedComment, likeCount] = await Promise.all([
+          req.user
+            ? LikeModel.exists({
+                userId: req.user._id,
+                targetType: "comment",
+                targetId: comment._id,
+              })
+            : Promise.resolve(false),
+          LikeModel.countDocuments({
             targetId: comment._id,
-          });
-        }
+            targetType: "comment",
+          }),
+        ]);
 
-        const likeCount = await LikeModel.countDocuments({
-          targetId: comment._id,
-          targetType: "comment",
-        });
         return {
           ...comment,
           likeCount,
           ...(req.user && {
             isLoggedInUserLiked: !!isUserLikedComment,
-            loggedInUserLikedId: isUserLikedComment ? req.user?._id : undefined,
           }),
         };
       })
@@ -311,7 +313,6 @@ export const getCommentList: RequestHandler<
     next(error);
   }
 };
-
 export const uploadInCommentImages: RequestHandler = async (req, res, next) => {
   const image = req.file;
   const authenticatedUser = req.user;

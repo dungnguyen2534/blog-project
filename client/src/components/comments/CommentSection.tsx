@@ -10,8 +10,6 @@ interface CommentSectionProps {
 }
 
 export default async function CommentSection({ postId }: CommentSectionProps) {
-  console.log(postId);
-
   let initialPage;
   const userCookie = cookies().get("connect.sid");
 

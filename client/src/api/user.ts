@@ -33,9 +33,12 @@ const UserAPI = {
     });
     return res.payload;
   },
-  getUser: async (username: string) => {
+  getUser: async (username: string, cookie?: RequestCookie) => {
     const res = await http.get<User>("/auth/users/" + username, {
       cache: "no-cache",
+      headers: {
+        cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+      },
     });
     return res.payload;
   },
@@ -46,6 +49,26 @@ const UserAPI = {
     });
 
     const res = await http.patch<User>("/auth/me", formData);
+    return res.payload;
+  },
+  followUser: async (userId: string) => {
+    const res = await http.post<{ totalFollowers: number }>(
+      `/auth/users/${userId}/follow`
+    );
+    return res.payload;
+  },
+  unFollowUser: async (userId: string) => {
+    const res = await http.delete<{ totalFollowers: number }>(
+      `/auth/users/${userId}/unfollow`
+    );
+    return res.payload;
+  },
+  getFollowers: async () => {
+    const res = await http.get<User[]>(`/auth/users/me/followers`);
+    return res.payload;
+  },
+  getFollowing: async () => {
+    const res = await http.get<User[]>(`/auth/users/me/following`);
     return res.payload;
   },
 };

@@ -11,15 +11,10 @@ import usePostsLoader from "@/hooks/usePostsLoader";
 interface PostsListProps {
   author?: User;
   tag?: string;
-  continueAfterId?: string;
   initialPage?: PostPage;
 }
 
-export default function PostsList({
-  initialPage,
-  author,
-  tag,
-}: PostsListProps) {
+export default function PostList({ initialPage, author, tag }: PostsListProps) {
   const {
     postList,
     setPostList,

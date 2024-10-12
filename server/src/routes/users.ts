@@ -16,6 +16,7 @@ import {
   OTPRateLimiter,
   // signinLimiter
 } from "../middlewares/rate-limiter";
+import followsRouter from "./follows";
 
 const router = express.Router();
 
@@ -93,5 +94,7 @@ router.patch(
 );
 
 router.get("/users/:username", UserController.getUser);
+
+router.use("/users/", followsRouter);
 
 export default router;
