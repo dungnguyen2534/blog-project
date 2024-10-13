@@ -207,16 +207,25 @@ export const getUser: RequestHandler = async (req, res, next) => {
     if (!user) throw createHttpError(404, "User not found");
 
     let isLoggedInUserFollowing;
-    if (authenticatedUser) {
+    const condition =
+      authenticatedUser &&
+      authenticatedUser._id.toString() !== user._id.toString();
+
+    if (condition) {
       isLoggedInUserFollowing = await FollowerModel.exists({
         user: user._id,
         follower: authenticatedUser._id,
       });
     }
 
-    res
-      .status(200)
-      .json({ ...user, isLoggedInUserFollowing: !!isLoggedInUserFollowing });
+    const response = {
+      ...user,
+      ...(condition && {
+        isLoggedInUserFollowing: !!isLoggedInUserFollowing,
+      }),
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -231,7 +240,7 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     }
 
     const user = await UserModel.findById(authenticatedUser._id)
-      .select("+email")
+      .select("+email +savedPosts")
       .exec();
 
     res.status(200).json(user);

@@ -8,7 +8,7 @@ export default function EditorGuideButton() {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="link">
-          <RxQuestionMarkCircled size={22} />
+          <RxQuestionMarkCircled size={22} className="mr-1" />
           Editor Guide
         </Button>
       </DialogTrigger>

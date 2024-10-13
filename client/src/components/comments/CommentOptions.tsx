@@ -20,10 +20,11 @@ import { Button } from "../ui/button";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { useToast } from "../ui/use-toast";
 import PostsAPI from "@/api/post";
-import MiniProfileProvider from "../MiniProfileProvider";
+import MiniProfile from "../MiniProfile";
 import { TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { PiPencilLine } from "react-icons/pi";
 
 interface CommentOptionsProps {
   children: React.ReactNode;
@@ -43,6 +44,7 @@ export default function CommentOptions({
     setReplyPages,
     fetchNextPage,
     setCommentCount,
+    postAuthorId,
   } = useCommentsLoader();
 
   const [showDialog, setShowDialog] = useState(false);
@@ -91,7 +93,7 @@ export default function CommentOptions({
 
   return (
     <div className="relative">
-      <CommentAuthor comment={comment} />
+      <CommentAuthor comment={comment} postAuthorId={postAuthorId} />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div
@@ -107,7 +109,9 @@ export default function CommentOptions({
           </div>
           <DropdownMenuContent>{children}</DropdownMenuContent>
         </DropdownMenu>
-        <DialogContent>
+        <DialogContent
+          className="[&>button]:hidden"
+          onInteractOutside={(e) => isDeleting && e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Are you sure to delete this comment?</DialogTitle>
             <DialogDescription>
@@ -116,13 +120,15 @@ export default function CommentOptions({
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => setShowDialog(false)}>Turn back</Button>
+            <Button disabled={isDeleting} onClick={() => setShowDialog(false)}>
+              Turn back
+            </Button>
             <LoadingButton
               loading={isDeleting}
+              disabled={isDeleting}
               text="Sure, delete it"
-              loadingText="Deleting..."
               onClick={deleteComment}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:!bg-red-700 text-white"
             />
           </div>
         </DialogContent>
@@ -131,7 +137,12 @@ export default function CommentOptions({
   );
 }
 
-function CommentAuthor({ comment }: { comment: CommentType }) {
+interface CommentAuthorProps {
+  comment: CommentType;
+  postAuthorId: string;
+}
+
+function CommentAuthor({ comment, postAuthorId }: CommentAuthorProps) {
   let commentDate;
   if (!(comment.createdAt !== comment.updatedAt)) {
     commentDate = (
@@ -154,16 +165,18 @@ function CommentAuthor({ comment }: { comment: CommentType }) {
   }
 
   const author = comment.author;
+  const isPostAuthor = postAuthorId === author._id;
   return (
     <div className="my-2">
-      <MiniProfileProvider author={author} customTrigger>
+      <MiniProfile author={author} customTrigger>
         <div className="relative flex">
           <TooltipTrigger asChild>
             <Link
               href={"/users/" + author.username}
               className="flex gap-[0.4rem] items-center">
-              <span className="text-sm font-medium mb-5">
+              <span className="text-sm font-medium mb-5 flex gap-1">
                 {author.username}
+                {isPostAuthor && <PiPencilLine size={19} className="" />}
               </span>
             </Link>
           </TooltipTrigger>
@@ -172,7 +185,7 @@ function CommentAuthor({ comment }: { comment: CommentType }) {
             {comment.createdAt !== comment.updatedAt && " - edited"}
           </div>
         </div>
-      </MiniProfileProvider>
+      </MiniProfile>
     </div>
   );
 }

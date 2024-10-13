@@ -18,7 +18,7 @@ import { usePathname } from "next/navigation";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 import revalidateCachedData from "@/lib/revalidate";
 
-interface MiniProfileProviderProps {
+interface MiniProfileProps {
   children: React.ReactNode;
   author: User;
   customTrigger?: boolean;
@@ -28,11 +28,11 @@ interface MiniProfileProviderProps {
  * Children as a trigger for the mini profile.
  * If customTrigger, need TooltipTrigger as parent for the trigger
  */
-export default function MiniProfileProvider({
+export default function MiniProfile({
   children,
   author,
   customTrigger,
-}: MiniProfileProviderProps) {
+}: MiniProfileProps) {
   const { user: LoggedInUser } = useAuth();
   const [totalFollowers, setTotalFollowers] = useState(author.totalFollowers);
   const [noTooltip, setNoTooltip] = useState(false);
@@ -95,7 +95,7 @@ export default function MiniProfileProvider({
                     }
                     asChild
                     variant="secondary">
-                    <Link href={`/users/${author.username}`}>Profile</Link>
+                    <Link href={`/users/${author.username}`}>Your Profile</Link>
                   </Button>
                 )}
 

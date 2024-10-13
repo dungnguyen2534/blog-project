@@ -1,20 +1,27 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import PostEntry from "./PostEntry";
 import EmptyPostList from "./EmptyPostList";
 import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
-import { PostPage } from "@/validation/schema/post";
 import usePostsLoader from "@/hooks/usePostsLoader";
 
 interface PostsListProps {
   author?: User;
   tag?: string;
-  continueAfterId?: string;
+  followed?: boolean;
+  saved?: boolean;
+  top?: boolean;
 }
 
-export default function PostList({ author, tag }: PostsListProps) {
+export default function PostList({
+  author,
+  tag,
+  top,
+  followed,
+  saved,
+}: PostsListProps) {
   const {
     postList,
     fetchFirstPage,
@@ -28,11 +35,27 @@ export default function PostList({ author, tag }: PostsListProps) {
   const postRef = useCallback(
     (postEntry: HTMLElement | null) => {
       if (postEntry == null) return;
+      if (lastPostReached) return;
 
       const observer = new IntersectionObserver(
         async (entries) => {
           if (entries[0].isIntersecting) {
-            fetchNextPage(author?._id, tag, 12);
+            if (top) {
+              fetchNextPage(undefined, undefined, 12, top);
+            } else if (followed) {
+              fetchNextPage(undefined, undefined, 12, undefined, followed);
+            } else if (saved) {
+              fetchNextPage(
+                undefined,
+                undefined,
+                12,
+                undefined,
+                undefined,
+                saved
+              );
+            } else {
+              fetchNextPage(author?._id, tag, 12);
+            }
             observer.unobserve(postEntry);
           }
         },
@@ -43,7 +66,7 @@ export default function PostList({ author, tag }: PostsListProps) {
 
       observer.observe(postEntry);
     },
-    [fetchNextPage, tag, author?._id]
+    [fetchNextPage, tag, author?._id, lastPostReached, top, followed, saved]
   );
 
   return (

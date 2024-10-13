@@ -12,9 +12,7 @@ import LoadingButton from "@/components/LoadingButton";
 import { useToast } from "@/components/ui/use-toast";
 import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import TextField from "@/components/form/TextField";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { RxQuestionMarkCircled } from "react-icons/rx";
 import { extractImageUrls, generateTags } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import {

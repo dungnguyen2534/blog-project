@@ -44,6 +44,28 @@ const PostsAPI = {
     });
     return res.payload;
   },
+  async getTopPosts(
+    timeSpan?: "week" | "month" | "year" | "infinity",
+    continueAfterId?: string,
+    continueAfterScore?: string,
+    limit?: number,
+    cookie?: RequestCookie
+  ) {
+    const res = await http.get<PostPage>(
+      `/posts/top/${timeSpan}?${
+        continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
+      }${continueAfterScore ? `continueAfterScore=${continueAfterScore}` : ""}${
+        limit ? `&limit=${limit}` : ""
+      }`,
+      {
+        cache: "no-cache",
+        headers: {
+          cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+        },
+      }
+    );
+    return res.payload;
+  },
   async getSlugs() {
     const res = await http.get<string[]>("/posts/slugs");
     return res.payload;
@@ -54,6 +76,14 @@ const PostsAPI = {
         cookie: userCookie ? `${userCookie.name}=${userCookie.value}` : "",
       },
     });
+    return res.payload;
+  },
+  async savePost(postId: string) {
+    const res = await http.post(`/posts/${postId}/save`);
+    return res.payload;
+  },
+  async unsavePost(postId: string) {
+    const res = await http.delete(`/posts/${postId}/unsave`);
     return res.payload;
   },
   async createComment(postId: string, values: CommentBody) {

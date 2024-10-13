@@ -1,6 +1,10 @@
-import React from "react";
+import React, { Suspense } from "react";
 import AuthPage from "./AuthPage";
 
 export default function page() {
-  return <AuthPage />;
+  return (
+    <Suspense>
+      <AuthPage />
+    </Suspense>
+  );
 }

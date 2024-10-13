@@ -3,17 +3,20 @@ import CommentList from "./CommentList";
 import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
-import { cookies } from "next/headers";
 import { Post } from "@/validation/schema/post";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 interface CommentSectionProps {
   post: Post;
+  userCookie?: RequestCookie;
 }
 
-export default async function CommentSection({ post }: CommentSectionProps) {
+export default async function CommentSection({
+  post,
+  userCookie,
+}: CommentSectionProps) {
   const postId = post._id;
   let initialPage;
-  const userCookie = cookies().get("connect.sid");
 
   try {
     initialPage = await PostsAPI.getCommentList(

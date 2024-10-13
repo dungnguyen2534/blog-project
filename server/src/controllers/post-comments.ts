@@ -73,9 +73,10 @@ export const createComment: RequestHandler<
 
     await PostModel.updateOne(
       { _id: postId },
-      { $inc: { commentCount: 1 } },
+      { $inc: { commentCount: 1, score: 1 } },
       { timestamps: false }
     );
+
     await newComment.populate("author");
     res.status(201).json(newComment);
   } catch (error) {
@@ -224,14 +225,20 @@ export const deleteComment: RequestHandler<
       await CommentModel.deleteMany({ parentCommentId: commentId });
     }
 
-    await PostModel.updateOne(
+    const updatePost = PostModel.updateOne(
       { _id: commentToDelete.postId },
-      { $inc: { commentCount: -1 * commentCountDecrement } },
+      {
+        $inc: {
+          commentCount: -1 * commentCountDecrement,
+          score: -1 * commentCountDecrement,
+        },
+      },
       { timestamps: false }
     );
 
-    await commentToDelete.deleteOne();
+    const deleteComment = commentToDelete.deleteOne();
 
+    await Promise.all([updatePost, deleteComment]);
     const totalComments = await CommentModel.countDocuments({
       postId: commentToDelete.postId,
     });

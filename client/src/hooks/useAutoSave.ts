@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-export default function useAutoSave<T>(key: string, value: T, interval = 2500) {
+export default function useAutoSave<T>(key: string, value: T, interval = 3000) {
   const stringifiedValue = JSON.stringify(value);
 
   const [autoSave, setAutoSave] = useState(false);
   const [lastSavedValue, setLastSavedValue] = useState(() => {
-    if (typeof window !== "undefined") return null;
+    if (typeof window === "undefined") return null;
     return localStorage.getItem(key);
   });
 

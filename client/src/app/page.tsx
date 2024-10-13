@@ -1,7 +1,8 @@
 import PostList from "@/components/posts/PostList";
 import PostsAPI from "@/api/post";
 import { cookies } from "next/headers";
-import PostsContextProvider, { PostsContext } from "@/context/PostsContext";
+import PostsContextProvider from "@/context/PostsContext";
+import PostListTabs from "@/components/posts/PostListTabs";
 
 export default async function Home() {
   const userCookie = cookies().get("connect.sid");
@@ -15,7 +16,9 @@ export default async function Home() {
   return (
     <PostsContextProvider initialPage={initialPage}>
       <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
-        <PostList key={"latest-posts"} />
+        <PostListTabs defaultValue="Latest">
+          <PostList />
+        </PostListTabs>
       </main>
     </PostsContextProvider>
   );

@@ -5,7 +5,6 @@ import { Post } from "@/validation/schema/post";
 import { IoChatboxOutline } from "react-icons/io5";
 import { Button } from "../ui/button";
 import PostTags from "./PostTags";
-import LikePostButton from "./InPostLikeButton";
 import PostEntryLikeButton from "./PostEntryLikeButton";
 
 interface PostEntryProps {

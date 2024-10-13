@@ -6,11 +6,13 @@ import { cache } from "react";
 import PostOptions from "@/components/posts/PostOptions";
 import CommentSection from "@/components/comments/CommentSection";
 import PostTags from "@/components/posts/PostTags";
-import InPostLikeSection from "./InPostLikeSection";
+import { cookies } from "next/headers";
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import InPostLike from "@/components/posts/InPostLike";
 
-const getPost = cache(async (slug: string) => {
+const getPost = cache(async (slug: string, cookies?: RequestCookie) => {
   try {
-    return await PostsAPI.getPost(slug);
+    return await PostsAPI.getPost(slug, cookies);
   } catch (error) {
     if (error instanceof NotFoundError) {
       notFound();
@@ -38,7 +40,8 @@ export async function generateMetadata({ params: { slug } }: PostPageProps) {
 }
 
 export default async function PostPage({ params: { slug } }: PostPageProps) {
-  const post = await getPost(slug);
+  const userCookie = cookies().get("connect.sid");
+  const post = await getPost(slug, userCookie);
 
   return (
     <article className="secondary-container md:my-[0.7rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
@@ -54,8 +57,8 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
           <MarkdownRenderer>{post.body}</MarkdownRenderer>
         </div>
       </div>
-      <InPostLikeSection slug={post.slug} />
-      <CommentSection post={post} />
+      <InPostLike post={post} />
+      <CommentSection post={post} userCookie={userCookie} />
     </article>
   );
 }

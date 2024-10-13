@@ -9,7 +9,7 @@ import {
   formatUpdatedDate,
 } from "@/lib/utils";
 import { TooltipTrigger } from "@/components/ui/tooltip";
-import MiniProfileProvider from "../MiniProfileProvider";
+import MiniProfile from "../MiniProfile";
 
 interface PostAuthorProps {
   post: Post;
@@ -41,7 +41,7 @@ export default function PostAuthor({ post }: PostAuthorProps) {
 
   const author = post.author;
   return (
-    <MiniProfileProvider author={author} customTrigger>
+    <MiniProfile author={author} customTrigger>
       <div className="relative flex">
         <TooltipTrigger asChild>
           <Link
@@ -59,6 +59,6 @@ export default function PostAuthor({ post }: PostAuthorProps) {
           <span> • {calculateReadingTime(post.body)} min read </span>
         </div>
       </div>
-    </MiniProfileProvider>
+    </MiniProfile>
   );
 }

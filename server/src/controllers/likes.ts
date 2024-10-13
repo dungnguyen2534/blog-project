@@ -40,6 +40,25 @@ export const likeTarget: RequestHandler<
 
     if (!existingLike) {
       await LikeModel.create({ userId, targetType, targetId });
+      if (targetType === "post") {
+        console.log(targetId);
+
+        await PostModel.updateOne(
+          { _id: targetId },
+          {
+            $inc: { likeCount: 1, score: 1 },
+          },
+          { timestamps: false }
+        );
+      } else if (targetType === "comment") {
+        await CommentModel.updateOne(
+          { _id: targetId },
+          {
+            $inc: { likeCount: 1 },
+          },
+          { timestamps: false }
+        );
+      }
       const likeCount = await LikeModel.countDocuments({
         targetId,
         targetType,
@@ -91,6 +110,24 @@ export const unlikeTarget: RequestHandler<
 
     if (existingLike) {
       await LikeModel.deleteOne({ userId, targetType, targetId });
+      if (targetType === "post") {
+        await PostModel.updateOne(
+          { _id: targetId },
+          {
+            $inc: { likeCount: -1, score: -1 },
+          },
+          { timestamps: false }
+        );
+      } else if (targetType === "comment") {
+        await CommentModel.updateOne(
+          { _id: targetId },
+          {
+            $inc: { likeCount: -1 },
+          },
+          { timestamps: false }
+        );
+      }
+
       const likeCount = await LikeModel.countDocuments({
         targetId,
         targetType,

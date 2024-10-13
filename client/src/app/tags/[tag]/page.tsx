@@ -18,8 +18,7 @@ export async function generateMetadata({ params: { tag } }: TagPageProps) {
 }
 
 export default async function TagPage({ params: { tag } }: TagPageProps) {
-  const cookieStore = cookies();
-  const userCookie = cookieStore.get("connect.sid");
+  const userCookie = cookies().get("connect.sid");
 
   let initialPage;
   try {
