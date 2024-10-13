@@ -9,12 +9,18 @@ interface PostsContextType {
   fetchFirstPage: (
     authorId?: string,
     tag?: string,
-    limit?: number
+    limit?: number,
+    top?: boolean,
+    followed?: boolean,
+    saved?: boolean
   ) => Promise<void>;
   fetchNextPage: (
     authorId?: string,
     tag?: string,
-    limit?: number
+    limit?: number,
+    top?: boolean,
+    followed?: boolean,
+    saved?: boolean
   ) => Promise<void>;
   setPostList: React.Dispatch<React.SetStateAction<Post[]>>;
   postsLikeCount: { postId: string; likeCount: number }[];
@@ -34,6 +40,10 @@ interface PostsContextProps {
   initialPage?: PostPage;
   authorId?: string;
   tag?: string;
+  top?: boolean;
+  timeSpan?: "week" | "month" | "year" | "infinity" | undefined;
+  followed?: boolean;
+  saved?: boolean;
 }
 
 export default function PostsContextProvider({
@@ -41,6 +51,10 @@ export default function PostsContextProvider({
   initialPage,
   authorId,
   tag,
+  top,
+  timeSpan,
+  followed,
+  saved,
 }: PostsContextProps) {
   const [postList, setPostList] = useState<Post[]>(initialPage?.posts || []);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,18 +69,40 @@ export default function PostsContextProvider({
   );
 
   const continueAfterId = postList[postList.length - 1]?._id;
+  const continueAfterScore = postList[postList.length - 1]?.score;
 
   const fetchFirstPage = useCallback(
-    async (authorId?: string, tag?: string, limit?: number) => {
+    async (
+      authorId?: string,
+      tag?: string,
+      limit?: number,
+      top?: boolean,
+      followed?: boolean,
+      saved?: boolean
+    ) => {
+      if ((top && followed) || (top && saved) || (followed && saved)) {
+        throw new Error("Only one of top, followed, or saved can be true");
+      }
+
       setFirstPageLoadError(false);
       setIsLoading(true);
 
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
         authorId ? `&authorId=${authorId}` : ""
-      }${limit ? `&limit=${limit}` : ""}`;
+      }${limit ? `&limit=${limit}` : ""}${followed ? `&followed=true` : ""}${
+        saved ? `&saved=true` : ""
+      }`;
 
       try {
-        const firstPage = await PostsAPI.getPostList(query);
+        const firstPage = top
+          ? await PostsAPI.getTopPosts(
+              timeSpan || "week",
+              continueAfterId,
+              continueAfterScore.toString(),
+              12
+            )
+          : await PostsAPI.getPostList(query);
+
         setPostList(firstPage.posts);
         setLastPostReached(firstPage.lastPostReached);
       } catch {
@@ -75,21 +111,39 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    []
+    [timeSpan, continueAfterId, continueAfterScore]
   );
 
   const fetchNextPage = useCallback(
-    async (authorId?: string, tag?: string, limit?: number) => {
+    async (
+      authorId?: string,
+      tag?: string,
+      limit?: number,
+      top?: boolean,
+      followed?: boolean,
+      saved?: boolean
+    ) => {
+      if ((top && followed) || (top && saved) || (followed && saved)) {
+        throw new Error("Only one of top, followed, or saved can be true");
+      }
+
       setPageLoadError(false);
       setIsLoading(true);
+
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
         authorId ? `&authorId=${authorId}` : ""
       }${continueAfterId ? `&continueAfterId=${continueAfterId}` : ""}${
         limit ? `&limit=${limit}` : ""
-      }`;
+      }${followed ? `&followed=true` : ""}${saved ? `&saved=true` : ""}`;
 
       try {
-        const nextPage = await PostsAPI.getPostList(query);
+        const nextPage = top
+          ? await PostsAPI.getTopPosts(
+              timeSpan || "week",
+              continueAfterId,
+              continueAfterScore.toString()
+            )
+          : await PostsAPI.getPostList(query);
 
         setPostList((prevPostList) => [...prevPostList, ...nextPage.posts]);
         setLastPostReached(nextPage.lastPostReached);
@@ -100,16 +154,31 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId]
+    [continueAfterId, timeSpan, continueAfterScore]
   );
 
   useEffect(() => {
     if (!initialPage) {
-      fetchFirstPage(authorId, tag, 12);
-    } else {
-      setPostList(initialPage.posts);
+      if (top) {
+        fetchFirstPage(undefined, undefined, 12, top);
+      } else if (followed) {
+        fetchFirstPage(undefined, undefined, 12, undefined, followed);
+      } else if (saved) {
+        fetchFirstPage(undefined, undefined, 12, undefined, undefined, saved);
+      } else {
+        fetchFirstPage(authorId, tag, 12);
+      }
     }
-  }, [initialPage, fetchFirstPage, authorId, tag, setPostList]);
+  }, [
+    initialPage,
+    fetchFirstPage,
+    authorId,
+    tag,
+    top,
+    followed,
+    saved,
+    fetchNextPage,
+  ]);
 
   useEffect(() => {
     setPostsLikeCount(

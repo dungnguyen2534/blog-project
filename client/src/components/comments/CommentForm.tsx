@@ -102,7 +102,7 @@ export default function CommentForm({
           height={`min(${height || "15.5rem"}, 70vh)`}
           forComment={{ postId }}
           placeholder="Share your thoughts..."
-          className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-500 dark:focus-within:outline-neutral-400"
+          className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-600 dark:focus-within:outline-neutral-400"
         />
         <div className="flex justify-between items-center sm:flex-row gap-2">
           <LoadingButton

@@ -6,6 +6,8 @@ import {
   createPostBody,
   deletePostParams,
   getPostsQuery,
+  getTopPostsParams,
+  getTopPostsQuery,
   UpdatePostBody,
   updatePostParams,
 } from "../validation/posts";
@@ -254,8 +256,12 @@ export const getPostList: RequestHandler<
   getPostsQuery
 > = async (req, res, next) => {
   const limit = parseInt(req.query.limit || "12");
-  const { authorId, tag, continueAfterId } = req.query;
+  const { authorId, tag, continueAfterId, saved, followed } = req.query;
   const authenticatedUser = req.user;
+
+  if (saved && followed) {
+    return res.status(400).json({ error: "Invalid query parameters" });
+  }
 
   const filter = {
     ...(authorId ? { author: authorId } : {}),
@@ -263,10 +269,33 @@ export const getPostList: RequestHandler<
   };
 
   try {
-    const query = PostModel.find(filter).sort({ _id: -1 });
+    let query = PostModel.find(filter).sort({ _id: -1 });
+
+    if (saved) {
+      assertIsDefined(authenticatedUser);
+      const user = await UserModel.findById(authenticatedUser._id)
+        .select("+savedPosts")
+        .exec();
+
+      if (user?.savedPosts) {
+        query = PostModel.find({
+          _id: { $in: user.savedPosts },
+        }).sort({ _id: -1 });
+      }
+    } else if (followed) {
+      assertIsDefined(authenticatedUser);
+      const following = await FollowerModel.find({
+        follower: authenticatedUser._id,
+      }).exec();
+
+      const followingUserIds = following.map((f) => f.user);
+      query = PostModel.find({
+        author: { $in: followingUserIds },
+      }).sort({ _id: -1 });
+    }
 
     if (continueAfterId) {
-      query.lt("_id", continueAfterId);
+      query = query.lt("_id", continueAfterId).sort({ _id: -1 });
     }
 
     const result = await query
@@ -280,26 +309,36 @@ export const getPostList: RequestHandler<
 
     const postsWithStatus = await Promise.all(
       postList.map(async (post) => {
-        const [isUserLikedPost, isLoggedInUserFollowing, likeCount] =
-          await Promise.all([
-            authenticatedUser
-              ? LikeModel.exists({
-                  userId: authenticatedUser._id,
-                  targetType: "post",
-                  targetId: post._id,
-                })
-              : Promise.resolve(false),
-            authenticatedUser
-              ? FollowerModel.exists({
-                  user: post.author._id,
-                  follower: authenticatedUser._id,
-                })
-              : Promise.resolve(false),
-            LikeModel.countDocuments({
-              targetId: post._id,
-              targetType: "post",
-            }),
-          ]);
+        const [
+          isUserLikedPost,
+          isLoggedInUserFollowing,
+          likeCount,
+          isSavedPost,
+        ] = await Promise.all([
+          authenticatedUser
+            ? LikeModel.exists({
+                userId: authenticatedUser._id,
+                targetType: "post",
+                targetId: post._id,
+              })
+            : Promise.resolve(false),
+          authenticatedUser
+            ? FollowerModel.exists({
+                user: post.author._id,
+                follower: authenticatedUser._id,
+              })
+            : Promise.resolve(false),
+          LikeModel.countDocuments({
+            targetId: post._id,
+            targetType: "post",
+          }),
+          authenticatedUser
+            ? UserModel.exists({
+                _id: authenticatedUser._id,
+                savedPosts: post._id,
+              })
+            : Promise.resolve(false),
+        ]);
 
         return {
           ...post,
@@ -311,6 +350,120 @@ export const getPostList: RequestHandler<
               isLoggedInUserFollowing: !!isLoggedInUserFollowing,
             },
           }),
+          ...(authenticatedUser && { isSavedPost: !!isSavedPost }),
+        };
+      })
+    );
+
+    res.status(200).json({ posts: postsWithStatus, lastPostReached });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getTopPosts: RequestHandler<
+  getTopPostsParams,
+  unknown,
+  unknown,
+  getTopPostsQuery
+> = async (req, res, next) => {
+  const { timeSpan } = req.params;
+  const limit = parseInt(req.query.limit || "12");
+  const { continueAfterScore, continueAfterId } = req.query;
+
+  const currentDate = new Date();
+  let endDate: Date;
+  const authenticatedUser = req.user;
+
+  switch (timeSpan) {
+    case "week":
+      endDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
+      break;
+    case "month":
+      endDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+      break;
+    case "year":
+      endDate = new Date(
+        currentDate.setFullYear(currentDate.getFullYear() - 1)
+      );
+      break;
+    case "infinite":
+      endDate = new Date(0);
+      break;
+    default:
+      return res.status(400).json({ error: "Invalid time span" });
+  }
+
+  const filter = {
+    createdAt: { $gte: endDate },
+  };
+
+  try {
+    const query = PostModel.find(filter).sort({ score: -1, createdAt: -1 });
+
+    if (continueAfterScore && continueAfterId) {
+      query.find({
+        ...filter,
+        ...{
+          score: { $lte: continueAfterScore },
+          _id: { $lt: continueAfterId },
+        },
+      });
+    }
+
+    const result = await query
+      .limit(limit + 1)
+      .populate("author")
+      .lean()
+      .exec();
+
+    const postList = result.slice(0, limit);
+    const lastPostReached = result.length <= limit;
+
+    const postsWithStatus = await Promise.all(
+      postList.map(async (post) => {
+        const [
+          isUserLikedPost,
+          isLoggedInUserFollowing,
+          likeCount,
+          isSavedPost,
+        ] = await Promise.all([
+          authenticatedUser
+            ? LikeModel.exists({
+                userId: authenticatedUser._id,
+                targetType: "post",
+                targetId: post._id,
+              })
+            : Promise.resolve(false),
+          authenticatedUser
+            ? FollowerModel.exists({
+                user: post.author._id,
+                follower: authenticatedUser._id,
+              })
+            : Promise.resolve(false),
+          LikeModel.countDocuments({
+            targetId: post._id,
+            targetType: "post",
+          }),
+          authenticatedUser
+            ? UserModel.exists({
+                _id: authenticatedUser._id,
+                savedPosts: post._id,
+              })
+            : Promise.resolve(false),
+        ]);
+
+        return {
+          ...post,
+          likeCount,
+          ...(authenticatedUser && {
+            isLoggedInUserLiked: !!isUserLikedPost,
+            author: {
+              ...post.author,
+              isLoggedInUserFollowing: !!isLoggedInUserFollowing,
+            },
+          }),
+          ...(authenticatedUser && { isSavedPost: !!isSavedPost }),
         };
       })
     );
@@ -332,7 +485,7 @@ export const getPost: RequestHandler = async (req, res, next) => {
       .exec();
     if (!result) throw createHttpError(404, "Post not found");
 
-    const [isUserLikedPost, isLoggedInUserFollowing, likeCount] =
+    const [isUserLikedPost, isLoggedInUserFollowing, likeCount, isSavedPost] =
       await Promise.all([
         authenticatedUser
           ? LikeModel.exists({
@@ -348,6 +501,12 @@ export const getPost: RequestHandler = async (req, res, next) => {
             })
           : Promise.resolve(false),
         LikeModel.countDocuments({ targetId: result._id }),
+        authenticatedUser
+          ? UserModel.exists({
+              _id: authenticatedUser._id,
+              savedPosts: result._id,
+            })
+          : Promise.resolve(false),
       ]);
 
     const post = {
@@ -360,6 +519,7 @@ export const getPost: RequestHandler = async (req, res, next) => {
           isLoggedInUserFollowing: !!isLoggedInUserFollowing,
         },
       }),
+      ...(authenticatedUser && { isSavedPost: !!isSavedPost }),
     };
 
     res.status(200).json(post);

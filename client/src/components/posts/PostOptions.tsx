@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
@@ -52,6 +52,9 @@ export default function PostOptions({
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
 
+  const [isSaved, setIsSaved] = useState(post.isSavedPost);
+  const [isBookmarking, setIsBookmarking] = useState(false);
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
 
@@ -68,6 +71,29 @@ export default function PostOptions({
 
   const router = useRouter();
   const { pathname, prevUrl } = useNavigation();
+
+  async function bookmark() {
+    setIsBookmarking(true);
+
+    try {
+      if (isSaved) {
+        await PostsAPI.unsavePost(post._id);
+      } else {
+        await PostsAPI.savePost(post._id);
+      }
+      setIsSaved((prev) => !prev);
+      toast({
+        title: isSaved ? "Post removed from bookmarks" : "Post bookmarked",
+      });
+    } catch {
+      toast({
+        title: "An error occurred",
+        description: "Please try again later",
+      });
+    } finally {
+      setIsBookmarking(false);
+    }
+  }
 
   async function deletePost() {
     setIsDeleting(true);
@@ -90,8 +116,8 @@ export default function PostOptions({
         });
       } else {
         toast({
-          title: "Error",
-          description: "An error occurred, please try again later",
+          title: "An error occurred",
+          description: "Please try again later",
         });
       }
     } finally {
@@ -115,9 +141,12 @@ export default function PostOptions({
             </DropdownMenuTrigger>
           </div>
           <DropdownMenuContent>
-            <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+            <DropdownMenuItem
+              className="cursor-pointer flex items-center gap-2"
+              onClick={bookmark}
+              disabled={isBookmarking}>
               <PiBookmarkSimpleBold size={22} className="-ml-[0.35rem]" />
-              (to be implemented)
+              {isSaved ? "Bookmarked" : "Bookmark"}
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer flex items-center gap-2"

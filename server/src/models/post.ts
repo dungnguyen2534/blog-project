@@ -28,13 +28,25 @@ const postSchema = new Schema(
       ref: "User",
       required: true,
     },
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
     commentCount: {
+      type: Number,
+      default: 0,
+    },
+    score: {
       type: Number,
       default: 0,
     },
   },
   { timestamps: true }
 );
+
+postSchema.index({ slug: 1 });
+postSchema.index({ score: -1 });
+postSchema.index({ createdAt: -1 });
 
 type Post = InferSchemaType<typeof postSchema>;
 export default model<Post>("Post", postSchema);

@@ -81,12 +81,12 @@ export default function MarkdownEditor({
     }
   }
 
-  // Access the the editor to place the cursor at the end of the default text
+  // Access the the editor to place the cursor at the end of the default text,
   // for some reason the autoFocus place the cursor at the beginning when using react-hook-form defaultValues, and setFocus is not working
   const editorRef = useRef<any>(null);
   useEffect(() => {
     if (autoFocus && editorRef.current) {
-      const editor = editorRef.current.getMdElement(); // this is how to get the textarea editor element based on the docs
+      const editor = editorRef.current.getMdElement(); // how to get the textarea editor element based on the docs
       if (editor) {
         editor.focus();
         editor.setSelectionRange(editor.value.length, editor.value.length);

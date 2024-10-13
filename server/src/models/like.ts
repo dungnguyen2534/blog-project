@@ -9,4 +9,7 @@ const likeSchema = new Schema(
   { timestamps: true }
 );
 
+likeSchema.index({ userId: 1 });
+likeSchema.index({ targetId: 1, targetType: 1 });
+
 export default model("Like", likeSchema);

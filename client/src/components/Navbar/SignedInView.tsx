@@ -55,7 +55,11 @@ export default function SignedInView({
       setAuthenticatedUserSSR(undefined);
       mutateUser(null);
 
-      window.location.reload();
+      if (pathname === "/followed") {
+        window.location.replace("/");
+      } else {
+        window.location.reload();
+      }
     } catch (error) {
       setIsSigningOut(false);
       toast({

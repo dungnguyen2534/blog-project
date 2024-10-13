@@ -29,6 +29,7 @@ interface CommentsContextType {
   setCommentsLikeCount: React.Dispatch<
     React.SetStateAction<{ commentId: string; likeCount: number }[]>
   >;
+  postAuthorId: string;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -209,6 +210,7 @@ export default function CommentsContextProvider({
         setCommentCount,
         commentsLikeCount,
         setCommentsLikeCount,
+        postAuthorId: post.author._id,
       }}>
       {children}
     </CommentsContext.Provider>
