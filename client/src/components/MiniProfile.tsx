@@ -1,5 +1,4 @@
-"use client";
-
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import {
@@ -13,10 +12,10 @@ import { User } from "@/validation/schema/user";
 import UserAvatar from "./UserAvatar";
 import { Button } from "./ui/button";
 import FollowButton from "./FollowButton";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 import revalidateCachedData from "@/lib/revalidate";
+import useFollowUser from "@/hooks/useFollowUser";
 
 interface MiniProfileProps {
   children: React.ReactNode;
@@ -24,24 +23,20 @@ interface MiniProfileProps {
   customTrigger?: boolean;
 }
 
-/**
- * Children as a trigger for the mini profile.
- * If customTrigger, need TooltipTrigger as parent for the trigger
- */
 export default function MiniProfile({
   children,
   author,
   customTrigger,
 }: MiniProfileProps) {
   const { user: LoggedInUser } = useAuth();
-  const [totalFollowers, setTotalFollowers] = useState(author.totalFollowers);
   const [noTooltip, setNoTooltip] = useState(false);
-
   const pathname = usePathname();
   const isMobile = useMobileDeviceDetecter();
 
+  const [totalFollowers, setTotalFollowers] = useState(author.totalFollowers);
+
   useEffect(() => {
-    if (pathname.includes(author.username) || isMobile) {
+    if (isMobile) {
       setNoTooltip(true);
     }
   }, [pathname, setNoTooltip, author.username, isMobile]);
@@ -98,7 +93,6 @@ export default function MiniProfile({
                     <Link href={`/users/${author.username}`}>Your Profile</Link>
                   </Button>
                 )}
-
                 <div className="mt-1 mb-[0.1rem]">{author.about}</div>
                 <div className="flex flex-col">
                   <div className="font-semibold text-xs text-neutral-500 uppercase">

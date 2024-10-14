@@ -21,7 +21,7 @@ export default async function FollowedPostsPage() {
     <PostsContextProvider followed initialPage={initialPage}>
       <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
         <PostListTabs defaultValue="Followed">
-          <PostList />
+          <PostList key={"followed-posts"} />
         </PostListTabs>
       </main>
     </PostsContextProvider>

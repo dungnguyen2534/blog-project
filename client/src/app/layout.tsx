@@ -8,10 +8,10 @@ import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { NavigationEvents } from "./NavigationEvents";
-import PostsContextProvider from "@/context/PostsContext";
 import UserAPI from "@/api/user";
 import { cookies } from "next/headers";
 import NavigationContextProvider from "@/context/NavigationContext";
+import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,12 +48,14 @@ export default async function RootLayout({
           disableTransitionOnChange>
           <NavigationContextProvider>
             <AuthDialogsProvider>
-              <Navbar authenticatedUser={authenticatedUser} />
-              {children}
-              <Toaster />
-              <Suspense fallback={null}>
-                <NavigationEvents />
-              </Suspense>
+              <MiniProfilesContextProvider>
+                <Navbar authenticatedUser={authenticatedUser} />
+                {children}
+                <Toaster />
+                <Suspense fallback={null}>
+                  <NavigationEvents />
+                </Suspense>
+              </MiniProfilesContextProvider>
             </AuthDialogsProvider>
           </NavigationContextProvider>
         </ThemeProvider>
