@@ -41,7 +41,12 @@ export default function FollowButton({
     setIsFollowing(
       usersToFollow.find((user) => user.userId === userId)?.followed
     );
-  }, [usersToFollow, userId]);
+
+    setTotalFollowers(
+      usersToFollow.find((u) => u.userId === userId)?.totalFollowers ??
+        totalFollowers
+    );
+  }, [usersToFollow, userId, totalFollowers, setTotalFollowers]);
 
   const handleClick = useCallback(async () => {
     if (timeoutRef.current) {
@@ -51,7 +56,7 @@ export default function FollowButton({
     const newFollowingStatus = !isFollowing;
     const newTotalFollowers = newFollowingStatus
       ? totalFollowers + 1
-      : totalFollowers - 1;
+      : Math.max(totalFollowers - 1, 0);
 
     setUsersToFollow((prev) =>
       prev.map((user) => {

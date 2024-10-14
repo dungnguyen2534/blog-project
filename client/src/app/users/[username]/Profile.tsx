@@ -19,16 +19,8 @@ interface ProfileProps {
 
 export default function Profile({ user }: ProfileProps) {
   const { user: loggedInUser } = useAuth();
-  const { usersToFollow } = useFollowUser();
 
   const [totalFollowers, setTotalFollowers] = useState(user.totalFollowers);
-
-  useEffect(() => {
-    setTotalFollowers(
-      usersToFollow.find((u) => u.userId === user._id)?.totalFollowers ||
-        user.totalFollowers
-    );
-  }, [usersToFollow, user._id, user.totalFollowers]);
 
   const isLoggedInUser = loggedInUser?._id === user._id;
 
