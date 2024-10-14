@@ -24,7 +24,7 @@ export default async function TopPostsPage() {
     <PostsContextProvider top initialPage={initialPage}>
       <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
         <PostListTabs defaultValue="Top">
-          <PostList top />
+          <PostList top key={"top-posts"} />
         </PostListTabs>
       </main>
     </PostsContextProvider>

@@ -47,16 +47,18 @@ const PostsAPI = {
   async getTopPosts(
     timeSpan?: "week" | "month" | "year" | "infinity",
     continueAfterId?: string,
-    continueAfterScore?: string,
+    continueAfterLikeCount?: string,
     limit?: number,
     cookie?: RequestCookie
   ) {
     const res = await http.get<PostPage>(
       `/posts/top/${timeSpan}?${
         continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
-      }${continueAfterScore ? `continueAfterScore=${continueAfterScore}` : ""}${
-        limit ? `&limit=${limit}` : ""
-      }`,
+      }${
+        continueAfterLikeCount
+          ? `continueAfterLikeCount=${continueAfterLikeCount}`
+          : ""
+      }${limit ? `&limit=${limit}` : ""}`,
       {
         cache: "no-cache",
         headers: {

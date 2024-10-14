@@ -73,7 +73,7 @@ export const createComment: RequestHandler<
 
     await PostModel.updateOne(
       { _id: postId },
-      { $inc: { commentCount: 1, score: 1 } },
+      { $inc: { commentCount: 1 } },
       { timestamps: false }
     );
 
@@ -230,7 +230,6 @@ export const deleteComment: RequestHandler<
       {
         $inc: {
           commentCount: -1 * commentCountDecrement,
-          score: -1 * commentCountDecrement,
         },
       },
       { timestamps: false }

@@ -46,7 +46,7 @@ export const likeTarget: RequestHandler<
         await PostModel.updateOne(
           { _id: targetId },
           {
-            $inc: { likeCount: 1, score: 1 },
+            $inc: { likeCount: 1 },
           },
           { timestamps: false }
         );
@@ -114,7 +114,7 @@ export const unlikeTarget: RequestHandler<
         await PostModel.updateOne(
           { _id: targetId },
           {
-            $inc: { likeCount: -1, score: -1 },
+            $inc: { likeCount: -1 },
           },
           { timestamps: false }
         );

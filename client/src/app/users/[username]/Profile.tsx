@@ -7,20 +7,28 @@ import { User } from "@/validation/schema/user";
 import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
 import PostList from "@/components/posts/PostList";
-import { PostPage } from "@/validation/schema/post";
 import { TfiWrite } from "react-icons/tfi";
 import { BsPeople } from "react-icons/bs";
 import FollowButton from "@/components/FollowButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useFollowUser from "@/hooks/useFollowUser";
 
 interface ProfileProps {
   user: User;
-  userInitialPostsPage?: PostPage;
 }
 
-export default function Profile({ user, userInitialPostsPage }: ProfileProps) {
+export default function Profile({ user }: ProfileProps) {
   const { user: loggedInUser } = useAuth();
+  const { usersToFollow } = useFollowUser();
+
   const [totalFollowers, setTotalFollowers] = useState(user.totalFollowers);
+
+  useEffect(() => {
+    setTotalFollowers(
+      usersToFollow.find((u) => u.userId === user._id)?.totalFollowers ||
+        user.totalFollowers
+    );
+  }, [usersToFollow, user._id, user.totalFollowers]);
 
   const isLoggedInUser = loggedInUser?._id === user._id;
 

@@ -369,7 +369,7 @@ export const getTopPosts: RequestHandler<
 > = async (req, res, next) => {
   const { timeSpan } = req.params;
   const limit = parseInt(req.query.limit || "12");
-  const { continueAfterScore, continueAfterId } = req.query;
+  const { continueAfterLikeCount, continueAfterId } = req.query;
 
   const currentDate = new Date();
   let endDate: Date;
@@ -399,13 +399,13 @@ export const getTopPosts: RequestHandler<
   };
 
   try {
-    const query = PostModel.find(filter).sort({ score: -1, createdAt: -1 });
+    const query = PostModel.find(filter).sort({ likeCount: -1, createdAt: -1 });
 
-    if (continueAfterScore && continueAfterId) {
+    if (continueAfterLikeCount && continueAfterId) {
       query.find({
         ...filter,
         ...{
-          score: { $lte: continueAfterScore },
+          likeCount: { $lte: continueAfterLikeCount },
           _id: { $lt: continueAfterId },
         },
       });

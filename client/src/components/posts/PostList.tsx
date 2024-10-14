@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import PostEntry from "./PostEntry";
 import EmptyPostList from "./EmptyPostList";
 import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
 import usePostsLoader from "@/hooks/usePostsLoader";
+import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
+import useFollowUser from "@/hooks/useFollowUser";
 
 interface PostsListProps {
   author?: User;
@@ -30,6 +32,21 @@ export default function PostList({
     pageLoadError,
     firstPageLoadError,
   } = usePostsLoader();
+
+  const { setUsersToFollow } = useFollowUser();
+  useEffect(
+    () =>
+      setUsersToFollow(
+        postList.map((post) => {
+          return {
+            userId: post.author._id,
+            followed: !!post.author.isLoggedInUserFollowing,
+            totalFollowers: post.author.totalFollowers,
+          };
+        })
+      ),
+    [setUsersToFollow, postList]
+  );
 
   // using useCallback as a ref makes the useCallback be called when the ref shows up
   const postRef = useCallback(

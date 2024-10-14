@@ -6,7 +6,6 @@ import { PiHeart, PiHeartFill } from "react-icons/pi";
 import PostsAPI from "@/api/post";
 import usePostsLoader from "@/hooks/usePostsLoader";
 import { useToast } from "../ui/use-toast";
-import { useRouter } from "next/navigation";
 import { Post } from "@/validation/schema/post";
 import {
   Dialog,
@@ -45,7 +44,6 @@ export default function PostEntryLikeButton({
 
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   function handleClick() {
     if (!liked) {

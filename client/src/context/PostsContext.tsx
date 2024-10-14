@@ -69,7 +69,7 @@ export default function PostsContextProvider({
   );
 
   const continueAfterId = postList[postList.length - 1]?._id;
-  const continueAfterScore = postList[postList.length - 1]?.score;
+  const continueAfterLikeCount = postList[postList.length - 1]?.likeCount;
 
   const fetchFirstPage = useCallback(
     async (
@@ -98,7 +98,7 @@ export default function PostsContextProvider({
           ? await PostsAPI.getTopPosts(
               timeSpan || "week",
               continueAfterId,
-              continueAfterScore.toString(),
+              continueAfterLikeCount.toString(),
               12
             )
           : await PostsAPI.getPostList(query);
@@ -111,7 +111,7 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [timeSpan, continueAfterId, continueAfterScore]
+    [timeSpan, continueAfterId, continueAfterLikeCount]
   );
 
   const fetchNextPage = useCallback(
@@ -141,7 +141,7 @@ export default function PostsContextProvider({
           ? await PostsAPI.getTopPosts(
               timeSpan || "week",
               continueAfterId,
-              continueAfterScore.toString()
+              continueAfterLikeCount.toString()
             )
           : await PostsAPI.getPostList(query);
 
@@ -154,7 +154,7 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, timeSpan, continueAfterScore]
+    [continueAfterId, timeSpan, continueAfterLikeCount]
   );
 
   useEffect(() => {

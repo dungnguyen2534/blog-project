@@ -36,16 +36,12 @@ const postSchema = new Schema(
       type: Number,
       default: 0,
     },
-    score: {
-      type: Number,
-      default: 0,
-    },
   },
   { timestamps: true }
 );
 
 postSchema.index({ slug: 1 });
-postSchema.index({ score: -1 });
+postSchema.index({ likeCount: -1 });
 postSchema.index({ createdAt: -1 });
 
 type Post = InferSchemaType<typeof postSchema>;

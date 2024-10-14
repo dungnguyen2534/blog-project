@@ -22,7 +22,6 @@ export const getPostsSchema = z.object({
   query: z.object({
     authorId: MongoIdSchema.optional(),
     continueAfterId: MongoIdSchema.optional(),
-    continueAfterScore: z.number().optional(), // to load more top posts
     tag: z.string().optional(),
     limit: z.string().optional(),
     saved: z.boolean().optional(),
@@ -37,7 +36,7 @@ export const getTopPostsSchema = z.object({
   }),
   query: z.object({
     limit: z.string().optional(),
-    continueAfterScore: z.string().optional(),
+    continueAfterLikeCount: z.string().optional(),
     continueAfterId: MongoIdSchema.optional(),
   }),
 });

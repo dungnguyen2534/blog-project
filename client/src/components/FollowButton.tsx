@@ -1,9 +1,10 @@
 "use client";
 
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import UserAPI from "@/api/user";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
-import { useCallback, useRef, useState } from "react";
+import useFollowUser from "@/hooks/useFollowUser";
 
 interface FollowButtonProps {
   userId: string;
@@ -30,11 +31,18 @@ export default function FollowButton({
   className,
   variant,
 }: FollowButtonProps) {
+  const { usersToFollow, setUsersToFollow } = useFollowUser();
+
   const { toast } = useToast();
-
   const [isFollowing, setIsFollowing] = useState(isLoggedInUserFollowing);
-
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    setIsFollowing(
+      usersToFollow.find((user) => user.userId === userId)?.followed
+    );
+  }, [usersToFollow, userId]);
+
   const handleClick = useCallback(async () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -44,6 +52,19 @@ export default function FollowButton({
     const newTotalFollowers = newFollowingStatus
       ? totalFollowers + 1
       : totalFollowers - 1;
+
+    setUsersToFollow((prev) =>
+      prev.map((user) => {
+        if (user.userId === userId) {
+          return {
+            userId,
+            followed: newFollowingStatus,
+            totalFollowers: newTotalFollowers,
+          };
+        }
+        return user;
+      })
+    );
 
     setIsFollowing(newFollowingStatus);
     setTotalFollowers(newTotalFollowers);
@@ -62,9 +83,29 @@ export default function FollowButton({
         });
         setIsFollowing(!newFollowingStatus);
         setTotalFollowers(totalFollowers);
+
+        setUsersToFollow((prev) => {
+          return prev.map((user) => {
+            if (user.userId === userId) {
+              return {
+                userId,
+                followed: !newFollowingStatus,
+                totalFollowers: totalFollowers,
+              };
+            }
+            return user;
+          });
+        });
       }
     }, 250);
-  }, [isFollowing, setTotalFollowers, totalFollowers, userId, toast]);
+  }, [
+    isFollowing,
+    setTotalFollowers,
+    totalFollowers,
+    userId,
+    toast,
+    setUsersToFollow,
+  ]);
 
   return (
     <Button onClick={handleClick} className={className} variant={variant}>
