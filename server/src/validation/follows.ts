@@ -17,10 +17,11 @@ export const GetFollowersSchema = z.object({
 export const GetFollowingSchema = z.object({
   query: z.object({
     continueAfterId: MongoIdSchema.optional(),
-    limit: z.number().optional(),
+    limit: z.string().optional(),
   }),
 });
 
 export type FollowParams = z.infer<typeof FollowSchema>["params"];
+
 export type GetFollowers = z.infer<typeof GetFollowersSchema>["query"];
 export type GetFollowing = z.infer<typeof GetFollowingSchema>["query"];

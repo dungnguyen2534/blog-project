@@ -22,6 +22,7 @@ import CommentModel from "../models/comment";
 import LikeModel from "../models/like";
 import UserModel from "../models/user";
 import FollowerModel from "../models/follower";
+import TagModel from "../models/tag";
 
 export const createPost: RequestHandler<
   unknown,
@@ -65,8 +66,23 @@ export const createPost: RequestHandler<
       });
 
       await Promise.all(deletePromises);
-
       await TempImageModel.deleteMany({ imagePath: { $in: unusedImagePaths } });
+    }
+
+    if (tags && tags.length > 0) {
+      const tagPromises = tags.map(async (tag) => {
+        const tagExists = await TagModel.exists({ tagName: tag });
+        if (tagExists) {
+          await TagModel.updateOne(
+            { tagName: tag },
+            { $inc: { postCount: 1 } }
+          );
+        } else {
+          await TagModel.create({ tagName: tag, postCount: 1 });
+        }
+      });
+
+      await Promise.all(tagPromises);
     }
 
     const [newPost] = await Promise.all([
@@ -138,7 +154,6 @@ export const updatePost: RequestHandler<
         });
 
         await Promise.all(deletePromises);
-
         await TempImageModel.deleteMany({
           imagePath: { $in: oldUnusedImages },
         });
@@ -164,6 +179,37 @@ export const updatePost: RequestHandler<
       await TempImageModel.deleteMany({
         imagePath: { $in: unusedImagesPath },
       });
+    }
+
+    if (tags) {
+      const tagsToAdd = tags.filter((tag) => !postToUpdate.tags.includes(tag));
+      const tagsToRemove = postToUpdate.tags.filter(
+        (tag) => !tags.includes(tag)
+      );
+
+      const addTagPromises = tagsToAdd.map(async (tag) => {
+        const tagExists = await TagModel.exists({ tagName: tag });
+        if (tagExists) {
+          await TagModel.updateOne(
+            { tagName: tag },
+            { $inc: { postCount: 1 } }
+          );
+        } else {
+          await TagModel.create({ tagName: tag, postCount: 1 });
+        }
+      });
+
+      const removeTagPromises = tagsToRemove.map(async (tag) => {
+        const tagExists = await TagModel.exists({ tagName: tag });
+        if (tagExists) {
+          await TagModel.updateOne(
+            { tagName: tag },
+            { $inc: { postCount: -1 } }
+          );
+        }
+      });
+
+      await Promise.all([...addTagPromises, ...removeTagPromises]);
     }
 
     Object.assign(postToUpdate, {
@@ -232,6 +278,24 @@ export const deletePost: RequestHandler<
       await CommentModel.deleteMany({ postId: postToDelete._id });
     }
 
+    if (postToDelete.tags && postToDelete.tags.length > 0) {
+      const tagPromises = postToDelete.tags.map(async (tag) => {
+        const existingTag = await TagModel.findOne({ tagName: tag });
+        if (existingTag) {
+          if (existingTag.postCount === 1 && existingTag.followerCount === 0) {
+            await existingTag.deleteOne();
+          } else {
+            await TagModel.updateOne(
+              { tagName: tag },
+              { $inc: { postCount: -1 } }
+            );
+          }
+        }
+      });
+
+      await Promise.all(tagPromises);
+    }
+
     await Promise.all([
       LikeModel.deleteMany({
         targetId: postToDelete._id,
@@ -256,10 +320,10 @@ export const getPostList: RequestHandler<
   getPostsQuery
 > = async (req, res, next) => {
   const limit = parseInt(req.query.limit || "12");
-  const { authorId, tag, continueAfterId, saved, followed } = req.query;
+  const { authorId, tag, continueAfterId, saved, followedTarget } = req.query;
   const authenticatedUser = req.user;
 
-  if (saved && followed) {
+  if (saved && followedTarget) {
     return res.status(400).json({ error: "Invalid query parameters" });
   }
 
@@ -282,16 +346,29 @@ export const getPostList: RequestHandler<
           _id: { $in: user.savedPosts },
         }).sort({ _id: -1 });
       }
-    } else if (followed) {
+    } else if (followedTarget) {
       assertIsDefined(authenticatedUser);
-      const following = await FollowerModel.find({
-        follower: authenticatedUser._id,
-      }).exec();
 
-      const followingUserIds = following.map((f) => f.user);
-      query = PostModel.find({
-        author: { $in: followingUserIds },
-      }).sort({ _id: -1 });
+      if (followedTarget === "users") {
+        const following = await FollowerModel.find({
+          follower: authenticatedUser._id,
+        }).exec();
+
+        const followingUserIds = following.map((f) => f.user);
+        query = PostModel.find({
+          author: { $in: followingUserIds },
+        }).sort({ _id: -1 });
+      } else if (followedTarget === "tags") {
+        const user = await UserModel.findById(authenticatedUser._id)
+          .select("+followedTags")
+          .exec();
+
+        if (user?.followedTags) {
+          query = PostModel.find({
+            tags: { $in: user.followedTags },
+          }).sort({ _id: -1 });
+        }
+      }
     }
 
     if (continueAfterId) {
@@ -387,11 +464,11 @@ export const getTopPosts: RequestHandler<
         currentDate.setFullYear(currentDate.getFullYear() - 1)
       );
       break;
-    case "infinite":
+    case "infinity":
       endDate = new Date(0);
       break;
     default:
-      return res.status(400).json({ error: "Invalid time span" });
+      return res.status(404).json({ error: "Invalid time span" });
   }
 
   const filter = {

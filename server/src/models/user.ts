@@ -1,7 +1,6 @@
 import { InferSchemaType, model, Schema } from "mongoose";
 
 // sparse: true - allow null and undefined value for unique fields(for social login/signup)
-// select: false, will not return the field in the response by default(sensitive data)
 
 const userSchema = new Schema({
   email: {
@@ -35,6 +34,7 @@ const userSchema = new Schema({
     default: 0,
   },
   savedPosts: [{ type: Schema.Types.ObjectId, ref: "Post", select: false }],
+  followedTags: [{ type: String, select: false }],
   profilePicPath: {
     type: String,
   },

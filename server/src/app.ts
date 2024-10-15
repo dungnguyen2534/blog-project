@@ -4,6 +4,7 @@ import cors from "cors";
 import postsRouter from "./routes/posts";
 import usersRouter from "./routes/users";
 import likesRouter from "./routes/likes";
+import tagsRouter from "./routes/tags";
 import env from "./env";
 import morgan from "morgan";
 import errorHandler from "./middlewares/errorHandler";
@@ -44,6 +45,7 @@ app.use(
 // API routes
 app.use("/auth", usersRouter);
 app.use("/posts", postsRouter);
+app.use("/tags", tagsRouter);
 app.use("/", likesRouter);
 
 // Schedule uploads cleanup every day ad midnight

@@ -40,7 +40,7 @@ export default function Navbar({ authenticatedUser }: Navbar) {
 
   if (pathname === "/auth") return null;
   return (
-    <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-2 pt-3 sm:py-3 shadow-sm ring-1 ring-neutral-200 dark:ring-neutral-900">
+    <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-2 pt-3 sm:py-3 ring-1 ring-neutral-200 dark:ring-neutral-900">
       <div className="container px-2 sm:px-8  flex items-center relative">
         <LogoTag
           href="/"

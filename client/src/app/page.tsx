@@ -15,7 +15,7 @@ export default async function Home() {
 
   return (
     <PostsContextProvider initialPage={initialPage}>
-      <main className="container px-0 md:px-8 my-[0.35rem] md:my-3">
+      <main className="container px-0 md:px-8 my-[0.35rem] md:my-2">
         <PostListTabs defaultValue="Latest">
           <PostList key={"latest-posts"} />
         </PostListTabs>

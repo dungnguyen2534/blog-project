@@ -26,7 +26,7 @@ export const getPostsSchema = z.object({
     limit: z.string().optional(),
     saved: z.boolean().optional(),
     top: z.boolean().optional(),
-    followed: z.boolean().optional(),
+    followedTarget: z.string().optional(),
   }),
 });
 

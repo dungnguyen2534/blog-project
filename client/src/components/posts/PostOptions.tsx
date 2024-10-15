@@ -73,8 +73,14 @@ export default function PostOptions({
   const { pathname, prevUrl } = useNavigation();
 
   async function bookmark() {
-    setIsBookmarking(true);
+    if (!LoggedInUser) {
+      toast({
+        title: "Please sign in to bookmark this post",
+      });
+      return;
+    }
 
+    setIsBookmarking(true);
     try {
       if (isSaved) {
         await PostsAPI.unsavePost(post._id);

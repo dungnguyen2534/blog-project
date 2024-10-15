@@ -38,8 +38,8 @@ export default async function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400 scroll-smooth">
-      <body className={`${inter.className} primary-color`}>
+      className="overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400 scroll-smooth">
+      <body className={`${inter.className} primary-color w-[calc(100vw-1px)]`}>
         <NextTopLoader height={1} showSpinner={false} />
         <ThemeProvider
           attribute="class"

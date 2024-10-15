@@ -6,7 +6,4 @@ const followerSchema = new Schema({
   createdAt: { type: Date, required: true, default: Date.now },
 });
 
-followerSchema.index({ userId: 1 });
-followerSchema.index({ followerId: 1 });
-
 export default model("Follower", followerSchema);

@@ -43,6 +43,7 @@ const postSchema = new Schema(
 postSchema.index({ slug: 1 });
 postSchema.index({ likeCount: -1 });
 postSchema.index({ createdAt: -1 });
+postSchema.index({ tags: 1 });
 
 type Post = InferSchemaType<typeof postSchema>;
 export default model<Post>("Post", postSchema);

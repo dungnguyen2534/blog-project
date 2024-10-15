@@ -240,7 +240,7 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     }
 
     const user = await UserModel.findById(authenticatedUser._id)
-      .select("+email +savedPosts")
+      .select("+email +savedPosts +followedTags")
       .exec();
 
     res.status(200).json(user);

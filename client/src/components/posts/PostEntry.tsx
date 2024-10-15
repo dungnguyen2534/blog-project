@@ -15,7 +15,7 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
   return (
     <article
       ref={ref}
-      className="secondary-container px-2 pt-3 !pb-1 sm:!pb-2 sm:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md shadow-sm ring-1 ring-neutral-100 dark:ring-neutral-900 overflow-hidden break-words">
+      className="secondary-container px-2 pt-3 !pb-1 sm:!pb-2 sm:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-900 overflow-hidden break-words">
       <PostOptions post={post} author={post.author} menuOnTop />
 
       <div className="md:ml-[2.85rem]">
