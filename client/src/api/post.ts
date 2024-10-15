@@ -37,13 +37,13 @@ const PostsAPI = {
   },
   async getPostList(url?: string, cookie?: RequestCookie) {
     const res = await http.get<PostPage>(url || "/posts", {
-      cache: "no-cache",
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
     });
     return res.payload;
   },
+
   async getTopPosts(
     timeSpan?: "week" | "month" | "year" | "infinity",
     continueAfterId?: string,
@@ -51,23 +51,25 @@ const PostsAPI = {
     limit?: number,
     cookie?: RequestCookie
   ) {
-    const res = await http.get<PostPage>(
-      `/posts/top/${timeSpan}?${
-        continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
-      }${
-        continueAfterLikeCount
-          ? `continueAfterLikeCount=${continueAfterLikeCount}`
-          : ""
-      }${limit ? `&limit=${limit}` : ""}`,
-      {
-        cache: "no-cache",
-        headers: {
-          cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
-        },
-      }
-    );
+    const queryParts = [
+      continueAfterId ? `continueAfterId=${continueAfterId}` : "",
+      continueAfterLikeCount
+        ? `continueAfterLikeCount=${continueAfterLikeCount}`
+        : "",
+      limit ? `limit=${limit}` : "",
+    ]
+      .filter((part) => part !== "")
+      .join("&");
+
+    const url = `/posts/top/${timeSpan}?${queryParts}`;
+    const res = await http.get<PostPage>(url, {
+      headers: {
+        cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+      },
+    });
     return res.payload;
   },
+
   async getSlugs() {
     const res = await http.get<string[]>("/posts/slugs");
     return res.payload;
@@ -128,7 +130,6 @@ const PostsAPI = {
             parentCommentId ? `parentCommentId=${parentCommentId}&` : ""
           }${limit ? `limit=${limit}` : ""}`,
       {
-        cache: "no-cache",
         headers: {
           cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
         },

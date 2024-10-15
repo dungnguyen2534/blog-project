@@ -11,7 +11,8 @@ interface PostsContextType {
     tag?: string,
     limit?: number,
     top?: boolean,
-    followed?: boolean,
+    timeSpan?: "week" | "month" | "year" | "infinity",
+    followedTarget?: "users" | "tags",
     saved?: boolean
   ) => Promise<void>;
   fetchNextPage: (
@@ -19,7 +20,8 @@ interface PostsContextType {
     tag?: string,
     limit?: number,
     top?: boolean,
-    followed?: boolean,
+    timeSpan?: "week" | "month" | "year" | "infinity",
+    followedTarget?: "users" | "tags",
     saved?: boolean
   ) => Promise<void>;
   setPostList: React.Dispatch<React.SetStateAction<Post[]>>;
@@ -42,7 +44,7 @@ interface PostsContextProps {
   tag?: string;
   top?: boolean;
   timeSpan?: "week" | "month" | "year" | "infinity" | undefined;
-  followed?: boolean;
+  followedTarget?: "users" | "tags";
   saved?: boolean;
 }
 
@@ -53,7 +55,7 @@ export default function PostsContextProvider({
   tag,
   top,
   timeSpan,
-  followed,
+  followedTarget,
   saved,
 }: PostsContextProps) {
   const [postList, setPostList] = useState<Post[]>(initialPage?.posts || []);
@@ -77,11 +79,22 @@ export default function PostsContextProvider({
       tag?: string,
       limit?: number,
       top?: boolean,
-      followed?: boolean,
+      timeSpan?: "week" | "month" | "year" | "infinity",
+      followedTarget?: "users" | "tags",
       saved?: boolean
     ) => {
-      if ((top && followed) || (top && saved) || (followed && saved)) {
-        throw new Error("Only one of top, followed, or saved can be true");
+      if (
+        (top && followedTarget) ||
+        (top && saved) ||
+        (followedTarget && saved)
+      ) {
+        throw new Error(
+          "Only one of top, followedTarget, or saved can be true"
+        );
+      }
+
+      if (top && !timeSpan) {
+        throw new Error("Time span must be provided for top posts");
       }
 
       setFirstPageLoadError(false);
@@ -89,19 +102,23 @@ export default function PostsContextProvider({
 
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
         authorId ? `&authorId=${authorId}` : ""
-      }${limit ? `&limit=${limit}` : ""}${followed ? `&followed=true` : ""}${
-        saved ? `&saved=true` : ""
-      }`;
+      }${limit ? `&limit=${limit}` : ""}${saved ? `&saved=true` : ""}`;
 
       try {
-        const firstPage = top
-          ? await PostsAPI.getTopPosts(
-              timeSpan || "week",
-              continueAfterId,
-              continueAfterLikeCount.toString(),
-              12
-            )
-          : await PostsAPI.getPostList(query);
+        let firstPage: PostPage;
+        if (top) {
+          firstPage = await PostsAPI.getTopPosts(
+            timeSpan || "week",
+            continueAfterId,
+            continueAfterLikeCount.toString()
+          );
+        } else if (followedTarget) {
+          firstPage = await PostsAPI.getPostList(
+            `/posts?followedTarget=${followedTarget}`
+          );
+        } else {
+          firstPage = await PostsAPI.getPostList(query);
+        }
 
         setPostList(firstPage.posts);
         setLastPostReached(firstPage.lastPostReached);
@@ -111,7 +128,7 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [timeSpan, continueAfterId, continueAfterLikeCount]
+    [continueAfterId, continueAfterLikeCount]
   );
 
   const fetchNextPage = useCallback(
@@ -120,11 +137,22 @@ export default function PostsContextProvider({
       tag?: string,
       limit?: number,
       top?: boolean,
-      followed?: boolean,
+      timeSpan?: "week" | "month" | "year" | "infinity",
+      followedTarget?: "users" | "tags",
       saved?: boolean
     ) => {
-      if ((top && followed) || (top && saved) || (followed && saved)) {
-        throw new Error("Only one of top, followed, or saved can be true");
+      if (
+        (top && followedTarget) ||
+        (top && saved) ||
+        (followedTarget && saved)
+      ) {
+        throw new Error(
+          "Only one of top, followedTarget, or saved can be true"
+        );
+      }
+
+      if (top && !timeSpan) {
+        throw new Error("Time span must be provided for top posts");
       }
 
       setPageLoadError(false);
@@ -134,16 +162,23 @@ export default function PostsContextProvider({
         authorId ? `&authorId=${authorId}` : ""
       }${continueAfterId ? `&continueAfterId=${continueAfterId}` : ""}${
         limit ? `&limit=${limit}` : ""
-      }${followed ? `&followed=true` : ""}${saved ? `&saved=true` : ""}`;
+      }${saved ? `&saved=true` : ""}`;
 
       try {
-        const nextPage = top
-          ? await PostsAPI.getTopPosts(
-              timeSpan || "week",
-              continueAfterId,
-              continueAfterLikeCount.toString()
-            )
-          : await PostsAPI.getPostList(query);
+        let nextPage: PostPage;
+        if (top) {
+          nextPage = await PostsAPI.getTopPosts(
+            timeSpan || "week",
+            continueAfterId,
+            continueAfterLikeCount.toString()
+          );
+        } else if (followedTarget) {
+          nextPage = await PostsAPI.getPostList(
+            `/posts?followedTarget=${followedTarget}&continueAfterId=${continueAfterId}`
+          );
+        } else {
+          nextPage = await PostsAPI.getPostList(query);
+        }
 
         setPostList((prevPostList) => [...prevPostList, ...nextPage.posts]);
         setLastPostReached(nextPage.lastPostReached);
@@ -154,17 +189,32 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, timeSpan, continueAfterLikeCount]
+    [continueAfterId, continueAfterLikeCount]
   );
 
   useEffect(() => {
     if (!initialPage) {
       if (top) {
-        fetchFirstPage(undefined, undefined, 12, top);
-      } else if (followed) {
-        fetchFirstPage(undefined, undefined, 12, undefined, followed);
+        fetchFirstPage(undefined, undefined, 12, top, timeSpan);
+      } else if (followedTarget) {
+        fetchFirstPage(
+          undefined,
+          undefined,
+          12,
+          undefined,
+          undefined,
+          followedTarget
+        );
       } else if (saved) {
-        fetchFirstPage(undefined, undefined, 12, undefined, undefined, saved);
+        fetchFirstPage(
+          undefined,
+          undefined,
+          12,
+          undefined,
+          undefined,
+          undefined,
+          saved
+        );
       } else {
         fetchFirstPage(authorId, tag, 12);
       }
@@ -175,9 +225,10 @@ export default function PostsContextProvider({
     authorId,
     tag,
     top,
-    followed,
+    followedTarget,
     saved,
     fetchNextPage,
+    timeSpan,
   ]);
 
   useEffect(() => {

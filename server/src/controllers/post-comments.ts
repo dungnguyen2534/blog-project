@@ -68,8 +68,19 @@ export const createComment: RequestHandler<
       parentCommentId,
       body,
       likeCount: 0,
+      replyCount: 0,
       images: imagesPath,
     });
+
+    const updateParentComment = parentCommentId
+      ? CommentModel.updateOne(
+          { _id: parentCommentId },
+          { $inc: { replyCount: 1 } },
+          { timestamps: false }
+        )
+      : Promise.resolve();
+
+    await updateParentComment;
 
     await PostModel.updateOne(
       { _id: postId },
@@ -236,8 +247,15 @@ export const deleteComment: RequestHandler<
     );
 
     const deleteComment = commentToDelete.deleteOne();
+    const updateParentComment = commentToDelete.parentCommentId
+      ? CommentModel.updateOne(
+          { _id: commentToDelete.parentCommentId },
+          { $inc: { replyCount: -1 } },
+          { timestamps: false }
+        )
+      : Promise.resolve();
 
-    await Promise.all([updatePost, deleteComment]);
+    await Promise.all([updatePost, deleteComment, updateParentComment]);
     const totalComments = await CommentModel.countDocuments({
       postId: commentToDelete.postId,
     });

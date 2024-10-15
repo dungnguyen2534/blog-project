@@ -158,7 +158,8 @@ export const getFollowing: RequestHandler<
   GetFollowing
 > = async (req, res, next) => {
   const authenticatedUser = req.user;
-  const { continueAfterId, limit = 30 } = req.query;
+  const { continueAfterId } = req.query;
+  const limit = parseInt(req.query.limit || "30");
 
   try {
     assertIsDefined(authenticatedUser);

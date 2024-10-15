@@ -3,37 +3,33 @@ import CommentList from "./CommentList";
 import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
-import { Post } from "@/validation/schema/post";
+import { CommentPage, Post } from "@/validation/schema/post";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { cache } from "react";
 
 interface CommentSectionProps {
   post: Post;
   userCookie?: RequestCookie;
 }
 
-export default async function CommentSection({
-  post,
-  userCookie,
-}: CommentSectionProps) {
-  const postId = post._id;
-  let initialPage;
-
-  try {
-    initialPage = await PostsAPI.getCommentList(
-      postId,
-      undefined,
-      undefined,
-      12,
-      userCookie
-    );
-  } catch {
-    initialPage = undefined;
-  }
-
-  let initialReplyPages;
-  if (initialPage) {
+const fetchComments = cache(
+  async (postId: string, userCookie?: RequestCookie) => {
     try {
+      const initialPage = await PostsAPI.getCommentList(
+        postId,
+        `posts/${postId}/comments?limit=12`,
+        undefined,
+        12,
+        userCookie
+      );
       const replyPages = initialPage.comments.map(async (parentComment) => {
+        if (parentComment.replyCount === 0)
+          return {
+            comments: [],
+            lastCommentReached: true,
+            totalComments: 0,
+          };
+
         const replyPage = await PostsAPI.getCommentList(
           postId,
           undefined,
@@ -43,11 +39,26 @@ export default async function CommentSection({
         );
         return replyPage;
       });
-
-      initialReplyPages = await Promise.all(replyPages);
-    } catch (error) {
-      initialReplyPages = undefined;
+      const initialReplyPages = await Promise.all(replyPages);
+      return { initialPage, initialReplyPages };
+    } catch {
+      return { initialPage: undefined, initialReplyPages: undefined };
     }
+  }
+);
+
+export default async function CommentSection({
+  post,
+  userCookie,
+}: CommentSectionProps) {
+  const postId = post._id;
+  let initialPage, initialReplyPages;
+
+  if (post.commentCount > 0) {
+    ({ initialPage, initialReplyPages } = await fetchComments(
+      postId,
+      userCookie
+    ));
   }
 
   return (

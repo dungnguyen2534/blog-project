@@ -39,6 +39,7 @@ export const userSchema = z.object({
   totalFollowing: z.number(),
   totalPosts: z.number(),
   savedPosts: z.array(z.string()),
+  followedTags: z.array(z.string()),
   profilePicPath: z.string().url(),
   createdAt: z.string(),
   isLoggedInUserFollowing: z.boolean().optional(),

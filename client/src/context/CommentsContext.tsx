@@ -6,7 +6,7 @@ import {
   Comment as CommentType,
   Post,
 } from "@/validation/schema/post";
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 
 interface CommentsContextType {
   commentList: CommentType[];
@@ -61,6 +61,8 @@ export default function CommentsContextProvider({
 
   const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
 
+  const [commentCount, setCommentCount] = useState(post.commentCount);
+
   const [commentsLikeCount, setCommentsLikeCount] = useState(
     [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
       commentId: comment._id,
@@ -84,6 +86,13 @@ export default function CommentsContextProvider({
           `posts/${postId}/comments?limit=${limit}`
         );
         const replyPagesPromises = firstPage.comments.map(async (comment) => {
+          if (comment.replyCount === 0)
+            return {
+              comments: [],
+              lastCommentReached: true,
+              totalComments: 0,
+            };
+
           const replyPage = await PostsAPI.getCommentList(
             postId,
             undefined,
@@ -119,6 +128,13 @@ export default function CommentsContextProvider({
         const nextPage = await PostsAPI.getCommentList(postId, query);
         const nextReplyPagesPromises = nextPage.comments.map(
           async (comment) => {
+            if (comment.replyCount === 0)
+              return {
+                comments: [],
+                lastCommentReached: true,
+                totalComments: 0,
+              };
+
             const replyPage = await PostsAPI.getCommentList(
               postId,
               undefined,
@@ -156,23 +172,6 @@ export default function CommentsContextProvider({
     },
     [postId]
   );
-
-  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
-  useEffect(() => {
-    async function fetchCommentCount() {
-      try {
-        const { totalComments } = await PostsAPI.getCommentList(
-          postId,
-          `/posts/${postId}/comments?limit=0`
-        );
-        setCommentCount(totalComments);
-      } catch (error) {
-        setCommentCount(post.commentCount || 0);
-      }
-    }
-
-    fetchCommentCount();
-  }, [postId, post.commentCount]);
 
   useEffect(() => {
     if (initialPage == undefined || initialReplyPages == undefined) {

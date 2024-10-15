@@ -39,6 +39,7 @@ export const CommentSchema = z.object({
   body: z.string().min(1),
   images: z.array(z.string()),
   likeCount: z.number(),
+  replyCount: z.number(),
   isLoggedInUserLiked: z.boolean().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),

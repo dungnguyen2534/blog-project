@@ -44,7 +44,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
   const post = await getPost(slug, userCookie);
 
   return (
-    <article className="secondary-container md:my-[0.7rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
+    <article className="secondary-container md:my-[0.5rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
       <div className="max-w-prose m-auto flex flex-col gap-3 break-words pb-5 border-b-[1px]">
         <header>
           <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">

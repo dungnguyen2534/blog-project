@@ -1,29 +1,36 @@
 "use client";
-
 import { useCallback, useEffect } from "react";
 import PostEntry from "./PostEntry";
 import EmptyPostList from "./EmptyPostList";
 import { User } from "@/validation/schema/user";
 import PostListSkeleton from "./PostListSkeleton";
 import usePostsLoader from "@/hooks/usePostsLoader";
-import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
 import useFollowUser from "@/hooks/useFollowUser";
 
 interface PostsListProps {
   author?: User;
   tag?: string;
-  followed?: boolean;
   saved?: boolean;
   top?: boolean;
+  timeSpan?: "week" | "month" | "year" | "infinity";
+  followedTarget?: "users" | "tags";
 }
 
 export default function PostList({
   author,
   tag,
   top,
-  followed,
+  timeSpan,
+  followedTarget,
   saved,
 }: PostsListProps) {
+  if ((top && followedTarget) || (top && saved) || (followedTarget && saved)) {
+    throw new Error("Only one of top, followed, or saved can be true");
+  }
+  if (top && !timeSpan) {
+    throw new Error("Time span is required for top posts");
+  }
+
   const {
     postList,
     fetchFirstPage,
@@ -32,58 +39,89 @@ export default function PostList({
     pageLoadError,
     firstPageLoadError,
   } = usePostsLoader();
-
   const { setUsersToFollow } = useFollowUser();
-  useEffect(
-    () =>
-      setUsersToFollow(
-        postList.map((post) => {
-          return {
-            userId: post.author._id,
-            followed: !!post.author.isLoggedInUserFollowing,
-            totalFollowers: post.author.totalFollowers,
-          };
-        })
-      ),
-    [setUsersToFollow, postList]
-  );
 
-  // using useCallback as a ref makes the useCallback be called when the ref shows up
+  useEffect(() => {
+    setUsersToFollow(
+      postList.map((post) => ({
+        userId: post.author._id,
+        followed: !!post.author.isLoggedInUserFollowing,
+        totalFollowers: post.author.totalFollowers,
+      }))
+    );
+  }, [setUsersToFollow, postList]);
+
+  const handleFetchFirstPage = useCallback(() => {
+    if (top) {
+      fetchFirstPage(undefined, undefined, 12, top, timeSpan);
+    } else if (followedTarget) {
+      fetchFirstPage(
+        undefined,
+        undefined,
+        12,
+        undefined,
+        undefined,
+        followedTarget
+      );
+    } else if (saved) {
+      fetchFirstPage(
+        undefined,
+        undefined,
+        12,
+        undefined,
+        undefined,
+        undefined,
+        saved
+      );
+    } else {
+      fetchFirstPage(author?._id, tag, 12);
+    }
+  }, [fetchFirstPage, tag, author?._id, top, followedTarget, saved, timeSpan]);
+
+  const handleFetchNextPage = useCallback(() => {
+    if (top) {
+      fetchNextPage(undefined, undefined, 12, top, timeSpan);
+    } else if (followedTarget) {
+      fetchNextPage(
+        undefined,
+        undefined,
+        12,
+        undefined,
+        undefined,
+        followedTarget
+      );
+    } else if (saved) {
+      fetchNextPage(
+        undefined,
+        undefined,
+        12,
+        undefined,
+        undefined,
+        undefined,
+        saved
+      );
+    } else {
+      fetchNextPage(author?._id, tag, 12);
+    }
+  }, [fetchNextPage, tag, author?._id, top, followedTarget, saved, timeSpan]);
+
   const postRef = useCallback(
     (postEntry: HTMLElement | null) => {
-      if (postEntry == null) return;
-      if (lastPostReached) return;
+      if (!postEntry || lastPostReached) return;
 
       const observer = new IntersectionObserver(
         async (entries) => {
           if (entries[0].isIntersecting) {
-            if (top) {
-              fetchNextPage(undefined, undefined, 12, top);
-            } else if (followed) {
-              fetchNextPage(undefined, undefined, 12, undefined, followed);
-            } else if (saved) {
-              fetchNextPage(
-                undefined,
-                undefined,
-                12,
-                undefined,
-                undefined,
-                saved
-              );
-            } else {
-              fetchNextPage(author?._id, tag, 12);
-            }
+            handleFetchNextPage();
             observer.unobserve(postEntry);
           }
         },
-        {
-          rootMargin: "150px",
-        }
+        { rootMargin: "150px" }
       );
 
       observer.observe(postEntry);
     },
-    [fetchNextPage, tag, author?._id, lastPostReached, top, followed, saved]
+    [handleFetchNextPage, lastPostReached]
   );
 
   return (
@@ -96,19 +134,16 @@ export default function PostList({
             ref={index === postList.length - 1 ? postRef : null}
           />
         ))}
-
       {!firstPageLoadError && !lastPostReached && !pageLoadError && (
         <PostListSkeleton skeletonCount={4} />
       )}
-
       {!author && firstPageLoadError && (
         <EmptyPostList
-          retryFunction={() => fetchFirstPage(undefined, tag, 12)}
+          retryFunction={async () => handleFetchFirstPage()}
           text="Failed to load posts"
           className="mt-48"
         />
       )}
-
       {author && firstPageLoadError && (
         <EmptyPostList
           text={`Failed to load ${author.username}'s posts`}
@@ -117,15 +152,13 @@ export default function PostList({
           hideIcon
         />
       )}
-
       {!author && pageLoadError && (
         <EmptyPostList
           text="Failed to load posts"
-          retryFunction={() => fetchNextPage(undefined, tag, 12)}
+          retryFunction={async () => handleFetchNextPage()}
           hideIcon
         />
       )}
-
       {author && pageLoadError && (
         <EmptyPostList
           text="Failed to load posts"
