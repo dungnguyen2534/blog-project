@@ -11,6 +11,7 @@ import { TfiWrite } from "react-icons/tfi";
 import { BsPeople } from "react-icons/bs";
 import FollowButton from "@/components/FollowButton";
 import { useState } from "react";
+import { PiCake, PiCakeLight } from "react-icons/pi";
 
 interface ProfileProps {
   user: User;
@@ -25,7 +26,7 @@ export default function Profile({ user }: ProfileProps) {
 
   return (
     <>
-      <main className="secondary-container p-3 md:mt-[0.5rem] sm:p-7 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
+      <main className="secondary-container p-3 md:mt-[0.5rem] md:p-7 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
         <div className="relative flex gap-3 flex-col md:items-center">
           {loggedInUser && (
             <div className="absolute top-1 right-1 md:-top-4 md:-right-4">
@@ -58,24 +59,24 @@ export default function Profile({ user }: ProfileProps) {
 
             <div className="h-[1px] w-full bg-[#f2f2f2] dark:bg-neutral-800"></div>
 
-            <div className="flex gap-4 mt-1 md:justify-around">
-              <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center ml-[0.05rem] sm:ml-0">
+            <div className="flex gap-4 mt-1 text-sm md:justify-around">
+              <div className="text-muted-foreground flex gap-1 items-center md:justify-center ml-[0.05rem] sm:ml-0">
                 <TfiWrite size={18} className="mb-[0.2rem]" />
                 {user.totalPosts} {user.totalPosts !== 1 ? "Posts" : "Post"}{" "}
-                written
+                <span className="hidden sm:inline">written</span>
               </div>
 
-              <div className="text-muted-foreground text-sm flex gap-1 items-center md:justify-center">
+              <div className="text-muted-foreground flex gap-1 items-center md:justify-center">
                 <BsPeople size={20} className="mb-[0.1rem]" />
                 {totalFollowers}{" "}
                 {totalFollowers !== 1 ? "Followers" : "Follower"}
               </div>
 
               <time
-                className="flex text-muted-foreground text-sm gap-1 items-center md:justify-center"
+                className="flex text-muted-foreground gap-1 items-center md:justify-center"
                 dateTime={user.createdAt}>
-                <RiCake2Line size={20} className="mb-[0.15rem]" /> Joined{" "}
-                {formatDate(user.createdAt, false)}
+                <PiCake size={21} className="mb-[0.15rem]" />
+                Joined {formatDate(user.createdAt, false)}
               </time>
             </div>
           </div>

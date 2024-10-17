@@ -9,7 +9,7 @@ import { FaSignInAlt } from "react-icons/fa";
 import { TbMoodEmpty } from "react-icons/tb";
 
 interface FollowedPageProps {
-  target: "users" | "tags";
+  target: "users" | "tags" | "all";
   noInitialPage: boolean;
 }
 
@@ -20,24 +20,30 @@ export default function FollowedPage({
   const { user, isLoadingUser } = useAuth();
 
   let noFollowedContent;
+
+  function noFollowedContentHandler(target: string) {
+    return (
+      <div className="mt-32 flex flex-col items-center gap-2">
+        <TbMoodEmpty size={160} />
+        <div className="text-xl">You aren&apos;t following {target}...</div>
+      </div>
+    );
+  }
+
   if (target === "users") {
     user?.totalFollowing === 0
-      ? (noFollowedContent = (
-          <div className="mt-32 flex flex-col items-center gap-2">
-            <TbMoodEmpty size={160} />
-            <div className="text-xl">You aren&apos;t following anyone...</div>
-          </div>
-        ))
+      ? (noFollowedContent = noFollowedContentHandler("anyone"))
       : null;
   } else if (target === "tags") {
     user?.followedTags.length === 0
-      ? (noFollowedContent = (
-          <div className="mt-32 flex flex-col items-center gap-2">
-            <TbMoodEmpty size={160} />
-            <div className="text-xl">You aren&apos;t following any tag...</div>
-          </div>
-        ))
+      ? (noFollowedContent = noFollowedContentHandler("any tags"))
       : null;
+  } else if (target === "all") {
+    user?.totalFollowing === 0 &&
+      user?.followedTags.length === 0 &&
+      (noFollowedContent = noFollowedContentHandler("any people/tags"));
+  } else {
+    noFollowedContent = null;
   }
 
   return (

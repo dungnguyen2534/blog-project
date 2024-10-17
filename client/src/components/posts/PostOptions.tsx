@@ -13,13 +13,16 @@ import {
 import Link from "next/link";
 import { BsThreeDots } from "react-icons/bs";
 import { FaRegEdit } from "react-icons/fa";
-import { MdOutlineDeleteForever } from "react-icons/md";
+import {
+  MdBookmarkAdded,
+  MdOutlineBookmarkAdd,
+  MdOutlineDeleteForever,
+} from "react-icons/md";
 import PostsAPI from "@/api/post";
 import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -27,14 +30,14 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { useRouter } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
-import { PiBookmarkSimpleBold } from "react-icons/pi";
 import { BiShareAlt } from "react-icons/bi";
 import PostAuthor from "./PostAuthor";
 import useNavigation from "@/hooks/useNavigation";
+import usePostsLoader from "@/hooks/usePostsLoader";
 
 interface PostOptionsProps {
   post: Post;
@@ -54,6 +57,8 @@ export default function PostOptions({
 
   const [isSaved, setIsSaved] = useState(post.isSavedPost);
   const [isBookmarking, setIsBookmarking] = useState(false);
+
+  const { setPostList } = usePostsLoader();
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -107,6 +112,10 @@ export default function PostOptions({
     try {
       await PostsAPI.deletePost(post._id);
       revalidateCachedData("/posts/" + post.slug);
+
+      postEntry &&
+        setPostList((prevList) => prevList.filter((p) => p._id !== post._id));
+
       if (pathname === "/posts/" + post.slug) {
         prevUrl === "/posts/create-post"
           ? router.push("/")
@@ -133,7 +142,7 @@ export default function PostOptions({
 
   return (
     <div className="flex justify-between items-center">
-      <PostAuthor post={post} />
+      <PostAuthor post={post} postEntry />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div
@@ -147,13 +156,19 @@ export default function PostOptions({
             </DropdownMenuTrigger>
           </div>
           <DropdownMenuContent>
-            <DropdownMenuItem
-              className="cursor-pointer flex items-center gap-2"
-              onClick={bookmark}
-              disabled={isBookmarking}>
-              <PiBookmarkSimpleBold size={22} className="-ml-[0.35rem]" />
-              {isSaved ? "Bookmarked" : "Bookmark"}
-            </DropdownMenuItem>
+            {!postEntry && (
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center gap-2"
+                onClick={bookmark}
+                disabled={isBookmarking}>
+                {isSaved ? (
+                  <MdBookmarkAdded size={24} className="-ml-[0.35rem]" />
+                ) : (
+                  <MdOutlineBookmarkAdd size={24} className="-ml-[0.35rem]" />
+                )}
+                Bookmark
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="cursor-pointer flex items-center gap-2"
               onClick={handleCopyLink}>

@@ -32,9 +32,7 @@ export default function InPostLike({ post }: InPostLikeProps) {
       <InPostLikeButton variant="outline" post={post} className="ml-3" />
       <Button onClick={handleCopyLink} variant="outline" className="gap-2 ml-1">
         <BiShareAlt size={22} className="-ml-1" />
-        <span>
-          Share<span className="hidden sm:inline"> this post</span>
-        </span>
+        Share
       </Button>
     </div>
   );

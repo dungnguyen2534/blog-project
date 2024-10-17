@@ -204,7 +204,7 @@
 }
 
 .rc-md-editor .editor-container .sec-md {
-  @apply border-r-2 md:border-r-0 border-r-neutral-800 rounded-md  !important;
+  @apply border-r-2 md:border-r-0 border-r-neutral-100 dark:border-r-neutral-800 rounded-md  !important;
 }
 
 .rc-md-editor .editor-container .sec-md,

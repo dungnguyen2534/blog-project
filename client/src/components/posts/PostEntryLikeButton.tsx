@@ -78,37 +78,50 @@ export default function PostEntryLikeButton({
     }
   }, [post._id, setPostsLikeCount, toast]);
 
-  useEffect(() => {
-    setLikes(postsLikeCount.find((p) => p.postId === post._id)?.likeCount || 0);
-  }, [postsLikeCount, post._id, post.likeCount]);
-
   const buttonContent = (
     <>
-      {" "}
-      {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
-      {likes === 0 && "Like"}
-      {likes > 0 && likes < 2 && `${likes} Like`}
-      {likes >= 2 && `${likes} Likes`}
+      {liked ? (
+        <PiHeartFill size={23} color="red" className="mb-[0.1rem]" />
+      ) : (
+        <PiHeart size={23} className="mb-[0.1rem]" />
+      )}
+      {likes > 0 && <span>{likes}</span>}
+      <span className="hidden sm:block">{likes <= 1 ? "Like" : "Likes"}</span>
     </>
   );
 
   // conditionally using a link for the button to show the progress bar(only show when using next/link)
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <Button
-        asChild={!liked}
-        onClick={liked ? () => setOpenDialog(true) : handleClick}
-        variant={variant}
-        className={`gap-2 px-3 py-2 ${className}`}>
-        {!liked ? (
-          <Link href={`/posts/${post.slug}`}>{buttonContent}</Link>
-        ) : (
-          buttonContent
-        )}
-      </Button>
+      {likes > 0 ? (
+        <Button
+          asChild={!liked}
+          onClick={liked ? () => setOpenDialog(true) : handleClick}
+          variant={variant}
+          className={`gap-1 px-3 py-2 ${className}`}>
+          {!liked ? (
+            <Link href={`/posts/${post.slug}`}>{buttonContent}</Link>
+          ) : (
+            buttonContent
+          )}
+        </Button>
+      ) : (
+        <Button
+          asChild={!liked}
+          onClick={liked ? () => setOpenDialog(true) : handleClick}
+          variant={variant}
+          className={`gap-1 px-3 py-2 sm:hidden ${className}`}>
+          {!liked ? (
+            <Link href={`/posts/${post.slug}`}>{buttonContent}</Link>
+          ) : (
+            buttonContent
+          )}
+        </Button>
+      )}
+
       <DialogContent aria-describedby="">
         <DialogHeader>
-          <DialogTitle>Are you sure to unlike this post?</DialogTitle>
+          <DialogTitle>Unlike this post?</DialogTitle>
           <DialogDescription />
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3">
@@ -116,7 +129,7 @@ export default function PostEntryLikeButton({
           <Button
             onClick={unlikePost}
             className="bg-red-600 hover:!bg-red-700 text-white">
-            Sure, unlike it
+            Unlike it
           </Button>
         </div>
       </DialogContent>

@@ -368,6 +368,25 @@ export const getPostList: RequestHandler<
             tags: { $in: user.followedTags },
           }).sort({ _id: -1 });
         }
+      } else if (followedTarget === "all") {
+        const following = await FollowerModel.find({
+          follower: authenticatedUser._id,
+        }).exec();
+
+        const followingUserIds = following.map((f) => f.user);
+
+        const user = await UserModel.findById(authenticatedUser._id)
+          .select("+followedTags")
+          .exec();
+
+        const followedTags = user?.followedTags || [];
+
+        query = PostModel.find({
+          $or: [
+            { author: { $in: followingUserIds } },
+            { tags: { $in: followedTags } },
+          ],
+        }).sort({ _id: -1 });
       }
     }
 

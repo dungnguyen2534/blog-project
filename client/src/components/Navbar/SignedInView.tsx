@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
@@ -15,11 +14,11 @@ import UserAPI from "@/api/user";
 import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
-import MobileDropdownContent from "./MobileDropdownContent";
 import PostsAPI from "@/api/post";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
@@ -27,7 +26,7 @@ import LoadingButton from "../LoadingButton";
 import { DialogHeader } from "../ui/dialog";
 import { useState } from "react";
 import { Skeleton } from "../ui/skeleton";
-import { RxHamburgerMenu } from "react-icons/rx";
+import MobileMenu from "./MobileMenu";
 
 interface SignedInViewProps {
   user?: User;
@@ -43,7 +42,7 @@ export default function SignedInView({
   const pathname = usePathname();
   const { toast } = useToast();
 
-  const [show, setShow] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function handleSignout() {
@@ -72,65 +71,67 @@ export default function SignedInView({
           <Button
             asChild
             variant="outline"
-            className="hidden sm:block border-2">
+            className="hidden md:block border-2">
             <Link href="/posts/create-post">Create post</Link>
           </Button>
         )}
-      {user?.username && !(pathname === "/onboarding") && (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger aria-label="menu">
-            <UserAvatar
-              className="hidden sm:block"
-              username={user?.username}
-              profilePicUrl={user?.profilePicPath}
-            />
-            <div className="relative sm:hidden sm:my-0 p-1 px-2">
-              <RxHamburgerMenu className="" size={40} />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[30vh] sm:w-auto">
-            <DropdownMenuItem className="text-lg sm:text-base" asChild>
-              <Link className="font-medium" href={"/users/" + user?.username}>
-                <span className="hidden sm:block">@{user?.username}</span>
-                <span className="sm:hidden">Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <MobileDropdownContent />
-            <DropdownMenuItem
-              onClick={handleSignout}
-              className="text-lg sm:text-base">
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-      {!user?.username && pathname === "/onboarding" && (
-        <Dialog open={show} onOpenChange={setShow}>
-          <DialogTrigger asChild>
-            <Button variant="outline">Sign out</Button>
-          </DialogTrigger>
+
+      <MobileMenu username={user?.username} setOpenDialog={setOpenDialog} />
+      <div className="hidden md:block">
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          {user?.username && !(pathname === "/onboarding") && (
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger aria-label="menu" className="mt-[0.32rem]">
+                <UserAvatar
+                  username={user?.username}
+                  profilePicUrl={user?.profilePicPath}
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[30vh] [&>*]:cursor-pointer text-base md:w-auto hidden md:block">
+                <DropdownMenuItem className="text-base" asChild>
+                  <Link
+                    className="font-medium"
+                    href={"/users/" + user?.username}>
+                    @{user?.username}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-base" asChild>
+                  <Link className="font-medium" href="/bookmarks">
+                    Bookmarks
+                  </Link>
+                </DropdownMenuItem>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem className="text-base">
+                    Sign out
+                  </DropdownMenuItem>
+                </DialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           <DialogContent>
-            <DialogHeader>
+            <DialogHeader aria-describedby="">
               <DialogTitle>Are you sure to sign out?</DialogTitle>
+              <DialogDescription />
             </DialogHeader>
             <div className="grid grid-cols-2 gap-3">
-              <Button onClick={() => setShow(false)}>Turn back</Button>
+              <Button onClick={() => setOpenDialog(false)}>Turn back</Button>
               <LoadingButton
                 loading={isSigningOut}
                 text="Sure, sign out"
                 loadingText="Signing out..."
                 onClick={handleSignout}
-                className="bg-red-600 dark:hover:bg-red-700 text-white"
+                className="bg-red-600 hover:!bg-red-700 text-white"
               />
             </div>
           </DialogContent>
         </Dialog>
-      )}
+      </div>
+
       {!user?.username && pathname !== "/onboarding" && (
         <div className="flex items-center gap-2">
-          <Skeleton className="hidden sm:block h-10 w-[117px]" />
-          <Skeleton className="h-12 w-12  sm:h-10 sm:w-10 rounded-full" />
+          <Skeleton className="hidden md:block h-10 w-[117px]" />
+          <Skeleton className="h-12 w-12  md:h-10 md:w-10 rounded-full" />
         </div>
       )}
     </>

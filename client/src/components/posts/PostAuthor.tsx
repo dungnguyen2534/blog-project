@@ -13,9 +13,10 @@ import MiniProfile from "../MiniProfile";
 
 interface PostAuthorProps {
   post: Post;
+  postEntry?: boolean;
 }
 
-export default function PostAuthor({ post }: PostAuthorProps) {
+export default function PostAuthor({ post, postEntry }: PostAuthorProps) {
   let postDate;
   if (!(post.createdAt !== post.updatedAt)) {
     postDate = (
@@ -56,7 +57,9 @@ export default function PostAuthor({ post }: PostAuthorProps) {
         </TooltipTrigger>
         <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-11">
           {postDate}
-          <span> • {calculateReadingTime(post.body)} min read </span>
+          {!postEntry && (
+            <span> • {calculateReadingTime(post.body)} min read </span>
+          )}
         </div>
       </div>
     </MiniProfile>

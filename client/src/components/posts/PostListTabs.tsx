@@ -28,8 +28,8 @@ export default function PostListTabs({
         className={`rounded-none ${
           pathname.startsWith("/top") || pathname.startsWith("/followed")
             ? "md:rounded-t-md"
-            : "rounded-md"
-        } mb-1 md:mb-2 flex w-full ring-1 ring-[#f1f1f1] dark:ring-neutral-950 bg-white dark:bg-neutral-900 [&>*]:flex-grow [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-0 [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100`}>
+            : "rounded-none md:rounded-md"
+        } mb-1 md:mb-2 grid grid-cols-3 w-full ring-1 ring-[#f1f1f1] dark:ring-neutral-950 bg-white dark:bg-neutral-900  [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-0 [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100`}>
         <TabsTrigger
           onClick={() => revalidateCachedData("/")}
           asChild
@@ -50,7 +50,7 @@ export default function PostListTabs({
           onClick={() => revalidateCachedData("/followed")}
           asChild
           value="Followed">
-          <Link replace={true} href={"/followed/users"}>
+          <Link replace={true} href={"/followed/all"}>
             Followed
           </Link>
         </TabsTrigger>

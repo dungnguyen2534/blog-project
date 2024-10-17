@@ -78,11 +78,10 @@ export default function InPostLikeButton({
     <Button
       onClick={handleClick}
       variant={variant}
-      className={`gap-2 px-3 py-2 ${className}`}>
+      className={`gap-1 px-3 py-2 ${className}`}>
       {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
-      {likes === 0 && "Like"}
-      {likes > 0 && likes < 2 && `${likes} Like`}
-      {likes >= 2 && `${likes} Likes`}
+      {likes > 0 && <span>{likes}</span>}
+      {likes <= 1 ? <span>Like</span> : <span>Likes</span>}
     </Button>
   );
 }
