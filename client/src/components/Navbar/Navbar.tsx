@@ -40,18 +40,18 @@ export default function Navbar({ authenticatedUser }: Navbar) {
 
   if (pathname === "/auth") return null;
   return (
-    <header className="z-50 sticky top-0 secondary-color border-b-[1px] pb-2 pt-3 sm:py-3 ring-1 ring-neutral-200 dark:ring-neutral-900">
-      <div className="container px-2 sm:px-8  flex items-center relative">
+    <header className="h-16 z-50 flex items-center sticky top-0 secondary-color border-b-[1px] pb-1 pt-2 md:py-[0.35rem] ring-1 ring-neutral-200 dark:ring-neutral-900">
+      <div className="container px-2 md:px-4  flex items-center relative">
         <LogoTag
           href="/"
           onClick={() => revalidateCachedData("/")}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-bold flex items-center">
-          <IoMdCodeDownload size={50} className="-ml-[0.175rem]" />
-          <span className="ml-1 text-2xl">Devdaily</span>
+          <IoMdCodeDownload size={48} />
+          <span className="ml-1 text-2xl">Devflow</span>
         </LogoTag>
         <div className="flex justify-center items-center gap-3 ml-auto">
-          {pathname === "/onboarding" && <ModeToggle className="sm:hidden" />}
-          <ModeToggle className="hidden sm:flex" />
+          {pathname === "/onboarding" && <ModeToggle className="md:hidden" />}
+          <ModeToggle className="hidden md:flex" />
           {callToActions}
         </div>
       </div>

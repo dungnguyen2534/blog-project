@@ -8,7 +8,7 @@ import TargetFilter from "./TargetFilter";
 import { notFound } from "next/navigation";
 
 interface FollowedPostsPageProps {
-  params: { target: "users" | "tags" | undefined };
+  params: { target: "users" | "tags" | "all" | undefined };
 }
 
 export async function generateMetadata({
@@ -29,7 +29,7 @@ export async function generateMetadata({
 export default async function FollowedPostsPage({
   params: { target },
 }: FollowedPostsPageProps) {
-  if (target !== "users" && target !== "tags") {
+  if (target !== "users" && target !== "tags" && target !== "all") {
     notFound();
   }
 
@@ -54,8 +54,9 @@ export default async function FollowedPostsPage({
               target
                 ? ((target.charAt(0).toUpperCase() + target.slice(1)) as
                     | "Users"
-                    | "Tags")
-                : "Users"
+                    | "Tags"
+                    | "All")
+                : "All"
             }>
             <FollowedPage
               target={target}

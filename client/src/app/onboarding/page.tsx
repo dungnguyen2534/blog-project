@@ -10,7 +10,7 @@ import { ConflictError } from "@/lib/http-errors";
 import { OnboardingBody, OnboardingBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function OnboardingPage() {
@@ -31,7 +31,7 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function onSubmit(username: OnboardingBody) {
-    setIsSubmitting(true); // redirect after submit so don't need to set this back to false except for error
+    setIsSubmitting(true);
 
     try {
       const onboardingUser = await UserAPI.updateUser(username);
@@ -77,7 +77,6 @@ export default function OnboardingPage() {
         <LoadingButton
           className="w-full sm:w-fit"
           text="Continue"
-          loadingText="Please wait"
           loading={isSubmitting}
           disabled={!isDirty}
           type="submit"

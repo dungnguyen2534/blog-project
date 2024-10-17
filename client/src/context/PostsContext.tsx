@@ -12,7 +12,7 @@ interface PostsContextType {
     limit?: number,
     top?: boolean,
     timeSpan?: "week" | "month" | "year" | "infinity",
-    followedTarget?: "users" | "tags",
+    followedTarget?: "users" | "tags" | "all",
     saved?: boolean
   ) => Promise<void>;
   fetchNextPage: (
@@ -21,7 +21,7 @@ interface PostsContextType {
     limit?: number,
     top?: boolean,
     timeSpan?: "week" | "month" | "year" | "infinity",
-    followedTarget?: "users" | "tags",
+    followedTarget?: "users" | "tags" | "all",
     saved?: boolean
   ) => Promise<void>;
   setPostList: React.Dispatch<React.SetStateAction<Post[]>>;
@@ -44,7 +44,7 @@ interface PostsContextProps {
   tag?: string;
   top?: boolean;
   timeSpan?: "week" | "month" | "year" | "infinity" | undefined;
-  followedTarget?: "users" | "tags";
+  followedTarget?: "users" | "tags" | "all";
   saved?: boolean;
 }
 
@@ -80,7 +80,7 @@ export default function PostsContextProvider({
       limit?: number,
       top?: boolean,
       timeSpan?: "week" | "month" | "year" | "infinity",
-      followedTarget?: "users" | "tags",
+      followedTarget?: "users" | "tags" | "all",
       saved?: boolean
     ) => {
       if (
@@ -138,7 +138,7 @@ export default function PostsContextProvider({
       limit?: number,
       top?: boolean,
       timeSpan?: "week" | "month" | "year" | "infinity",
-      followedTarget?: "users" | "tags",
+      followedTarget?: "users" | "tags" | "all",
       saved?: boolean
     ) => {
       if (

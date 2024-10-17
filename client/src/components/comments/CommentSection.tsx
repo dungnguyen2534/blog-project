@@ -3,7 +3,7 @@ import CommentList from "./CommentList";
 import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
-import { CommentPage, Post } from "@/validation/schema/post";
+import { Post } from "@/validation/schema/post";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cache } from "react";
 

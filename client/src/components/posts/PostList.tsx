@@ -13,7 +13,7 @@ interface PostsListProps {
   saved?: boolean;
   top?: boolean;
   timeSpan?: "week" | "month" | "year" | "infinity";
-  followedTarget?: "users" | "tags";
+  followedTarget?: "users" | "tags" | "all";
 }
 
 export default function PostList({
