@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { InferSchemaType, model, Schema } from "mongoose";
 
 const tagSchema = new Schema({
   tagName: { type: String, unique: true, required: true },
@@ -8,4 +8,5 @@ const tagSchema = new Schema({
 
 tagSchema.index({ tagName: 1 });
 
-export default model("Tag", tagSchema);
+type Tag = InferSchemaType<typeof tagSchema>;
+export default model<Tag>("Tag", tagSchema);

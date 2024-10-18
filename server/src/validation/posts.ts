@@ -24,8 +24,6 @@ export const getPostsSchema = z.object({
     continueAfterId: MongoIdSchema.optional(),
     tag: z.string().optional(),
     limit: z.string().optional(),
-    saved: z.boolean().optional(),
-    top: z.boolean().optional(),
     followedTarget: z.string().optional(),
   }),
 });
@@ -37,6 +35,14 @@ export const getTopPostsSchema = z.object({
   query: z.object({
     limit: z.string().optional(),
     continueAfterLikeCount: z.string().optional(),
+    continueAfterId: MongoIdSchema.optional(),
+  }),
+});
+
+export const getSavedPostsSchema = z.object({
+  query: z.object({
+    tag: z.string().optional(),
+    limit: z.string().optional(),
     continueAfterId: MongoIdSchema.optional(),
   }),
 });
@@ -59,3 +65,4 @@ export type getPostsQuery = z.infer<typeof getPostsSchema>["query"];
 export type savePostsParams = z.infer<typeof savePostsSchema>["params"];
 export type getTopPostsParams = z.infer<typeof getTopPostsSchema>["params"];
 export type getTopPostsQuery = z.infer<typeof getTopPostsSchema>["query"];
+export type getSavedPostsQuery = z.infer<typeof getSavedPostsSchema>["query"];

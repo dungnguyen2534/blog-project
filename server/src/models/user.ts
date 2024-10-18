@@ -33,8 +33,6 @@ const userSchema = new Schema({
     type: Number,
     default: 0,
   },
-  savedPosts: [{ type: Schema.Types.ObjectId, ref: "Post", select: false }],
-  followedTags: [{ type: String, select: false }],
   profilePicPath: {
     type: String,
   },

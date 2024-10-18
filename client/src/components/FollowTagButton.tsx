@@ -62,7 +62,7 @@ export default function FollowTagButton({
         setIsFollowing(!newFollowingStatus);
         setTotalFollowers(totalFollowers);
       }
-    }, 250);
+    }, 300);
   }, [isFollowing, setTotalFollowers, totalFollowers, toast, tagName]);
 
   return (

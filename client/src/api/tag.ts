@@ -4,7 +4,7 @@ import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 const TagsAPI = {
   async getTags(cookie?: RequestCookie) {
-    const res = await http.get<Tag>(`/tags/`, {
+    const res = await http.get<Tag[]>(`/tags/`, {
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
