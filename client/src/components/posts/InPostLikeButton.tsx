@@ -71,7 +71,7 @@ export default function InPostLikeButton({
         setLiked(!newLiked);
         setLikes(newLiked ? likes - 1 : likes + 1);
       }
-    }, 250);
+    }, 300);
   }, [liked, likes, post._id, showSignIn, user, toast]);
 
   return (

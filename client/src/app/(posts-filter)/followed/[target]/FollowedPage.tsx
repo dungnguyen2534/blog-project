@@ -4,6 +4,7 @@ import PostList from "@/components/posts/PostList";
 import PostListSkeleton from "@/components/posts/PostListSkeleton";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/hooks/useAuth";
+import usePostsLoader from "@/hooks/usePostsLoader";
 import Link from "next/link";
 import { FaSignInAlt } from "react-icons/fa";
 import { TbMoodEmpty } from "react-icons/tb";
@@ -18,6 +19,7 @@ export default function FollowedPage({
   noInitialPage,
 }: FollowedPageProps) {
   const { user, isLoadingUser } = useAuth();
+  const { postList } = usePostsLoader();
 
   let noFollowedContent;
 
@@ -35,12 +37,12 @@ export default function FollowedPage({
       ? (noFollowedContent = noFollowedContentHandler("anyone"))
       : null;
   } else if (target === "tags") {
-    user?.followedTags.length === 0
+    user?.totalTagsFollowed === 0
       ? (noFollowedContent = noFollowedContentHandler("any tags"))
       : null;
   } else if (target === "all") {
     user?.totalFollowing === 0 &&
-      user?.followedTags.length === 0 &&
+      user?.totalTagsFollowed === 0 &&
       (noFollowedContent = noFollowedContentHandler("any people/tags"));
   } else {
     noFollowedContent = null;

@@ -63,14 +63,12 @@ router.get(
   PostsController.getTopPosts
 );
 
+router.use("/", bookmarksRouter);
+
 router.get("/slugs", PostsController.getSlugs);
 
 router.get("/:slug", PostsController.getPost);
 
-// bookmark routes
-router.use("/:postId", bookmarksRouter);
-
-// Comment routes
 router.use("/:postId/comments", postCommentsRouter);
 
 export default router;

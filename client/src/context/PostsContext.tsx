@@ -2,7 +2,7 @@
 
 import PostsAPI from "@/api/post";
 import { Post, PostPage } from "@/validation/schema/post";
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 interface PostsContextType {
   postList: Post[];
@@ -33,6 +33,7 @@ interface PostsContextType {
   lastPostReached: boolean;
   pageLoadError: boolean;
   firstPageLoadError: boolean;
+  savedTagList: string[] | undefined;
 }
 
 export const PostsContext = createContext<PostsContextType | null>(null);
@@ -46,6 +47,7 @@ interface PostsContextProps {
   timeSpan?: "week" | "month" | "year" | "infinity" | undefined;
   followedTarget?: "users" | "tags" | "all";
   saved?: boolean;
+  tagList?: string[];
 }
 
 export default function PostsContextProvider({
@@ -57,7 +59,13 @@ export default function PostsContextProvider({
   timeSpan,
   followedTarget,
   saved,
+  tagList,
 }: PostsContextProps) {
+  const [firstPageFetched, setFirstPageFetched] = useState(false);
+  useEffect(() => {
+    setFirstPageFetched(false);
+  }, [initialPage, authorId, tag, top, timeSpan, followedTarget, saved]);
+
   const [postList, setPostList] = useState<Post[]>(initialPage?.posts || []);
   const [isLoading, setIsLoading] = useState(false);
   const [lastPostReached, setLastPostReached] = useState(
@@ -70,8 +78,26 @@ export default function PostsContextProvider({
     postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
   );
 
+  const [savedTagList, setSavedTagList] = useState<string[] | undefined>(
+    tagList
+  );
+
   const continueAfterId = postList[postList.length - 1]?._id;
   const continueAfterLikeCount = postList[postList.length - 1]?.likeCount;
+
+  const paramsCheck = useCallback(() => {
+    if (
+      (top && followedTarget) ||
+      (top && saved) ||
+      (followedTarget && saved)
+    ) {
+      throw new Error("Only one of top, followedTarget, or saved can be true");
+    }
+
+    if (top && !timeSpan) {
+      throw new Error("Time span must be provided for top posts");
+    }
+  }, [top, followedTarget, saved, timeSpan]);
 
   const fetchFirstPage = useCallback(
     async (
@@ -83,26 +109,14 @@ export default function PostsContextProvider({
       followedTarget?: "users" | "tags" | "all",
       saved?: boolean
     ) => {
-      if (
-        (top && followedTarget) ||
-        (top && saved) ||
-        (followedTarget && saved)
-      ) {
-        throw new Error(
-          "Only one of top, followedTarget, or saved can be true"
-        );
-      }
-
-      if (top && !timeSpan) {
-        throw new Error("Time span must be provided for top posts");
-      }
+      paramsCheck();
 
       setFirstPageLoadError(false);
       setIsLoading(true);
 
       const query = `/posts?${tag ? `tag=${tag}` : ""}${
         authorId ? `&authorId=${authorId}` : ""
-      }${limit ? `&limit=${limit}` : ""}${saved ? `&saved=true` : ""}`;
+      }${limit ? `&limit=${limit}` : ""}`;
 
       try {
         let firstPage: PostPage;
@@ -116,19 +130,23 @@ export default function PostsContextProvider({
           firstPage = await PostsAPI.getPostList(
             `/posts?followedTarget=${followedTarget}`
           );
+        } else if (saved) {
+          firstPage = await PostsAPI.getSavedPosts(tag);
         } else {
           firstPage = await PostsAPI.getPostList(query);
         }
 
         setPostList(firstPage.posts);
         setLastPostReached(firstPage.lastPostReached);
+        setFirstPageFetched(true);
       } catch {
+        setFirstPageFetched(false);
         setFirstPageLoadError(true);
       } finally {
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount]
+    [continueAfterId, continueAfterLikeCount, paramsCheck]
   );
 
   const fetchNextPage = useCallback(
@@ -141,19 +159,7 @@ export default function PostsContextProvider({
       followedTarget?: "users" | "tags" | "all",
       saved?: boolean
     ) => {
-      if (
-        (top && followedTarget) ||
-        (top && saved) ||
-        (followedTarget && saved)
-      ) {
-        throw new Error(
-          "Only one of top, followedTarget, or saved can be true"
-        );
-      }
-
-      if (top && !timeSpan) {
-        throw new Error("Time span must be provided for top posts");
-      }
+      paramsCheck();
 
       setPageLoadError(false);
       setIsLoading(true);
@@ -162,7 +168,7 @@ export default function PostsContextProvider({
         authorId ? `&authorId=${authorId}` : ""
       }${continueAfterId ? `&continueAfterId=${continueAfterId}` : ""}${
         limit ? `&limit=${limit}` : ""
-      }${saved ? `&saved=true` : ""}`;
+      }`;
 
       try {
         let nextPage: PostPage;
@@ -176,6 +182,13 @@ export default function PostsContextProvider({
           nextPage = await PostsAPI.getPostList(
             `/posts?followedTarget=${followedTarget}&continueAfterId=${continueAfterId}`
           );
+        } else if (saved) {
+          nextPage = await PostsAPI.getSavedPosts(tag, continueAfterId);
+
+          if (!tagList) {
+            const savedTags = await PostsAPI.getSavedTags();
+            setSavedTagList(savedTags);
+          }
         } else {
           nextPage = await PostsAPI.getPostList(query);
         }
@@ -189,11 +202,11 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount]
+    [continueAfterId, continueAfterLikeCount, paramsCheck, tagList]
   );
 
   useEffect(() => {
-    if (!initialPage) {
+    if (!initialPage && !firstPageFetched) {
       if (top) {
         fetchFirstPage(undefined, undefined, 12, top, timeSpan);
       } else if (followedTarget) {
@@ -208,12 +221,12 @@ export default function PostsContextProvider({
       } else if (saved) {
         fetchFirstPage(
           undefined,
-          undefined,
+          tag,
           12,
           undefined,
           undefined,
           undefined,
-          saved
+          true
         );
       } else {
         fetchFirstPage(authorId, tag, 12);
@@ -221,14 +234,14 @@ export default function PostsContextProvider({
     }
   }, [
     initialPage,
-    fetchFirstPage,
-    authorId,
-    tag,
     top,
     followedTarget,
     saved,
-    fetchNextPage,
+    fetchFirstPage,
+    authorId,
+    tag,
     timeSpan,
+    firstPageFetched,
   ]);
 
   useEffect(() => {
@@ -238,7 +251,7 @@ export default function PostsContextProvider({
         likeCount: post.likeCount,
       }))
     );
-  }, [postList, setPostsLikeCount, initialPage, setPostList]);
+  }, [postList, setPostsLikeCount, saved, tagList]);
 
   return (
     <PostsContext.Provider
@@ -253,6 +266,7 @@ export default function PostsContextProvider({
         firstPageLoadError,
         postsLikeCount,
         setPostsLikeCount,
+        savedTagList,
       }}>
       {children}
     </PostsContext.Provider>

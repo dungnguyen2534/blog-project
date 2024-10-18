@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, Ref, useState } from "react";
+import React, { forwardRef, Ref, useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import PostOptions from "./PostOptions";
 import { Post } from "@/validation/schema/post";
@@ -26,12 +26,13 @@ interface PostEntryProps {
 
 const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
   const [isSaved, setIsSaved] = useState(post.isSavedPost);
-  const [isBookmarking, setIsBookmarking] = useState(false);
 
   const { user } = useAuth();
   const { toast } = useToast();
 
-  async function bookmark() {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const bookmark = useCallback(async () => {
     if (!user) {
       toast({
         title: "Please sign in to bookmark this post",
@@ -39,26 +40,32 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
       return;
     }
 
-    setIsBookmarking(true);
-    try {
-      if (isSaved) {
-        await PostsAPI.unsavePost(post._id);
-      } else {
-        await PostsAPI.savePost(post._id);
-      }
-      setIsSaved((prev) => !prev);
-      toast({
-        title: isSaved ? "Post removed from bookmarks" : "Post bookmarked",
-      });
-    } catch {
-      toast({
-        title: "An error occurred",
-        description: "Please try again later",
-      });
-    } finally {
-      setIsBookmarking(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }
+
+    const newIsSaved = !isSaved;
+    setIsSaved(newIsSaved);
+
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        if (isSaved) {
+          await PostsAPI.unsavePost(post._id);
+        } else {
+          await PostsAPI.savePost(post._id);
+        }
+        toast({
+          title: isSaved ? "Post removed from bookmarks" : "Post bookmarked",
+        });
+      } catch {
+        setIsSaved(!newIsSaved);
+        toast({
+          title: "An error occurred",
+          description: "Please try again later",
+        });
+      }
+    }, 300);
+  }, [isSaved, post._id, toast, user]);
 
   return (
     <article
@@ -100,8 +107,7 @@ const PostEntry = forwardRef<HTMLElement, PostEntryProps>(({ post }, ref) => {
                 <Button
                   variant="ghost"
                   className="text-muted-foreground cursor-pointer hover:text-black dark:hover:text-white items-center gap-1 -mr-1 px-3"
-                  onClick={bookmark}
-                  disabled={isBookmarking}>
+                  onClick={bookmark}>
                   <span className="font-medium text-xs">
                     {calculateReadingTime(post.body)} min read
                   </span>

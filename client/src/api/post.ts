@@ -86,6 +86,31 @@ const PostsAPI = {
     const res = await http.post(`/posts/${postId}/save`);
     return res.payload;
   },
+  async getSavedTags(cookie?: RequestCookie) {
+    const res = await http.get<string[]>("/posts/saved-tags", {
+      headers: {
+        cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+      },
+    });
+    return res.payload;
+  },
+  async getSavedPosts(
+    tag?: string,
+    continueAfterId?: string,
+    cookie?: RequestCookie
+  ) {
+    const res = await http.get<PostPage>(
+      `/posts/saved-posts?${tag ? "&tag=" + tag : ""}${
+        continueAfterId ? "&continueAfterId=" + continueAfterId : ""
+      }`,
+      {
+        headers: {
+          cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
+        },
+      }
+    );
+    return res.payload;
+  },
   async unsavePost(postId: string) {
     const res = await http.delete(`/posts/${postId}/unsave`);
     return res.payload;

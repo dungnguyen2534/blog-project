@@ -17,6 +17,7 @@ import sendVerificationCode from "../utils/nodeMailer";
 import passwordResetToken from "../models/passwordResetToken";
 import { invalidateSessions } from "../utils/invalidateSessions";
 import FollowerModel from "../models/follower";
+import userTagsModel from "../models/userTags";
 
 export const getOTP: RequestHandler<
   unknown,
@@ -240,10 +241,19 @@ export const getAuthenticatedUser: RequestHandler = async (req, res, next) => {
     }
 
     const user = await UserModel.findById(authenticatedUser._id)
-      .select("+email +savedPosts +followedTags")
+      .select("+email +savedPosts")
+      .lean()
       .exec();
 
-    res.status(200).json(user);
+    const totalTagsFollowed = (
+      await userTagsModel
+        .findOne({
+          user: authenticatedUser._id,
+        })
+        .exec()
+    )?.followedTags.length;
+
+    res.status(200).json({ ...user, totalTagsFollowed });
   } catch (error) {
     next(error);
   }

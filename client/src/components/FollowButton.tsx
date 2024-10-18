@@ -102,7 +102,7 @@ export default function FollowButton({
           });
         });
       }
-    }, 250);
+    }, 300);
   }, [
     isFollowing,
     setTotalFollowers,

@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import { TagParams, TagQuery } from "../validation/tags";
 import assertIsDefined from "../utils/assertIsDefined";
-import UserModel from "../models/user";
 import createHttpError from "http-errors";
 import TagModel from "../models/tag";
+import UserTagsModel from "../models/userTags";
 
 export const followTag: RequestHandler<
   TagParams,
@@ -19,7 +19,10 @@ export const followTag: RequestHandler<
     assertIsDefined(authenticatedUser);
 
     const [existingFollower, existingTag] = await Promise.all([
-      UserModel.exists({ followedTags: tagNameWithHash }),
+      UserTagsModel.exists({
+        user: authenticatedUser._id,
+        followedTags: tagNameWithHash,
+      }),
       TagModel.exists({ tagName: tagNameWithHash }),
     ]);
 
@@ -29,9 +32,11 @@ export const followTag: RequestHandler<
 
     if (!existingFollower) {
       await Promise.all([
-        UserModel.findByIdAndUpdate(authenticatedUser._id, {
-          $push: { followedTags: tagNameWithHash },
-        }),
+        UserTagsModel.updateOne(
+          { user: authenticatedUser._id },
+          { $push: { followedTags: tagNameWithHash } },
+          { upsert: true }
+        ),
         TagModel.updateOne(
           { tagName: tagNameWithHash },
           { $inc: { followerCount: 1 } }
@@ -63,7 +68,10 @@ export const unFollowTag: RequestHandler<
     assertIsDefined(authenticatedUser);
 
     const [existingFollower, existingTag] = await Promise.all([
-      UserModel.exists({ followedTags: tagNameWithHash }),
+      UserTagsModel.exists({
+        user: authenticatedUser._id,
+        followedTags: tagNameWithHash,
+      }),
       TagModel.exists({ tagName: tagNameWithHash }),
     ]);
 
@@ -76,7 +84,8 @@ export const unFollowTag: RequestHandler<
       res.status(204).json({ followerCount: tag?.followerCount });
     } else {
       await Promise.all([
-        UserModel.findByIdAndUpdate(authenticatedUser._id, {
+        UserTagsModel.updateOne({
+          user: authenticatedUser._id,
           $pull: { followedTags: tagNameWithHash },
         }),
         TagModel.updateOne(
@@ -110,8 +119,8 @@ export const getTagInfo: RequestHandler<
     }
 
     if (authenticatedUser) {
-      const isLoggedInUserFollowing = await UserModel.exists({
-        _id: authenticatedUser._id,
+      const isLoggedInUserFollowing = await UserTagsModel.exists({
+        user: authenticatedUser._id,
         followedTags: "#" + tagName,
       });
 
@@ -151,12 +160,9 @@ export const getTags: RequestHandler<
 
     let tagsWithStatus;
     if (authenticatedUser) {
-      const loggedInUserFollowingTags = await UserModel.findById(
-        authenticatedUser._id
-      )
-        .select("followedTags")
-        .lean()
-        .exec();
+      const loggedInUserFollowingTags = await UserTagsModel.findOne({
+        user: authenticatedUser._id,
+      }).exec();
 
       tagsWithStatus = tags.forEach((tag) => {
         if (loggedInUserFollowingTags?.followedTags.includes(tag.tagName)) {

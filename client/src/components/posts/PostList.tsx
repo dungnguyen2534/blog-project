@@ -22,10 +22,9 @@ export default function PostList({
   top,
   timeSpan,
   followedTarget,
-  saved,
 }: PostsListProps) {
-  if ((top && followedTarget) || (top && saved) || (followedTarget && saved)) {
-    throw new Error("Only one of top, followed, or saved can be true");
+  if (top && followedTarget) {
+    throw new Error("Only one of top or followed can be true");
   }
   if (top && !timeSpan) {
     throw new Error("Time span is required for top posts");
@@ -63,20 +62,10 @@ export default function PostList({
         undefined,
         followedTarget
       );
-    } else if (saved) {
-      fetchFirstPage(
-        undefined,
-        undefined,
-        12,
-        undefined,
-        undefined,
-        undefined,
-        saved
-      );
     } else {
       fetchFirstPage(author?._id, tag, 12);
     }
-  }, [fetchFirstPage, tag, author?._id, top, followedTarget, saved, timeSpan]);
+  }, [fetchFirstPage, tag, author?._id, top, followedTarget, timeSpan]);
 
   const handleFetchNextPage = useCallback(() => {
     if (top) {
@@ -90,20 +79,10 @@ export default function PostList({
         undefined,
         followedTarget
       );
-    } else if (saved) {
-      fetchNextPage(
-        undefined,
-        undefined,
-        12,
-        undefined,
-        undefined,
-        undefined,
-        saved
-      );
     } else {
       fetchNextPage(author?._id, tag, 12);
     }
-  }, [fetchNextPage, tag, author?._id, top, followedTarget, saved, timeSpan]);
+  }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
 
   const postRef = useCallback(
     (postEntry: HTMLElement | null) => {

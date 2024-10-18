@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 import revalidateCachedData from "@/lib/revalidate";
 import { User } from "@/validation/schema/user";
 import { useState } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 interface Navbar {
   authenticatedUser?: User;
@@ -20,7 +21,7 @@ export default function Navbar({ authenticatedUser }: Navbar) {
     User | undefined
   >(authenticatedUser);
 
-  const { user, mutateUser } = useAuth();
+  const { user, isLoadingUser, mutateUser } = useAuth();
   const pathname = usePathname();
 
   let callToActions;
@@ -31,6 +32,13 @@ export default function Navbar({ authenticatedUser }: Navbar) {
         setAuthenticatedUserSSR={setAuthenticatedUserSSR}
         mutateUser={mutateUser}
       />
+    );
+  } else if (!authenticatedUser && isLoadingUser) {
+    callToActions = (
+      <div className="hidden md:flex items-center gap-2">
+        <Skeleton className="hidden md:block h-10 w-[117px]" />
+        <Skeleton className="h-12 w-12  md:h-10 md:w-10 rounded-full" />
+      </div>
     );
   } else {
     callToActions = <SignedOutView />;

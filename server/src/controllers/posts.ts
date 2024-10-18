@@ -23,6 +23,8 @@ import LikeModel from "../models/like";
 import UserModel from "../models/user";
 import FollowerModel from "../models/follower";
 import TagModel from "../models/tag";
+import userTagsModel from "../models/userTags";
+import SavedPostModel from "../models/savedPost";
 
 export const createPost: RequestHandler<
   unknown,
@@ -320,12 +322,8 @@ export const getPostList: RequestHandler<
   getPostsQuery
 > = async (req, res, next) => {
   const limit = parseInt(req.query.limit || "12");
-  const { authorId, tag, continueAfterId, saved, followedTarget } = req.query;
+  const { authorId, tag, continueAfterId, followedTarget } = req.query;
   const authenticatedUser = req.user;
-
-  if (saved && followedTarget) {
-    return res.status(400).json({ error: "Invalid query parameters" });
-  }
 
   const filter = {
     ...(authorId ? { author: authorId } : {}),
@@ -335,18 +333,7 @@ export const getPostList: RequestHandler<
   try {
     let query = PostModel.find(filter).sort({ _id: -1 });
 
-    if (saved) {
-      assertIsDefined(authenticatedUser);
-      const user = await UserModel.findById(authenticatedUser._id)
-        .select("+savedPosts")
-        .exec();
-
-      if (user?.savedPosts) {
-        query = PostModel.find({
-          _id: { $in: user.savedPosts },
-        }).sort({ _id: -1 });
-      }
-    } else if (followedTarget) {
+    if (followedTarget) {
       assertIsDefined(authenticatedUser);
 
       if (followedTarget === "users") {
@@ -359,27 +346,23 @@ export const getPostList: RequestHandler<
           author: { $in: followingUserIds },
         }).sort({ _id: -1 });
       } else if (followedTarget === "tags") {
-        const user = await UserModel.findById(authenticatedUser._id)
-          .select("+followedTags")
+        const userTagsInfo = await userTagsModel
+          .findOne({ user: authenticatedUser._id })
           .exec();
 
-        if (user?.followedTags) {
-          query = PostModel.find({
-            tags: { $in: user.followedTags },
-          }).sort({ _id: -1 });
-        }
+        const followedTags = userTagsInfo?.followedTags;
+        query = PostModel.find({
+          tags: { $in: followedTags },
+        }).sort({ _id: -1 });
       } else if (followedTarget === "all") {
         const following = await FollowerModel.find({
           follower: authenticatedUser._id,
         }).exec();
 
         const followingUserIds = following.map((f) => f.user);
-
-        const user = await UserModel.findById(authenticatedUser._id)
-          .select("+followedTags")
-          .exec();
-
-        const followedTags = user?.followedTags || [];
+        const followedTags = (
+          await userTagsModel.findOne({ user: authenticatedUser._id }).exec()
+        )?.followedTags;
 
         query = PostModel.find({
           $or: [
@@ -429,9 +412,9 @@ export const getPostList: RequestHandler<
             targetType: "post",
           }),
           authenticatedUser
-            ? UserModel.exists({
-                _id: authenticatedUser._id,
-                savedPosts: post._id,
+            ? SavedPostModel.exists({
+                userId: authenticatedUser._id,
+                postId: post._id,
               })
             : Promise.resolve(false),
         ]);
@@ -542,9 +525,9 @@ export const getTopPosts: RequestHandler<
             targetType: "post",
           }),
           authenticatedUser
-            ? UserModel.exists({
-                _id: authenticatedUser._id,
-                savedPosts: post._id,
+            ? SavedPostModel.exists({
+                userId: authenticatedUser._id,
+                postId: post._id,
               })
             : Promise.resolve(false),
         ]);
@@ -598,9 +581,9 @@ export const getPost: RequestHandler = async (req, res, next) => {
           : Promise.resolve(false),
         LikeModel.countDocuments({ targetId: result._id }),
         authenticatedUser
-          ? UserModel.exists({
-              _id: authenticatedUser._id,
-              savedPosts: result._id,
+          ? SavedPostModel.exists({
+              userId: authenticatedUser._id,
+              postId: result._id,
             })
           : Promise.resolve(false),
       ]);
