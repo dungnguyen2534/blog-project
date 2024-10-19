@@ -15,7 +15,6 @@ import FollowButton from "./FollowButton";
 import { usePathname } from "next/navigation";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 import revalidateCachedData from "@/lib/revalidate";
-import useFollowUser from "@/hooks/useFollowUser";
 
 interface MiniProfileProps {
   children: React.ReactNode;

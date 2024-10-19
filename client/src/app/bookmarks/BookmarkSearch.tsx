@@ -20,7 +20,6 @@ export default function BookmarkSearch({
   const { setIsLoading, setPostList } = usePostsLoader();
 
   const [searchValue, setSearchValue] = useState(searchQuery);
-  const searchQueryRef = useRef(searchQuery);
 
   const router = useRouter();
 
@@ -28,13 +27,16 @@ export default function BookmarkSearch({
     return input?.replace(/[^a-zA-Z0-9\s]/g, "") || "";
   }
 
+  const searchQueryRef = useRef(sanitizeInput(searchQuery));
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     const query = encodeURIComponent(sanitizeInput(searchValue));
     if (searchQueryRef.current === query) return;
-    setPostList([]);
-    setIsLoading(true);
+    timeoutRef.current = setTimeout(() => {
+      setPostList([]);
+      setIsLoading(true);
 
-    const searchTimeout = setTimeout(() => {
       router.replace(
         `/bookmarks?${tag ? `tag=${tag}` : ""}${
           query ? `&searchQuery=${query}` : ""
@@ -43,7 +45,11 @@ export default function BookmarkSearch({
     }, 350);
 
     searchQueryRef.current = query;
-    return () => clearTimeout(searchTimeout);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [
     searchValue,
     router,

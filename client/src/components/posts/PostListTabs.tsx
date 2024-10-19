@@ -3,7 +3,6 @@
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import Link from "next/link";
-
 import revalidateCachedData from "@/lib/revalidate";
 import { usePathname } from "next/navigation";
 
@@ -38,18 +37,12 @@ export default function PostListTabs({
             Latest
           </Link>
         </TabsTrigger>
-        <TabsTrigger
-          onClick={() => revalidateCachedData("/top/week")}
-          asChild
-          value="Top">
+        <TabsTrigger asChild value="Top">
           <Link replace={true} href={"/top/week"}>
             Top
           </Link>
         </TabsTrigger>
-        <TabsTrigger
-          onClick={() => revalidateCachedData("/followed")}
-          asChild
-          value="Followed">
+        <TabsTrigger asChild value="Followed">
           <Link replace={true} href={"/followed/all"}>
             Followed
           </Link>
