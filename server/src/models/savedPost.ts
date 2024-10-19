@@ -3,6 +3,7 @@ import { InferSchemaType, Schema, model } from "mongoose";
 const SavedPostSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, required: true },
   postId: { type: Schema.Types.ObjectId, required: true },
+  postTitle: { type: String, required: true },
   tags: { type: [String], default: [] },
 });
 

@@ -4,14 +4,13 @@ import UserAvatar from "@/components/UserAvatar";
 import useAuth from "@/hooks/useAuth";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/validation/schema/user";
-import { RiCake2Line } from "react-icons/ri";
 import ProfileEditor from "./ProfileEditor";
 import PostList from "@/components/posts/PostList";
 import { TfiWrite } from "react-icons/tfi";
 import { BsPeople } from "react-icons/bs";
 import FollowButton from "@/components/FollowButton";
 import { useState } from "react";
-import { PiCake, PiCakeLight } from "react-icons/pi";
+import { PiCake } from "react-icons/pi";
 
 interface ProfileProps {
   user: User;
@@ -26,7 +25,7 @@ export default function Profile({ user }: ProfileProps) {
 
   return (
     <>
-      <main className="secondary-container p-3 md:mt-[0.5rem] md:p-7 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
+      <main className="secondary-container p-3 md:mt-[0.5rem] md:p-7 md:pb-5 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
         <div className="relative flex gap-3 flex-col md:items-center">
           {loggedInUser && (
             <div className="absolute top-1 right-1 md:-top-4 md:-right-4">
