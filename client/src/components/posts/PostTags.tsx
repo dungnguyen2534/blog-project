@@ -19,7 +19,7 @@ export default function PostTags({ tags, className }: PostTagsProps) {
             onClick={() =>
               revalidateCachedData(`/tags/${tag.replace("#", "")}`)
             }
-            className="text-sm font-semibold py-1 px-2 rounded-md transition-colors hover:bg-neutral-100 hover:dark:bg-neutral-800 whitespace-nowrap break-words">
+            className="text-sm font-semibold py-1 px-2 rounded-md transition-colors hover:bg-neutral-100 hover:dark:bg-neutral-800  break-words">
             {tag}
           </Link>
         ))}

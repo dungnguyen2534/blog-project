@@ -2,7 +2,14 @@ import React, { SetStateAction, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "../ui/button";
 import { AiOutlineClose } from "react-icons/ai";
 import useAuth from "@/hooks/useAuth";
@@ -32,7 +39,12 @@ export default function MobileMenu({
       <SheetTrigger className="relative md:hidden sm:my-0 p-1 px-2">
         <RxHamburgerMenu size={40} />
       </SheetTrigger>
+
       <SheetContent className="[&>*]:w-full [&>button]:hidden flex flex-col items-end">
+        <SheetHeader className="hidden">
+          <SheetTitle></SheetTitle>
+          <SheetDescription />
+        </SheetHeader>
         <div className="flex justify-between">
           <div className="-mt-3 flex gap-3 items-center">
             <Switch checked={theme === "dark"} onCheckedChange={toggleTheme} />

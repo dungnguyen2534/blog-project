@@ -91,12 +91,21 @@ export const unsavePost: RequestHandler<
       await UserTagsModel.findOne({ user: authenticatedUser._id }).exec()
     )?.savedTags;
 
-    const postTagsSet = new Set(post.tags);
-    const remainingTags = savedTags?.filter((tag) => !postTagsSet.has(tag));
+    const remainingTags = await Promise.all(
+      savedTags?.map(async (tag) => {
+        const hasTag = await SavedPostModel.exists({
+          userId: authenticatedUser._id,
+          tags: tag,
+        });
+        return hasTag ? tag : null;
+      }) || []
+    );
+
+    const filteredTags = remainingTags.filter((tag) => tag !== null);
 
     await UserTagsModel.updateOne(
       { user: authenticatedUser._id },
-      { $set: { savedTags: remainingTags } }
+      { $set: { savedTags: filteredTags } }
     );
 
     res.sendStatus(200);

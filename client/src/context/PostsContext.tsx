@@ -62,14 +62,10 @@ export default function PostsContextProvider({
   tagList,
 }: PostsContextProps) {
   const [firstPageFetched, setFirstPageFetched] = useState(false);
-  useEffect(() => {
-    setFirstPageFetched(false);
-  }, [initialPage, authorId, tag, top, timeSpan, followedTarget, saved]);
-
   const [postList, setPostList] = useState<Post[]>(initialPage?.posts || []);
   const [isLoading, setIsLoading] = useState(false);
   const [lastPostReached, setLastPostReached] = useState(
-    initialPage?.lastPostReached || false
+    initialPage?.lastPostReached ?? false
   );
   const [pageLoadError, setPageLoadError] = useState(false);
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
@@ -98,6 +94,10 @@ export default function PostsContextProvider({
       throw new Error("Time span must be provided for top posts");
     }
   }, [top, followedTarget, saved, timeSpan]);
+
+  useEffect(() => {
+    setFirstPageFetched(false);
+  }, [initialPage, authorId, tag, top, timeSpan, followedTarget, saved]);
 
   const fetchFirstPage = useCallback(
     async (
@@ -251,7 +251,7 @@ export default function PostsContextProvider({
         likeCount: post.likeCount,
       }))
     );
-  }, [postList, setPostsLikeCount, saved, tagList]);
+  }, [postList, setPostsLikeCount]);
 
   return (
     <PostsContext.Provider

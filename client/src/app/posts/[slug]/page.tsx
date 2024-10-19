@@ -55,9 +55,7 @@ export default async function PostPage({ params: { slug } }: PostPageProps) {
             <PostTags tags={post.tags} className="mb-3" />
             <PostOptions post={post} author={post.author} />
           </header>
-          <div>
-            <MarkdownRenderer>{post.body}</MarkdownRenderer>
-          </div>
+          <MarkdownRenderer>{post.body}</MarkdownRenderer>
         </div>
         <InPostLike post={post} />
         <CommentSection post={post} userCookie={userCookie} />

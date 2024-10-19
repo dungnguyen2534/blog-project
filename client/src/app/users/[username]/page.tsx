@@ -30,7 +30,7 @@ export async function generateMetadata({
 }: UserProfilePageProps) {
   const user = await getUser(username);
   return {
-    title: user.username + " | Devdaily",
+    title: user.username + " | Devflow",
   };
 }
 
