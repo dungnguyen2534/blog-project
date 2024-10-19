@@ -571,7 +571,7 @@ export const getPost: RequestHandler = async (req, res, next) => {
       .exec();
     if (!result) throw createHttpError(404, "Post not found");
 
-    const [isUserLikedPost, isLoggedInUserFollowing, likeCount, isSavedPost] =
+    const [isUserLikedPost, isLoggedInUserFollowing, isSavedPost] =
       await Promise.all([
         authenticatedUser
           ? LikeModel.exists({
@@ -586,7 +586,6 @@ export const getPost: RequestHandler = async (req, res, next) => {
               follower: authenticatedUser._id,
             })
           : Promise.resolve(false),
-        LikeModel.countDocuments({ targetId: result._id }),
         authenticatedUser
           ? SavedPostModel.exists({
               userId: authenticatedUser._id,
@@ -597,7 +596,6 @@ export const getPost: RequestHandler = async (req, res, next) => {
 
     const post = {
       ...result,
-      likeCount,
       ...(authenticatedUser && {
         isLoggedInUserLiked: !!isUserLikedPost,
         author: {
