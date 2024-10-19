@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import usePostsLoader from "@/hooks/usePostsLoader";
 import { useRouter } from "next/navigation";
+import * as NProgress from "nprogress";
 
 interface TagSelectorProps {
   className?: string;
@@ -24,6 +25,7 @@ export default function TagSelector({
   const { savedTagList } = usePostsLoader();
 
   function onValueChange(value: string) {
+    NProgress.start();
     if (value === "All") return router.replace(`/bookmarks`);
     router.replace(`/bookmarks?tag=${value}`);
   }
@@ -42,7 +44,7 @@ export default function TagSelector({
             className="cursor-pointer"
             key={item + index}
             value={item}>
-            {item}
+            #{item}
           </SelectItem>
         ))}
       </SelectContent>

@@ -119,13 +119,13 @@ export default function PostList({
       {!author && firstPageLoadError && (
         <EmptyPostList
           retryFunction={async () => handleFetchFirstPage()}
-          text="Failed to load posts"
+          text="Failed to load"
           className="mt-48"
         />
       )}
       {author && firstPageLoadError && (
         <EmptyPostList
-          text={`Failed to load ${author.username}'s posts`}
+          text={`Failed to load`}
           retryFunction={() => fetchFirstPage(author._id, tag, 12)}
           className="mt-48"
           hideIcon
@@ -133,14 +133,14 @@ export default function PostList({
       )}
       {!author && pageLoadError && (
         <EmptyPostList
-          text="Failed to load posts"
+          text="Failed to load"
           retryFunction={async () => handleFetchNextPage()}
           hideIcon
         />
       )}
       {author && pageLoadError && (
         <EmptyPostList
-          text="Failed to load posts"
+          text="Failed to load"
           retryFunction={() => fetchNextPage(author._id, tag, 12)}
           hideIcon
         />

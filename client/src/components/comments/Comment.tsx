@@ -98,7 +98,7 @@ export default function Comment({
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`flex gap-2 mt-3 md:mt-4 ${className}`}>
+    <div className={`flex gap-2 mt-3 md:mt-4 ${className} max-w-full`}>
       <UserAvatar
         username={comment.author.username}
         profilePicUrl={comment.author.profilePicPath}
@@ -129,7 +129,7 @@ export default function Comment({
         <div className="flex-grow flex flex-col">
           <div
             ref={heightRef}
-            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-sm px-5 overflow-hidden">
+            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-sm px-5">
             <CommentOptions
               comment={comment}
               onDeleteReply={replyComment ? onDeleteReply : undefined}>
@@ -155,7 +155,10 @@ export default function Comment({
                 <DropdownMenuItem>(to be implemented)</DropdownMenuItem>
               )}
             </CommentOptions>
-            <MarkdownRenderer>{comment.body}</MarkdownRenderer>
+
+            <div className="[overflow-wrap:anywhere]">
+              <MarkdownRenderer>{comment.body}</MarkdownRenderer>
+            </div>
           </div>
           <CommentActions
             comment={comment}

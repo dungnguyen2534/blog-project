@@ -16,7 +16,7 @@ import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Devdaily",
+  title: "Devflow",
   description: "A cool blog site for developers",
 };
 

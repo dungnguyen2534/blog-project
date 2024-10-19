@@ -87,15 +87,18 @@ export default function SignedInView({
                   profilePicUrl={user?.profilePicPath}
                 />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[30vh] [&>*]:cursor-pointer text-base md:w-auto hidden md:block">
+              <DropdownMenuContent className="w-[30vh] [&>*]:cursor-pointer [&>*]:p-2 text-base md:w-auto hidden md:block">
                 <DropdownMenuItem className="text-base" asChild>
                   <Link
-                    className="font-medium"
+                    className="font-medium flex flex-col text-start !items-start"
                     href={"/users/" + user?.username}>
-                    @{user?.username}
+                    Personal Profile
+                    <span className="text-sm text-muted-foreground">
+                      @{user?.username}
+                    </span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <DropdownMenuSeparator className="!py-0" />
                 <DropdownMenuItem className="text-base" asChild>
                   <Link className="font-medium" href="/bookmarks">
                     Bookmarks

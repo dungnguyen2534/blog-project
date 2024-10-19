@@ -26,8 +26,8 @@ export default async function BookmarksPage({
 
   return (
     <PostsContextProvider saved tag={tag} tagList={tagList}>
-      <main className="secondary-container px-0 md:px-8 my-[0.35rem] md:my-2 !bg-transparent">
-        <div className="px-3 md:px-0">
+      <main className="secondary-container px-0 md:px-8 my-1 md:my-2 !bg-transparent">
+        <div className="px-3 md:px-0 secondary-container py-1 mb-1 md:py-0 md:mb-0 md:!bg-transparent rounded-none">
           <div className="flex justify-between items-center gap-5 [&>*]:flex-grow [&>*]:md:flex-grow-0">
             <h1 className="text-2xl md:text-3xl font-bold">Bookmarks</h1>
             <div className="flex gap-3 w-[35%] md:w-[65%]">

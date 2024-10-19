@@ -14,7 +14,7 @@ interface TagPageProps {
 export async function generateMetadata({ params: { tag } }: TagPageProps) {
   const capitalizedTag = tag.charAt(0).toUpperCase() + tag.slice(1);
   return {
-    title: capitalizedTag + " - Devdaily",
+    title: capitalizedTag + " - Devflow",
   };
 }
 
@@ -44,7 +44,7 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
 
   return (
     <PostsContextProvider initialPage={initialPage} tag={tag}>
-      <main className="container px-0 sm:px-8 my-[0.35rem] md:my-2">
+      <main className="container  px-0 sm:px-8 my-[0.35rem] md:my-2">
         <TagInfo
           tagName={tag}
           followerCount={tagInfo.followerCount}
