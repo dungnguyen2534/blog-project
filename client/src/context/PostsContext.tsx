@@ -2,7 +2,7 @@
 
 import PostsAPI from "@/api/post";
 import { Post, PostPage } from "@/validation/schema/post";
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 
 interface PostsContextType {
   postList: Post[];
@@ -30,6 +30,7 @@ interface PostsContextType {
     React.SetStateAction<{ postId: string; likeCount: number }[]>
   >;
   isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   lastPostReached: boolean;
   pageLoadError: boolean;
   firstPageLoadError: boolean;
@@ -48,6 +49,7 @@ interface PostsContextProps {
   followedTarget?: "users" | "tags" | "all";
   saved?: boolean;
   tagList?: string[];
+  searchQuery?: string;
 }
 
 export default function PostsContextProvider({
@@ -60,6 +62,7 @@ export default function PostsContextProvider({
   followedTarget,
   saved,
   tagList,
+  searchQuery,
 }: PostsContextProps) {
   const [firstPageFetched, setFirstPageFetched] = useState(false);
   const [postList, setPostList] = useState<Post[]>(initialPage?.posts || []);
@@ -71,7 +74,12 @@ export default function PostsContextProvider({
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
 
   const [postsLikeCount, setPostsLikeCount] = useState(
-    postList.map((post) => ({ postId: post._id, likeCount: post.likeCount }))
+    saved
+      ? []
+      : postList.map((post) => ({
+          postId: post._id,
+          likeCount: post.likeCount,
+        }))
   );
 
   const [savedTagList, setSavedTagList] = useState<string[] | undefined>(
@@ -97,7 +105,16 @@ export default function PostsContextProvider({
 
   useEffect(() => {
     setFirstPageFetched(false);
-  }, [initialPage, authorId, tag, top, timeSpan, followedTarget, saved]);
+  }, [
+    initialPage,
+    authorId,
+    tag,
+    top,
+    timeSpan,
+    followedTarget,
+    saved,
+    searchQuery,
+  ]);
 
   const fetchFirstPage = useCallback(
     async (
@@ -131,7 +148,7 @@ export default function PostsContextProvider({
             `/posts?followedTarget=${followedTarget}`
           );
         } else if (saved) {
-          firstPage = await PostsAPI.getSavedPosts(tag);
+          firstPage = await PostsAPI.getSavedPosts(tag, searchQuery);
         } else {
           firstPage = await PostsAPI.getPostList(query);
         }
@@ -146,7 +163,7 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount, paramsCheck]
+    [continueAfterId, continueAfterLikeCount, paramsCheck, searchQuery]
   );
 
   const fetchNextPage = useCallback(
@@ -183,7 +200,11 @@ export default function PostsContextProvider({
             `/posts?followedTarget=${followedTarget}&continueAfterId=${continueAfterId}`
           );
         } else if (saved) {
-          nextPage = await PostsAPI.getSavedPosts(tag, continueAfterId);
+          nextPage = await PostsAPI.getSavedPosts(
+            tag,
+            searchQuery,
+            continueAfterId
+          );
 
           if (!tagList) {
             const savedTags = await PostsAPI.getSavedTags();
@@ -202,7 +223,7 @@ export default function PostsContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount, paramsCheck, tagList]
+    [continueAfterId, continueAfterLikeCount, paramsCheck, tagList, searchQuery]
   );
 
   useEffect(() => {
@@ -245,13 +266,14 @@ export default function PostsContextProvider({
   ]);
 
   useEffect(() => {
-    setPostsLikeCount(
-      postList.map((post) => ({
-        postId: post._id,
-        likeCount: post.likeCount,
-      }))
-    );
-  }, [postList, setPostsLikeCount]);
+    !saved &&
+      setPostsLikeCount(
+        postList.map((post) => ({
+          postId: post._id,
+          likeCount: post.likeCount,
+        }))
+      );
+  }, [postList, setPostsLikeCount, saved]);
 
   return (
     <PostsContext.Provider
@@ -262,6 +284,7 @@ export default function PostsContextProvider({
         fetchNextPage,
         lastPostReached,
         isLoading,
+        setIsLoading,
         pageLoadError,
         firstPageLoadError,
         postsLikeCount,

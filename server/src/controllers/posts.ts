@@ -214,6 +214,13 @@ export const updatePost: RequestHandler<
       await Promise.all([...addTagPromises, ...removeTagPromises]);
     }
 
+    if (postToUpdate.title !== title) {
+      await SavedPostModel.updateMany(
+        { postId: postToUpdate._id },
+        { postTitle: title }
+      );
+    }
+
     Object.assign(postToUpdate, {
       slug: slugify(title),
       title,

@@ -96,13 +96,14 @@ const PostsAPI = {
   },
   async getSavedPosts(
     tag?: string,
+    searchQuery?: string,
     continueAfterId?: string,
     cookie?: RequestCookie
   ) {
     const res = await http.get<PostPage>(
       `/posts/saved-posts?${tag ? "&tag=" + tag : ""}${
-        continueAfterId ? "&continueAfterId=" + continueAfterId : ""
-      }`,
+        searchQuery ? "&searchQuery=" + searchQuery : ""
+      }${continueAfterId ? "&continueAfterId=" + continueAfterId : ""}`,
       {
         headers: {
           cookie: cookie ? `${cookie.name}=${cookie.value}` : "",

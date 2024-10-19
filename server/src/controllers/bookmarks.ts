@@ -36,6 +36,7 @@ export const savePost: RequestHandler<
     const savedPost = new SavedPostModel({
       userId: authenticatedUser._id,
       postId: postId,
+      postTitle: post.title,
       tags: post.tags,
     });
 
@@ -137,14 +138,15 @@ export const getSavedPosts: RequestHandler<
 > = async (req, res, next) => {
   const authenticatedUser = req.user;
   const limit = parseInt(req.query.limit || "12");
-  const { tag, continueAfterId } = req.query;
+  const { tag, continueAfterId, searchQuery } = req.query;
 
   try {
     assertIsDefined(authenticatedUser);
 
     let query = SavedPostModel.find({
       userId: authenticatedUser._id,
-      ...(tag ? { tags: "#" + tag } : {}),
+      ...(tag && { tags: "#" + tag }),
+      ...(searchQuery && { postTitle: { $regex: searchQuery, $options: "i" } }),
     }).sort({ postId: -1 });
 
     if (continueAfterId) {

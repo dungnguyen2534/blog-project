@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils";
 import { Post } from "@/validation/schema/post";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BookmarkListSkeleton from "./BookmarkListSkeleton";
 import { Button } from "@/components/ui/button";
 import { BsThreeDots } from "react-icons/bs";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PostsAPI from "@/api/post";
 import { useToast } from "@/components/ui/use-toast";
+import { LoaderCircle } from "lucide-react";
 
 interface BookmarkListProps {
   tag?: string;
@@ -36,6 +37,7 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
     pageLoadError,
     firstPageLoadError,
     setPostList,
+    isLoading,
   } = usePostsLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
 
@@ -160,21 +162,22 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
           );
         })}
 
-      {!firstPageLoadError && !pageLoadError && !lastPostReached && (
-        <BookmarkListSkeleton skeletonCount={1} />
+      {isLoading &&
+        postList.length === 0 &&
+        noBookmarks(
+          <LoaderCircle size={24} className="animate-spin mx-auto" />
+        )}
+
+      {postList.length > 0 && !lastPostReached && (
+        <BookmarkListSkeleton skeletonCount={3} />
       )}
 
       {user &&
-        postList.length === 0 &&
         !pageLoadError &&
         !firstPageLoadError &&
-        !tag &&
-        noBookmarks("You have no bookmarks.")}
-
-      {user &&
-        tag &&
+        !isLoading &&
         postList.length === 0 &&
-        noBookmarks("You have no bookmarks with this tag.")}
+        noBookmarks("No bookmarks found.")}
 
       {!user &&
         !isLoadingUser &&
@@ -183,19 +186,23 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
 
       {firstPageLoadError &&
         noBookmarks(
-          <>
+          <div className="flex flex-col gap-2">
             Failed to load bookmarks
-            <Button onClick={handleFetchFirstPage}>Try again</Button>
-          </>
+            <Button className="w-fit mx-auto" onClick={handleFetchFirstPage}>
+              Try again
+            </Button>
+          </div>
         )}
 
       {!firstPageLoadError &&
         pageLoadError &&
         noBookmarks(
-          <>
+          <div className="flex flex-col gap-2">
             Failed to load...
-            <Button onClick={handleFetchNextPage}>Try again</Button>
-          </>
+            <Button className="w-fit mx-auto" onClick={handleFetchNextPage}>
+              Try again
+            </Button>
+          </div>
         )}
     </div>
   );

@@ -44,6 +44,7 @@ export const getSavedPostsSchema = z.object({
     tag: z.string().optional(),
     limit: z.string().optional(),
     continueAfterId: MongoIdSchema.optional(),
+    searchQuery: z.string().optional(),
   }),
 });
 

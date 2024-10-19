@@ -8,32 +8,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import usePostsLoader from "@/hooks/usePostsLoader";
-import { useRouter } from "next/navigation";
-import * as NProgress from "nprogress";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface TagSelectorProps {
   className?: string;
-  placeholder: string;
 }
 
-export default function TagSelector({
-  placeholder,
-  className,
-}: TagSelectorProps) {
-  const router = useRouter();
+export default function TagSelector({ className }: TagSelectorProps) {
+  const { savedTagList, setPostList, setIsLoading } = usePostsLoader();
 
-  const { savedTagList } = usePostsLoader();
+  const router = useRouter();
+  const params = useSearchParams();
+  const searchQuery = params.get("searchQuery");
 
   function onValueChange(value: string) {
-    NProgress.start();
-    if (value === "All") return router.replace(`/bookmarks`);
-    router.replace(`/bookmarks?tag=${value}`);
+    setIsLoading(true);
+    setPostList([]);
+    if (value === "All")
+      return router.replace(
+        `/bookmarks?${searchQuery ? `&searchQuery=${searchQuery}` : ""}`
+      );
+    router.replace(
+      `/bookmarks?tag=${value}${
+        searchQuery ? `&searchQuery=${searchQuery}` : ""
+      }`
+    );
   }
 
   return (
-    <Select onValueChange={onValueChange}>
+    <Select onValueChange={onValueChange} defaultValue="All">
       <SelectTrigger className={className}>
-        <SelectValue placeholder={placeholder} />
+        <SelectValue />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="All" className="cursor-pointer">
