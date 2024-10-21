@@ -1,21 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Button } from "../ui/button";
 import { IoChatboxOutline } from "react-icons/io5";
 import CommentForm from "./CommentForm";
-import { CommentBody, Comment as CommentType } from "@/validation/schema/post";
+import {
+  CommentBody,
+  Comment as CommentType,
+} from "@/validation/schema/article";
 import { useToast } from "../ui/use-toast";
 import { UnauthorizedError } from "@/lib/http-errors";
 import useAuth from "@/hooks/useAuth";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import LikeCommentButton from "./LikeCommentButton";
+import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 
 interface CommentActionsProps {
   comment: CommentType;
-  postId: string;
+  articleId: string;
   parentCommentId: string;
   notTopLevelComment?: boolean;
   usernameToReplyTo: string;
@@ -23,7 +27,7 @@ interface CommentActionsProps {
 
 export default function CommentActions({
   comment,
-  postId,
+  articleId,
   parentCommentId,
   notTopLevelComment,
   usernameToReplyTo,
@@ -36,7 +40,7 @@ export default function CommentActions({
 
   async function reply(comment: CommentBody) {
     try {
-      const newComment = await PostsAPI.createComment(postId, {
+      const newComment = await ArticlesAPI.createComment(articleId, {
         ...comment,
         parentCommentId,
       });
@@ -75,6 +79,7 @@ export default function CommentActions({
 
   const { user } = useAuth();
   const { showSignIn } = useAuthDialogs();
+  const isMobile = useMobileDeviceDetecter();
 
   return (
     <>
@@ -82,7 +87,7 @@ export default function CommentActions({
         {isReplying ? (
           <div className="w-full relative">
             <CommentForm
-              postId={postId}
+              articleId={articleId}
               submitFunction={reply}
               noAvatar
               autoFocus
@@ -94,6 +99,7 @@ export default function CommentActions({
                   ? `[@${usernameToReplyTo}](/users/${usernameToReplyTo}) `
                   : ""
               }
+              hideEditorGuideText={isMobile}
             />
             <Button
               variant="secondary"

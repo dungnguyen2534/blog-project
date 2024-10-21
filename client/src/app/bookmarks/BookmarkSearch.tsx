@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import usePostsLoader from "@/hooks/usePostsLoader";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +17,7 @@ export default function BookmarkSearch({
   searchQuery,
   className,
 }: BookmarkSearchProps) {
-  const { setIsLoading, setPostList } = usePostsLoader();
+  const { setIsLoading, setArticleList } = useArticlesLoader();
 
   const [searchValue, setSearchValue] = useState(searchQuery);
 
@@ -34,7 +34,7 @@ export default function BookmarkSearch({
     const query = encodeURIComponent(sanitizeInput(searchValue));
     if (searchQueryRef.current === query) return;
     timeoutRef.current = setTimeout(() => {
-      setPostList([]);
+      setArticleList([]);
       setIsLoading(true);
 
       router.replace(
@@ -57,7 +57,7 @@ export default function BookmarkSearch({
     searchQuery,
     searchQueryRef,
     setIsLoading,
-    setPostList,
+    setArticleList,
   ]);
 
   return (

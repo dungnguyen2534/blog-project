@@ -1,43 +1,46 @@
 import { RequestHandler } from "express";
-import PostModel from "../models/post";
-import SavedPostModel from "../models/savedPost";
+import ArticleModel from "../models/article";
+import SavedArticleModel from "../models/savedArticle";
 import assertIsDefined from "../utils/assertIsDefined";
-import { getSavedPostsQuery, savePostsParams } from "../validation/posts";
+import {
+  getSavedArticlesQuery,
+  saveArticlesParams,
+} from "../validation/articles";
 import UserTagsModel from "../models/userTags";
 import LikeModel from "../models/like";
 import FollowerModel from "../models/follower";
 
-export const savePost: RequestHandler<
-  savePostsParams,
+export const saveArticle: RequestHandler<
+  saveArticlesParams,
   unknown,
   unknown,
   unknown
 > = async (req, res, next) => {
-  const { postId } = req.params;
+  const { articleId } = req.params;
   const authenticatedUser = req.user;
 
   try {
     assertIsDefined(authenticatedUser);
 
-    const post = await PostModel.findById(postId);
-    if (!post) {
-      return res.status(404).send("Post not found");
+    const article = await ArticleModel.findById(articleId);
+    if (!article) {
+      return res.status(404).send("Article not found");
     }
 
-    const existingSavedPost = await SavedPostModel.findOne({
+    const existingSavedArticle = await SavedArticleModel.findOne({
       userId: authenticatedUser._id,
-      postId: postId,
+      articleId: articleId,
     });
 
-    if (existingSavedPost) {
+    if (existingSavedArticle) {
       return res.sendStatus(204);
     }
 
-    const savedPost = new SavedPostModel({
+    const savedArticle = new SavedArticleModel({
       userId: authenticatedUser._id,
-      postId: postId,
-      postTitle: post.title,
-      tags: post.tags,
+      articleId: articleId,
+      articleTitle: article.title,
+      tags: article.tags,
     });
 
     const savedTags = (
@@ -45,7 +48,7 @@ export const savePost: RequestHandler<
     )?.savedTags;
 
     const savedTagsSet = new Set(savedTags);
-    const uniqueTags = post.tags.filter((tag) => !savedTagsSet.has(tag));
+    const uniqueTags = article.tags.filter((tag) => !savedTagsSet.has(tag));
 
     if (uniqueTags.length > 0) {
       await UserTagsModel.updateOne(
@@ -55,33 +58,33 @@ export const savePost: RequestHandler<
       );
     }
 
-    await savedPost.save();
+    await savedArticle.save();
     res.sendStatus(200);
   } catch (error) {
     next(error);
   }
 };
 
-export const unsavePost: RequestHandler<
-  savePostsParams,
+export const unsaveArticle: RequestHandler<
+  saveArticlesParams,
   unknown,
   unknown,
   unknown
 > = async (req, res, next) => {
-  const { postId } = req.params;
+  const { articleId } = req.params;
   const authenticatedUser = req.user;
 
   try {
     assertIsDefined(authenticatedUser);
 
-    const post = await PostModel.findById(postId);
-    if (!post) {
-      return res.status(404).send("Post not found");
+    const article = await ArticleModel.findById(articleId);
+    if (!article) {
+      return res.status(404).send("Article not found");
     }
 
-    const deleteResult = await SavedPostModel.deleteOne({
+    const deleteResult = await SavedArticleModel.deleteOne({
       userId: authenticatedUser._id,
-      postId: postId,
+      articleId: articleId,
     });
 
     if (deleteResult.deletedCount === 0) {
@@ -94,7 +97,7 @@ export const unsavePost: RequestHandler<
 
     const remainingTags = await Promise.all(
       savedTags?.map(async (tag) => {
-        const hasTag = await SavedPostModel.exists({
+        const hasTag = await SavedArticleModel.exists({
           userId: authenticatedUser._id,
           tags: tag,
         });
@@ -130,11 +133,11 @@ export const getSavedTags: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getSavedPosts: RequestHandler<
+export const getSavedArticles: RequestHandler<
   unknown,
   unknown,
   unknown,
-  getSavedPostsQuery
+  getSavedArticlesQuery
 > = async (req, res, next) => {
   const authenticatedUser = req.user;
   const limit = parseInt(req.query.limit || "12");
@@ -143,76 +146,78 @@ export const getSavedPosts: RequestHandler<
   try {
     assertIsDefined(authenticatedUser);
 
-    let query = SavedPostModel.find({
+    let query = SavedArticleModel.find({
       userId: authenticatedUser._id,
       ...(tag && { tags: "#" + tag }),
-      ...(searchQuery && { postTitle: { $regex: searchQuery, $options: "i" } }),
-    }).sort({ postId: -1 });
+      ...(searchQuery && {
+        articleTitle: { $regex: searchQuery, $options: "i" },
+      }),
+    }).sort({ articleId: -1 });
 
     if (continueAfterId) {
-      query = query.lt("postId", continueAfterId);
+      query = query.lt("articleId", continueAfterId);
     }
 
-    const savedPosts = await query
+    const savedArticles = await query
       .limit(limit + 1)
       .lean()
       .exec();
 
-    const lastPostReached = savedPosts.length <= limit;
+    const lastArticleReached = savedArticles.length <= limit;
 
-    const postIds = savedPosts
+    const articleIds = savedArticles
       .slice(0, limit)
-      .map((savedPost) => savedPost.postId);
+      .map((savedArticle) => savedArticle.articleId);
 
-    const postList = await PostModel.find({ _id: { $in: postIds } })
+    const articleList = await ArticleModel.find({ _id: { $in: articleIds } })
       .sort({ _id: -1 })
       .populate("author")
       .lean()
       .exec();
 
-    const postsWithStatus = await Promise.all(
-      postList.map(async (post) => {
+    const articlesWithStatus = await Promise.all(
+      articleList.map(async (article) => {
         const [
-          isUserLikedPost,
+          isUserLikedArticle,
           isLoggedInUserFollowing,
           likeCount,
-          isSavedPost,
+          isSavedArticle,
         ] = await Promise.all([
           LikeModel.exists({
             userId: authenticatedUser._id,
-            targetType: "post",
-            targetId: post._id,
+            targetType: "article",
+            targetId: article._id,
           }),
           FollowerModel.exists({
-            user: post.author._id,
+            user: article.author._id,
             follower: authenticatedUser._id,
           }),
           LikeModel.countDocuments({
-            targetId: post._id,
-            targetType: "post",
+            targetId: article._id,
+            targetType: "article",
           }),
-          SavedPostModel.exists({
+          SavedArticleModel.exists({
             userId: authenticatedUser._id,
-            postId: post._id,
+            articleId: article._id,
           }),
         ]);
 
         return {
-          ...post,
+          ...article,
           likeCount,
           ...(authenticatedUser && {
-            isLoggedInUserLiked: !!isUserLikedPost,
+            isLoggedInUserLiked: !!isUserLikedArticle,
             author: {
-              ...post.author,
+              ...article.author,
               isLoggedInUserFollowing: !!isLoggedInUserFollowing,
             },
           }),
-          ...(authenticatedUser && { isSavedPost: !!isSavedPost }),
+          ...(authenticatedUser && { isSavedArticle: !!isSavedArticle }),
         };
       })
     );
 
-    res.status(200).json({ posts: postsWithStatus, lastPostReached });
+    res.status(200).json({ articles: articlesWithStatus, lastArticleReached });
   } catch (error) {
     next(error);
   }

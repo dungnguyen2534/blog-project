@@ -2,31 +2,34 @@ import express from "express";
 import * as BookmarksController from "../controllers/bookmarks";
 import requireAuth from "../middlewares/requireAuth";
 import validateRequest from "../middlewares/validateRequest";
-import { getSavedPostsSchema, savePostsSchema } from "../validation/posts";
+import {
+  getSavedArticlesSchema,
+  saveArticlesSchema,
+} from "../validation/articles";
 
 const router = express.Router({ mergeParams: true });
 
 router.post(
-  "/:postId/save",
+  "/:articleId/save",
   requireAuth,
-  validateRequest(savePostsSchema),
-  BookmarksController.savePost
+  validateRequest(saveArticlesSchema),
+  BookmarksController.saveArticle
 );
 
 router.delete(
-  "/:postId/unsave",
+  "/:articleId/unsave",
   requireAuth,
-  validateRequest(savePostsSchema),
-  BookmarksController.unsavePost
+  validateRequest(saveArticlesSchema),
+  BookmarksController.unsaveArticle
 );
 
 router.get("/saved-tags", requireAuth, BookmarksController.getSavedTags);
 
 router.get(
-  "/saved-posts",
+  "/saved-articles",
   requireAuth,
-  validateRequest(getSavedPostsSchema),
-  BookmarksController.getSavedPosts
+  validateRequest(getSavedArticlesSchema),
+  BookmarksController.getSavedArticles
 );
 
 export default router;

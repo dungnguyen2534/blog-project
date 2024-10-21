@@ -14,7 +14,7 @@ import UserAPI from "@/api/user";
 import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import {
   Dialog,
   DialogContent,
@@ -49,7 +49,7 @@ export default function SignedInView({
     setIsSigningOut(true);
 
     try {
-      await PostsAPI.deleteUnusedImages();
+      await ArticlesAPI.deleteUnusedImages();
       await UserAPI.signout();
       setAuthenticatedUserSSR(undefined);
       mutateUser(null);
@@ -67,12 +67,14 @@ export default function SignedInView({
   return (
     <>
       {user?.username &&
-        !(pathname === "/posts/create-post" || pathname === "/onboarding") && (
+        !(
+          pathname === "/articles/create-article" || pathname === "/onboarding"
+        ) && (
           <Button
             asChild
             variant="outline"
             className="hidden md:block border-2">
-            <Link href="/posts/create-post">Create post</Link>
+            <Link href="/articles/create-article">Create article</Link>
           </Button>
         )}
 

@@ -18,5 +18,5 @@ const tempImageSchema = new Schema({
 tempImageSchema.index({ userId: 1 });
 tempImageSchema.index({ temporary: 1 });
 
-type Post = InferSchemaType<typeof tempImageSchema>;
-export default model<Post>("TempImage", tempImageSchema);
+type Article = InferSchemaType<typeof tempImageSchema>;
+export default model<Article>("TempImage", tempImageSchema);

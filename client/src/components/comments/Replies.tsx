@@ -4,15 +4,15 @@ import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Dispatch, useCallback, useEffect, useState } from "react";
 import LoadingButton from "../LoadingButton";
 import Comment from "./Comment";
-import { Comment as CommentType } from "@/validation/schema/post";
-import PostsAPI from "@/api/post";
+import { Comment as CommentType } from "@/validation/schema/article";
+import ArticlesAPI from "@/api/article";
 
 interface RepliesProps {
-  postId: string;
+  articleId: string;
   parentCommentId: string;
 }
 
-export default function Replies({ postId, parentCommentId }: RepliesProps) {
+export default function Replies({ articleId, parentCommentId }: RepliesProps) {
   const {
     replyPages,
     setReplyPages,
@@ -65,10 +65,10 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
       continueAfterId: string,
       limit?: number
     ) => {
-      const query = `posts/${postId}/comments?parentCommentId=${parentCommentId}&continueAfterId=${continueAfterId}&limit=${limit}`;
+      const query = `articles/${articleId}/comments?parentCommentId=${parentCommentId}&continueAfterId=${continueAfterId}&limit=${limit}`;
       setIsLoading(true);
       try {
-        const nextPage = await PostsAPI.getCommentList(postId, query);
+        const nextPage = await ArticlesAPI.getCommentList(articleId, query);
         setReplyPages((prevReplyPage) => [...prevReplyPage, nextPage]);
         setReplies((prevReplies) => [...prevReplies, ...nextPage.comments]);
 
@@ -88,7 +88,7 @@ export default function Replies({ postId, parentCommentId }: RepliesProps) {
         setIsLoading(false);
       }
     },
-    [postId, setReplyPages, setReplies, setNewLocalReplies]
+    [articleId, setReplyPages, setReplies, setNewLocalReplies]
   );
 
   const repliesToShow = replies.filter(

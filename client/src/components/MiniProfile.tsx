@@ -14,7 +14,6 @@ import { Button } from "./ui/button";
 import FollowButton from "./FollowButton";
 import { usePathname } from "next/navigation";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
-import revalidateCachedData from "@/lib/revalidate";
 
 interface MiniProfileProps {
   children: React.ReactNode;
@@ -52,9 +51,6 @@ export default function MiniProfile({
           <TooltipContent>
             <div className="w-56 py-1">
               <Link
-                onClick={() =>
-                  revalidateCachedData("/users/" + author.username)
-                }
                 href={"/users/" + author.username}
                 className="flex gap-2 items-center mb-2">
                 <UserAvatar
@@ -83,12 +79,7 @@ export default function MiniProfile({
                     variant="secondary"
                   />
                 ) : (
-                  <Button
-                    onClick={() =>
-                      revalidateCachedData("/users/" + author.username)
-                    }
-                    asChild
-                    variant="secondary">
+                  <Button asChild variant="secondary">
                     <Link href={`/users/${author.username}`}>Your Profile</Link>
                   </Button>
                 )}

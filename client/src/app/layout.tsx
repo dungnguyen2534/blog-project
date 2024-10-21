@@ -40,7 +40,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className="overflow-x-hidden scrollbar-thin scrollbar-track-transparent scrollbar-thumb-neutral-400 scroll-smooth">
       <body className={`${inter.className} primary-color w-[calc(100vw-1px)]`}>
-        <NextTopLoader height={1} showSpinner={false} />
+        <NextTopLoader height={1.2} showSpinner={false} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -50,7 +50,7 @@ export default async function RootLayout({
             <AuthDialogsProvider>
               <MiniProfilesContextProvider>
                 <Navbar authenticatedUser={authenticatedUser} />
-                {children}
+                <main className="mt-16">{children}</main>
                 <Toaster />
                 <Suspense fallback={null}>
                   <NavigationEvents />

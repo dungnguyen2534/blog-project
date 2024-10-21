@@ -6,7 +6,7 @@ import { PiHeart, PiHeartFill } from "react-icons/pi";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import useAuth from "@/hooks/useAuth";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 
 interface LikeCommentButtonProps {
   initialLikeCount?: number;
@@ -67,10 +67,11 @@ export default function LikeCommentButton({
       try {
         let newLikeCount;
         if (!newLiked) {
-          newLikeCount = (await PostsAPI.unlike(commentId, "comment"))
+          newLikeCount = (await ArticlesAPI.unlike(commentId, "comment"))
             .totalLikes;
         } else {
-          newLikeCount = (await PostsAPI.like(commentId, "comment")).totalLikes;
+          newLikeCount = (await ArticlesAPI.like(commentId, "comment"))
+            .totalLikes;
         }
 
         setCommentsLikeCount((prevCounts) =>

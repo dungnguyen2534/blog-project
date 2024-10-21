@@ -20,7 +20,7 @@ const TagsAPI = {
     return res.payload;
   },
   async followTag(tagName: string) {
-    const res = await http.post<{ followerCount: number }>(
+    const res = await http.article<{ followerCount: number }>(
       `/tags/${tagName}/follow`
     );
     return res.payload;

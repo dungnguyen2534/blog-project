@@ -144,7 +144,7 @@ export const getTags: RequestHandler<
   const authenticatedUser = req.user;
 
   try {
-    let query = TagModel.find().sort({ postCount: -1 });
+    let query = TagModel.find().sort({ articleCount: -1 });
 
     if (continueAfterId) {
       query = query.lt("_id", continueAfterId);

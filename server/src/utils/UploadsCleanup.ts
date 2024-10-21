@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import tempImageModel from "../models/tempImage";
 
-const UPLOADS_FOLDER = path.join(__dirname, "../../uploads/in-post-images");
+const UPLOADS_FOLDER = path.join(__dirname, "../../uploads/in-article-images");
 const FILE_AGE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
 
 export default async function uploadsCleanup() {

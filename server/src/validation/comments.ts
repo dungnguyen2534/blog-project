@@ -3,7 +3,7 @@ import { CommentBodySchema, ImageSchema, MongoIdSchema } from "./utils";
 
 export const createCommentSchema = z.object({
   params: z.object({
-    postId: MongoIdSchema,
+    articleId: MongoIdSchema,
   }),
   body: z.object({
     parentCommentId: MongoIdSchema.optional(),
@@ -26,7 +26,7 @@ export const deleteCommentSchema = z.object({
 
 export const getCommentsSchema = z.object({
   params: z.object({
-    postId: MongoIdSchema,
+    articleId: MongoIdSchema,
   }),
   query: z.object({
     parentCommentId: MongoIdSchema.optional(),

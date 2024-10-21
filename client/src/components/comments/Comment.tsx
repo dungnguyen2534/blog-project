@@ -3,7 +3,7 @@
 import type {
   Comment as CommentType,
   CommentBody,
-} from "@/validation/schema/post";
+} from "@/validation/schema/article";
 import MarkdownRenderer from "../MarkdownRenderer";
 import UserAvatar from "../UserAvatar";
 import CommentOptions from "./CommentOptions";
@@ -17,7 +17,7 @@ import CommentForm from "./CommentForm";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { useToast } from "../ui/use-toast";
 import { extractImageUrls } from "@/lib/utils";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { Button } from "../ui/button";
 import CommentActions from "./CommentActions";
@@ -51,7 +51,7 @@ export default function Comment({
 
   const { user } = useAuth();
   const isAuthor = comment.author._id === user?._id;
-  const postId = comment.postId;
+  const articleId = comment.articleId;
   const commentId = comment._id;
 
   const { toast } = useToast();
@@ -63,7 +63,7 @@ export default function Comment({
     const images = extractImageUrls(comment.body);
 
     try {
-      const newComment = await PostsAPI.editComment(postId, commentId, {
+      const newComment = await ArticlesAPI.editComment(articleId, commentId, {
         body: comment.body,
         images,
       });
@@ -102,12 +102,12 @@ export default function Comment({
       <UserAvatar
         username={comment.author.username}
         profilePicUrl={comment.author.profilePicPath}
-        className="mt-2 w-11 h-11"
+        className="mt-3 w-10 h-10  sm:mt-2 sm:w-11 sm:h-11"
       />
       {isEditing ? (
         <div className="flex-grow relative">
           <CommentForm
-            postId={comment.postId}
+            articleId={comment.articleId}
             submitFunction={onEditComment}
             defaultValue={comment.body}
             noAvatar
@@ -129,7 +129,7 @@ export default function Comment({
         <div className="flex-grow flex flex-col">
           <div
             ref={heightRef}
-            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-sm px-5">
+            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-md px-5">
             <CommentOptions
               comment={comment}
               onDeleteReply={replyComment ? onDeleteReply : undefined}>
@@ -162,12 +162,12 @@ export default function Comment({
           </div>
           <CommentActions
             comment={comment}
-            postId={postId}
+            articleId={articleId}
             parentCommentId={topLevelCommentId}
             notTopLevelComment={notTopLevelComment}
             usernameToReplyTo={comment.author.username}
           />
-          <Replies postId={postId} parentCommentId={comment._id} />
+          <Replies articleId={articleId} parentCommentId={comment._id} />
         </div>
       )}
     </div>

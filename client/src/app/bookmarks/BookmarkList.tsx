@@ -1,16 +1,14 @@
 "use client";
 
-import PostTags from "@/components/posts/PostTags";
 import useAuth from "@/hooks/useAuth";
-import usePostsLoader from "@/hooks/usePostsLoader";
 import {
   calculateReadingTime,
   formatDate,
   formatUpdatedDate,
 } from "@/lib/utils";
-import { Post } from "@/validation/schema/post";
+import { Article } from "@/validation/schema/article";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import BookmarkListSkeleton from "./BookmarkListSkeleton";
 import { Button } from "@/components/ui/button";
 import { BsThreeDots } from "react-icons/bs";
@@ -20,9 +18,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import { useToast } from "@/components/ui/use-toast";
 import { LoaderCircle } from "lucide-react";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import ArticleTags from "@/components/articles/ArticleTags";
 
 interface BookmarkListProps {
   tag?: string;
@@ -30,15 +30,15 @@ interface BookmarkListProps {
 
 export default function BookmarkList({ tag }: BookmarkListProps) {
   const {
-    postList,
+    articleList,
     fetchFirstPage,
     fetchNextPage,
-    lastPostReached,
+    lastArticleReached,
     pageLoadError,
     firstPageLoadError,
-    setPostList,
+    setArticleList,
     isLoading,
-  } = usePostsLoader();
+  } = useArticlesLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
 
   const handleFetchFirstPage = useCallback(() => {
@@ -49,32 +49,32 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
     fetchNextPage(undefined, tag, 12, undefined, undefined, undefined, true);
   }, [fetchNextPage, tag]);
 
-  const postRef = useCallback(
-    (postEntry: HTMLElement | null) => {
-      if (!postEntry || lastPostReached) return;
+  const articleRef = useCallback(
+    (articleEntry: HTMLElement | null) => {
+      if (!articleEntry || lastArticleReached) return;
 
       const observer = new IntersectionObserver(
         async (entries) => {
           if (entries[0].isIntersecting) {
             handleFetchNextPage();
-            observer.unobserve(postEntry);
+            observer.unobserve(articleEntry);
           }
         },
         { rootMargin: "150px" }
       );
 
-      observer.observe(postEntry);
+      observer.observe(articleEntry);
     },
-    [handleFetchNextPage, lastPostReached]
+    [handleFetchNextPage, lastArticleReached]
   );
 
   const { toast } = useToast();
 
-  async function removeBookmark(postId: string) {
+  async function removeBookmark(articleId: string) {
     try {
-      PostsAPI.unsavePost(postId);
-      setPostList((prevPostList) =>
-        prevPostList.filter((post) => post._id !== postId)
+      ArticlesAPI.unsaveArticle(articleId);
+      setArticleList((prevArticleList) =>
+        prevArticleList.filter((article) => article._id !== articleId)
       );
     } catch {
       toast({
@@ -84,24 +84,24 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
     }
   }
 
-  function postDate(post: Post) {
-    let postDate;
-    if (!(post.createdAt !== post.updatedAt)) {
-      postDate = (
-        <time suppressHydrationWarning dateTime={post.createdAt}>
-          {formatDate(post.createdAt, false)}
+  function articleDate(article: Article) {
+    let articleDate;
+    if (!(article.createdAt !== article.updatedAt)) {
+      articleDate = (
+        <time suppressHydrationWarning dateTime={article.createdAt}>
+          {formatDate(article.createdAt, false)}
         </time>
       );
     } else {
-      postDate = (
-        <time suppressHydrationWarning dateTime={post.createdAt}>
-          {`${formatDate(post.createdAt, false)} - ${formatUpdatedDate(
-            post.updatedAt
+      articleDate = (
+        <time suppressHydrationWarning dateTime={article.createdAt}>
+          {`${formatDate(article.createdAt, false)} - ${formatUpdatedDate(
+            article.updatedAt
           )}`}
         </time>
       );
     }
-    return postDate;
+    return articleDate;
   }
 
   function noBookmarks(content: React.ReactNode) {
@@ -114,38 +114,40 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
 
   return (
     <div>
-      {postList.length > 0 &&
-        postList.map((post, index) => {
+      {articleList.length > 0 &&
+        articleList.map((article, index) => {
           return (
             <article
-              key={post._id}
-              ref={index === postList.length - 1 ? postRef : null}
-              className="relative bg-white dark:bg-neutral-900 rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 ring-1 ring-[#f1f1f1] dark:ring-neutral-900 overflow-hidden break-words">
-              <Link href={"/posts/" + post.slug}>
-                <h2 className="text-lg md:text-xl font-bold">{post.title}</h2>
-                {post.summary && (
+              key={article._id}
+              ref={index === articleList.length - 1 ? articleRef : null}
+              className="relative bg-white dark:bg-neutral-900 rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 ring-1 ring-[#f4f4f4] dark:ring-neutral-900 overflow-hidden break-words">
+              <Link href={"/articles/" + article.slug}>
+                <h2 className="text-lg md:text-xl font-bold">
+                  {article.title}
+                </h2>
+                {article.summary && (
                   <p className="line-clamp-2 break-words my-1 text-sm text-neutral-600 dark:text-neutral-400">
-                    {post.summary}
+                    {article.summary}
                   </p>
                 )}
               </Link>
 
-              <PostTags className="!mt-0 my-1" tags={post.tags} />
+              <ArticleTags className="!mt-0 my-1" tags={article.tags} />
               <div className="font-medium text-sm flex items-center gap-1">
                 <Link
-                  href={`/users/${post.author.username}`}
+                  href={`/users/${article.author.username}`}
                   className="hover:underline">
-                  {post.author.username}
+                  {article.author.username}
                 </Link>
                 <div className="flex items-center gap-3">
                   <div className="text-muted-foreground text-xs mt-[0.1rem]">
-                    <span> • {postDate(post)},</span>{" "}
-                    <span>{calculateReadingTime(post.body)} min read</span>
+                    <span> • {articleDate(article)},</span>{" "}
+                    <span>{calculateReadingTime(article.body)} min read</span>
                   </div>
                 </div>
               </div>
               <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild aria-label="Post options">
+                <DropdownMenuTrigger asChild aria-label="Article options">
                   <div className="absolute top-1 right-2 text-muted-foreground rounded-full transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-700 dark:hover:text-neutral-100 p-2 cursor-pointer">
                     <BsThreeDots size={20} />
                   </div>
@@ -153,7 +155,7 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
                 <DropdownMenuContent className="min-w-0">
                   <DropdownMenuItem
                     className="px-3 cursor-pointer"
-                    onClick={() => removeBookmark(post._id)}>
+                    onClick={() => removeBookmark(article._id)}>
                     Remove bookmark
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -163,12 +165,12 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
         })}
 
       {isLoading &&
-        postList.length === 0 &&
+        articleList.length === 0 &&
         noBookmarks(
           <LoaderCircle size={24} className="animate-spin mx-auto" />
         )}
 
-      {postList.length > 0 && !lastPostReached && (
+      {articleList.length > 0 && !lastArticleReached && (
         <BookmarkListSkeleton skeletonCount={3} />
       )}
 
@@ -176,7 +178,7 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
         !pageLoadError &&
         !firstPageLoadError &&
         !isLoading &&
-        postList.length === 0 &&
+        articleList.length === 0 &&
         noBookmarks("No bookmarks found.")}
 
       {!user &&

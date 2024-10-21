@@ -1,4 +1,6 @@
-import React, { SetStateAction, useState } from "react";
+"use client";
+
+import React, { SetStateAction, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { RxHamburgerMenu } from "react-icons/rx";
@@ -25,11 +27,16 @@ export default function MobileMenu({
   username,
   setOpenDialog,
 }: MobileMenuProps) {
-  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const { user, isLoadingUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const [openMenu, setOpenMenu] = useState(false);
 
-  const newTheme = theme === "dark" ? "light" : "dark";
+  const newTheme = theme === "light" ? "dark" : "light";
   const toggleTheme = () => {
     setTheme(newTheme);
   };
@@ -37,7 +44,10 @@ export default function MobileMenu({
   return (
     <Sheet open={openMenu} onOpenChange={setOpenMenu}>
       <SheetTrigger className="relative md:hidden sm:my-0 p-1 px-2">
-        <RxHamburgerMenu size={40} />
+        <RxHamburgerMenu
+          size={40}
+          className={isLoadingUser ? "text-muted-foreground" : ""}
+        />
       </SheetTrigger>
 
       <SheetContent className="[&>*]:w-full [&>button]:hidden flex flex-col items-end">
@@ -47,7 +57,13 @@ export default function MobileMenu({
         </SheetHeader>
         <div className="flex justify-between">
           <div className="-mt-3 flex gap-3 items-center">
-            <Switch checked={theme === "dark"} onCheckedChange={toggleTheme} />
+            {mounted && (
+              <Switch
+                checked={theme === "light"}
+                onCheckedChange={toggleTheme}
+              />
+            )}
+
             <div>
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 block transition-all dark:-rotate-90 dark:hidden" />
               <Moon className="h-[1.2rem] w-[1.2rem] rotate-90 hidden transition-all dark:rotate-0 dark:block" />
@@ -66,8 +82,8 @@ export default function MobileMenu({
             <>
               <Link
                 onClick={() => setOpenMenu(false)}
-                href="/posts/create-post">
-                Create post
+                href="/articles/create-article">
+                Create article
               </Link>
               <hr className="my-5" />
               <Link

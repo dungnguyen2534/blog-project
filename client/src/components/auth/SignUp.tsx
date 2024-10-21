@@ -5,7 +5,11 @@ import FormWrapper from "../form/FormWrapper";
 import OTPInput from "../form/OTPInput";
 import LoadingButton from "../LoadingButton";
 import SocialSignin from "./SocialSignin";
-import { BadRequestError, ConflictError } from "@/lib/http-errors";
+import {
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+} from "@/lib/http-errors";
 import useCountDown from "@/hooks/useCountDown";
 import { useState } from "react";
 import { useToast } from "../ui/use-toast";
@@ -41,7 +45,11 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
       router.refresh();
     } catch (error) {
       setIsLoading(false);
-      if (error instanceof ConflictError || error instanceof BadRequestError) {
+      if (
+        error instanceof ConflictError ||
+        error instanceof BadRequestError ||
+        error instanceof NotFoundError
+      ) {
         toast({
           title: error.message,
         });

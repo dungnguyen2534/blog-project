@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { validateBufferMIMEType } from "validate-image-type";
 import { z } from "zod";
 
-export const PostBodySchema = z.object({
+export const ArticleBodySchema = z.object({
   title: z.string().min(1).max(150, "Title should be less than 150 characters"),
   body: z.string().min(1, "Body is required"),
   tags: z

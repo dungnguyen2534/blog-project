@@ -1,5 +1,5 @@
 import LikeModel from "../models/like";
-import PostModel from "../models/post";
+import ArticleModel from "../models/article";
 import CommentModel from "../models/comment";
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
@@ -20,8 +20,8 @@ export const likeTarget: RequestHandler<
     const userId = authenticatedUser._id;
 
     const targetModel =
-      targetType === "post"
-        ? PostModel
+      targetType === "article"
+        ? ArticleModel
         : targetType === "comment"
         ? CommentModel
         : null;
@@ -30,7 +30,7 @@ export const likeTarget: RequestHandler<
     }
 
     const [target, existingLike] = await Promise.all([
-      (targetModel as typeof PostModel & typeof CommentModel).findById(
+      (targetModel as typeof ArticleModel & typeof CommentModel).findById(
         targetId
       ),
       LikeModel.findOne({ userId, targetType, targetId }),
@@ -40,10 +40,10 @@ export const likeTarget: RequestHandler<
 
     if (!existingLike) {
       await LikeModel.create({ userId, targetType, targetId });
-      if (targetType === "post") {
+      if (targetType === "article") {
         console.log(targetId);
 
-        await PostModel.updateOne(
+        await ArticleModel.updateOne(
           { _id: targetId },
           {
             $inc: { likeCount: 1 },
@@ -90,8 +90,8 @@ export const unlikeTarget: RequestHandler<
     const userId = authenticatedUser._id;
 
     const targetModel =
-      targetType === "post"
-        ? PostModel
+      targetType === "article"
+        ? ArticleModel
         : targetType === "comment"
         ? CommentModel
         : null;
@@ -100,7 +100,7 @@ export const unlikeTarget: RequestHandler<
     }
 
     const [target, existingLike] = await Promise.all([
-      (targetModel as typeof PostModel & typeof CommentModel).findById(
+      (targetModel as typeof ArticleModel & typeof CommentModel).findById(
         targetId
       ),
       LikeModel.findOne({ userId, targetType, targetId }),
@@ -110,8 +110,8 @@ export const unlikeTarget: RequestHandler<
 
     if (existingLike) {
       await LikeModel.deleteOne({ userId, targetType, targetId });
-      if (targetType === "post") {
-        await PostModel.updateOne(
+      if (targetType === "article") {
+        await ArticleModel.updateOne(
           { _id: targetId },
           {
             $inc: { likeCount: -1 },

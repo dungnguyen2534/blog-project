@@ -21,7 +21,7 @@ export const OTPRateLimiter = rateLimit({
   skipFailedRequests: true,
 });
 
-export const createPostLimiter = rateLimit({
+export const createArticleLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,
 
@@ -31,7 +31,7 @@ export const createPostLimiter = rateLimit({
   skipFailedRequests: true,
 });
 
-export const updatePostLimiter = rateLimit({
+export const updateArticleLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 60,
 
