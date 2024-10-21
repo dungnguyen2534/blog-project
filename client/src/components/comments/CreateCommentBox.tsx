@@ -1,18 +1,18 @@
 "use client";
 
-import { CommentBody, CommentBodySchema } from "@/validation/schema/post";
+import { CommentBody, CommentBodySchema } from "@/validation/schema/article";
 import CommentForm from "./CommentForm";
 import { extractImageUrls } from "@/lib/utils";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 
 interface CreateCommentBoxProps {
-  postId: string;
+  articleId: string;
 }
 
-export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
+export default function CreateCommentBox({ articleId }: CreateCommentBoxProps) {
   const { setCommentList, setCommentCount } = useCommentsLoader();
   const { toast } = useToast();
 
@@ -20,7 +20,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
     const images = extractImageUrls(comment.body);
 
     try {
-      const newComment = await PostsAPI.createComment(postId, {
+      const newComment = await ArticlesAPI.createComment(articleId, {
         body: comment.body,
         images,
       });
@@ -31,7 +31,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
       if (error instanceof UnauthorizedError) {
         toast({
           title: "Unauthorized",
-          description: "You need to login to post a comment",
+          description: "You need to login to article a comment",
         });
       } else {
         toast({
@@ -44,7 +44,7 @@ export default function CreateCommentBox({ postId }: CreateCommentBoxProps) {
 
   return (
     <CommentForm
-      postId={postId}
+      articleId={articleId}
       submitFunction={onCreateComment}
       height="10rem"
     />

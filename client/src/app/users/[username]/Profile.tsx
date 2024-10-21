@@ -5,12 +5,12 @@ import useAuth from "@/hooks/useAuth";
 import { formatDate } from "@/lib/utils";
 import { User } from "@/validation/schema/user";
 import ProfileEditor from "./ProfileEditor";
-import PostList from "@/components/posts/PostList";
-import { TfiWrite } from "react-icons/tfi";
+import { PiPencilLine } from "react-icons/pi";
 import { BsPeople } from "react-icons/bs";
 import FollowButton from "@/components/FollowButton";
 import { useState } from "react";
 import { PiCake } from "react-icons/pi";
+import ArticleList from "@/components/articles/ArticleList";
 
 interface ProfileProps {
   user: User;
@@ -25,7 +25,7 @@ export default function Profile({ user }: ProfileProps) {
 
   return (
     <>
-      <main className="secondary-container p-3 md:mt-[0.5rem] md:p-7 md:pb-5 rounded-none md:rounded-md ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
+      <div className="secondary-container p-3 md:mt-[0.5rem] md:p-7 md:pb-5 rounded-none md:rounded-md ring-1 ring-[#f4f4f4] dark:ring-neutral-950">
         <div className="relative flex gap-3 flex-col md:items-center">
           {loggedInUser && (
             <div className="absolute top-1 right-1 md:-top-4 md:-right-4">
@@ -47,6 +47,8 @@ export default function Profile({ user }: ProfileProps) {
             username={user.username}
             profilePicUrl={user.profilePicPath}
             className="h-24 w-24 sm:w-36 sm:h-36"
+            width={144}
+            height={144}
           />
 
           <div className="flex flex-col gap-2 md:text-center">
@@ -60,9 +62,9 @@ export default function Profile({ user }: ProfileProps) {
 
             <div className="flex gap-4 mt-1 text-sm md:justify-around">
               <div className="text-muted-foreground flex gap-1 items-center md:justify-center ml-[0.05rem] sm:ml-0">
-                <TfiWrite size={18} className="mb-[0.2rem]" />
-                {user.totalPosts} {user.totalPosts !== 1 ? "Posts" : "Post"}{" "}
-                <span className="hidden sm:inline">written</span>
+                <PiPencilLine size={22} className="mb-[0.1rem]" />
+                {user.totalArticles}{" "}
+                {user.totalArticles !== 1 ? "Articles" : "Article"}
               </div>
 
               <div className="text-muted-foreground flex gap-1 items-center md:justify-center">
@@ -80,10 +82,10 @@ export default function Profile({ user }: ProfileProps) {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       <div className="container px-0 my-[0.35rem] md:my-2">
-        <PostList author={user} key={user._id} />
+        <ArticleList author={user} key={user._id} />
       </div>
     </>
   );

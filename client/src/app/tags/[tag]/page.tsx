@@ -1,7 +1,7 @@
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import TagsAPI from "@/api/tag";
-import PostList from "@/components/posts/PostList";
-import PostsContextProvider from "@/context/PostsContext";
+import ArticleList from "@/components/articles/ArticleList";
+import ArticlesContextProvider from "@/context/ArticlesContext";
 import { NotFoundError } from "@/lib/http-errors";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -36,23 +36,26 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
 
   if (tagInfo) {
     try {
-      initialPage = await PostsAPI.getPostList(`/posts?tag=${tag}`, userCookie);
+      initialPage = await ArticlesAPI.getArticleList(
+        `/articles?tag=${tag}`,
+        userCookie
+      );
     } catch {
       initialPage = undefined;
     }
   }
 
   return (
-    <PostsContextProvider initialPage={initialPage} tag={tag}>
-      <main className="container  px-0 sm:px-8 my-[0.35rem] md:my-2">
+    <ArticlesContextProvider initialPage={initialPage} tag={tag}>
+      <div className="container px-0 sm:px-8 my-[0.35rem] md:my-2">
         <TagInfo
           tagName={tag}
           followerCount={tagInfo.followerCount}
-          postCount={tagInfo.postCount}
+          articleCount={tagInfo.articleCount}
           isLoggedInUserFollowing={tagInfo.isLoggedInUserFollowing}
         />
-        <PostList tag={tag} />
-      </main>
-    </PostsContextProvider>
+        <ArticleList tag={tag} />
+      </div>
+    </ArticlesContextProvider>
   );
 }

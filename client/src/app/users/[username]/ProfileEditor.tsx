@@ -18,7 +18,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import useAuth from "@/hooks/useAuth";
 import { ConflictError } from "@/lib/http-errors";
-import revalidateCachedData from "@/lib/revalidate";
+import { revalidatePathData, revalidateTagData } from "@/lib/revalidate";
 import {
   EditProfileBody,
   EditProfileBodySchema,
@@ -61,8 +61,8 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
     try {
       const updatedUser = await UserAPI.updateUser(values);
 
-      revalidateCachedData("/users/" + user.username); // remove old user page from cache
-      revalidateCachedData("/users/" + updatedUser.username);
+      revalidatePathData("/users/" + user.username); // remove old user page from cache
+      revalidateTagData("authenticated-user");
 
       const { username, about } = updatedUser;
       form.reset({ username, about, profilePicture: undefined });

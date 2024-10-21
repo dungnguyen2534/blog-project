@@ -1,11 +1,11 @@
 "use client";
 
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import {
   CommentPage,
   Comment as CommentType,
-  Post,
-} from "@/validation/schema/post";
+  Article,
+} from "@/validation/schema/article";
 import { createContext, useCallback, useEffect, useState } from "react";
 
 interface CommentsContextType {
@@ -29,14 +29,14 @@ interface CommentsContextType {
   setCommentsLikeCount: React.Dispatch<
     React.SetStateAction<{ commentId: string; likeCount: number }[]>
   >;
-  postAuthorId: string;
+  articleAuthorId: string;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
 
 interface CommentsContextProps {
   children: React.ReactNode;
-  post: Post;
+  article: Article;
   initialPage?: CommentPage;
   initialReplyPages?: CommentPage[];
 }
@@ -45,7 +45,7 @@ export default function CommentsContextProvider({
   children,
   initialPage,
   initialReplyPages,
-  post,
+  article,
 }: CommentsContextProps) {
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage?.comments || []
@@ -61,7 +61,7 @@ export default function CommentsContextProvider({
 
   const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
 
-  const [commentCount, setCommentCount] = useState(post.commentCount);
+  const [commentCount, setCommentCount] = useState(article.commentCount);
 
   const [commentsLikeCount, setCommentsLikeCount] = useState(
     [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
@@ -76,14 +76,14 @@ export default function CommentsContextProvider({
     initialPage?.lastCommentReached ?? true
   );
 
-  const postId = post._id;
+  const articleId = article._id;
   const fetchFirstPage = useCallback(
     async (limit?: number) => {
       setIsLoading(true);
       try {
-        const firstPage = await PostsAPI.getCommentList(
-          postId,
-          `posts/${postId}/comments?limit=${limit}`
+        const firstPage = await ArticlesAPI.getCommentList(
+          articleId,
+          `articles/${articleId}/comments?limit=${limit}`
         );
         const replyPagesPromises = firstPage.comments.map(async (comment) => {
           if (comment.replyCount === 0)
@@ -93,8 +93,8 @@ export default function CommentsContextProvider({
               totalComments: 0,
             };
 
-          const replyPage = await PostsAPI.getCommentList(
-            postId,
+          const replyPage = await ArticlesAPI.getCommentList(
+            articleId,
             undefined,
             comment._id,
             6
@@ -114,18 +114,18 @@ export default function CommentsContextProvider({
         setIsLoading(false);
       }
     },
-    [postId]
+    [articleId]
   );
 
   const fetchNextPage = useCallback(
     async (limit?: number, continueAfterId?: string) => {
-      const query = `posts/${postId}/comments?${
+      const query = `articles/${articleId}/comments?${
         continueAfterId ? `continueAfterId=${continueAfterId}&` : ""
       }limit=${limit}`;
 
       setIsLoading(true);
       try {
-        const nextPage = await PostsAPI.getCommentList(postId, query);
+        const nextPage = await ArticlesAPI.getCommentList(articleId, query);
         const nextReplyPagesPromises = nextPage.comments.map(
           async (comment) => {
             if (comment.replyCount === 0)
@@ -135,8 +135,8 @@ export default function CommentsContextProvider({
                 totalComments: 0,
               };
 
-            const replyPage = await PostsAPI.getCommentList(
-              postId,
+            const replyPage = await ArticlesAPI.getCommentList(
+              articleId,
               undefined,
               comment._id,
               6
@@ -170,7 +170,7 @@ export default function CommentsContextProvider({
         setIsLoading(false);
       }
     },
-    [postId]
+    [articleId]
   );
 
   useEffect(() => {
@@ -209,7 +209,7 @@ export default function CommentsContextProvider({
         setCommentCount,
         commentsLikeCount,
         setCommentsLikeCount,
-        postAuthorId: post.author._id,
+        articleAuthorId: article.author._id,
       }}>
       {children}
     </CommentsContext.Provider>

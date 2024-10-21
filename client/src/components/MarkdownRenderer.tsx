@@ -1,3 +1,5 @@
+"use client";
+
 import Markdown from "react-markdown";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
@@ -38,10 +40,8 @@ export default function MarkdownRenderer({
       components={{
         img: (props) => (
           <span className="flex justify-center max-w-full m-auto">
-            <a href={props.src} target="_blank" rel="noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...props} className="rounded-sm" alt={props.alt ?? ""} />
-            </a>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img {...props} className="rounded-md" alt={props.alt ?? ""} />
           </span>
         ),
         code: ({ className, children }) => {

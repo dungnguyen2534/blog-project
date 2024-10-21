@@ -3,7 +3,7 @@ import { z } from "zod";
 export const tagSchema = z.object({
   _id: z.string(),
   tagName: z.string(),
-  postCount: z.number(),
+  articleCount: z.number(),
   followerCount: z.number(),
   isLoggedInUserFollowing: z.boolean().optional(),
 });

@@ -3,13 +3,19 @@ import { Button } from "./ui/button";
 import { RxQuestionMarkCircled } from "react-icons/rx";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
-export default function EditorGuideButton() {
+interface EditorGuideButtonProps {
+  hideText?: boolean;
+}
+
+export default function EditorGuideButton({
+  hideText,
+}: EditorGuideButtonProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="link">
           <RxQuestionMarkCircled size={22} className="mr-1" />
-          Editor Guide
+          {!hideText && <span>Editor Guide</span>}
         </Button>
       </DialogTrigger>
       <DialogContent>

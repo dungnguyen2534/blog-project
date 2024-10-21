@@ -111,5 +111,6 @@ export function calculateReadingTime(text: string) {
 export function generateTags(TagsString: string) {
   return (TagsString.match(/#[a-zA-Z0-9]+/g) || [])
     .flatMap((tag) => tag.split(/(?=#)/))
-    .filter((tag) => tag.length > 1);
+    .filter((tag) => tag.length > 1)
+    .map((tag) => tag.toLowerCase());
 }

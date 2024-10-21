@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import postsRouter from "./routes/posts";
+import articlesRouter from "./routes/articles";
 import usersRouter from "./routes/users";
 import likesRouter from "./routes/likes";
 import tagsRouter from "./routes/tags";
@@ -32,7 +32,10 @@ app.use(session(sessionConfig));
 app.use(passport.authenticate("session"));
 
 // Static files serving
-app.use("/uploads/in-post-images", express.static("uploads/in-post-images"));
+app.use(
+  "/uploads/in-article-images",
+  express.static("uploads/in-article-images")
+);
 app.use(
   "/uploads/in-comment-images",
   express.static("uploads/in-comment-images")
@@ -44,7 +47,7 @@ app.use(
 
 // API routes
 app.use("/auth", usersRouter);
-app.use("/posts", postsRouter);
+app.use("/articles", articlesRouter);
 app.use("/tags", tagsRouter);
 app.use("/", likesRouter);
 

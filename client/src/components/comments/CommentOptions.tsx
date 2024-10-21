@@ -1,6 +1,6 @@
 "use client";
 
-import type { Comment as CommentType } from "@/validation/schema/post";
+import type { Comment as CommentType } from "@/validation/schema/article";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import LoadingButton from "../LoadingButton";
 import { Button } from "../ui/button";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { useToast } from "../ui/use-toast";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import MiniProfile from "../MiniProfile";
 import { TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
@@ -44,7 +44,7 @@ export default function CommentOptions({
     setReplyPages,
     fetchNextPage,
     setCommentCount,
-    postAuthorId,
+    articleAuthorId,
   } = useCommentsLoader();
 
   const [showDialog, setShowDialog] = useState(false);
@@ -53,8 +53,8 @@ export default function CommentOptions({
   async function deleteComment() {
     setIsDeleting(true);
     try {
-      const { totalComments } = await PostsAPI.deleteComment(
-        comment.postId,
+      const { totalComments } = await ArticlesAPI.deleteComment(
+        comment.articleId,
         comment._id
       );
 
@@ -93,7 +93,7 @@ export default function CommentOptions({
 
   return (
     <div className="relative">
-      <CommentAuthor comment={comment} postAuthorId={postAuthorId} />
+      <CommentAuthor comment={comment} articleAuthorId={articleAuthorId} />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div
@@ -139,10 +139,10 @@ export default function CommentOptions({
 
 interface CommentAuthorProps {
   comment: CommentType;
-  postAuthorId: string;
+  articleAuthorId: string;
 }
 
-function CommentAuthor({ comment, postAuthorId }: CommentAuthorProps) {
+function CommentAuthor({ comment, articleAuthorId }: CommentAuthorProps) {
   let commentDate;
   if (!(comment.createdAt !== comment.updatedAt)) {
     commentDate = (
@@ -165,7 +165,7 @@ function CommentAuthor({ comment, postAuthorId }: CommentAuthorProps) {
   }
 
   const author = comment.author;
-  const isPostAuthor = postAuthorId === author._id;
+  const isArticleAuthor = articleAuthorId === author._id;
   return (
     <div className="my-2">
       <MiniProfile author={author} customTrigger>
@@ -176,7 +176,7 @@ function CommentAuthor({ comment, postAuthorId }: CommentAuthorProps) {
               className="flex gap-[0.4rem] items-center">
               <span className="text-sm font-medium mb-5 flex gap-1">
                 {author.username}
-                {isPostAuthor && <PiPencilLine size={19} className="" />}
+                {isArticleAuthor && <PiPencilLine size={19} className="" />}
               </span>
             </Link>
           </TooltipTrigger>

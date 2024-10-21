@@ -3,10 +3,10 @@ import { NotFoundError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import Profile from "./Profile";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import PostsContextProvider from "@/context/PostsContext";
+import ArticlesContextProvider from "@/context/ArticlesContext";
 
 const getUser = cache(async (username: string, cookie?: RequestCookie) => {
   try {
@@ -41,21 +41,21 @@ export default async function UserProfilePage({
   const userCookie = cookieStore.get("connect.sid");
 
   const user = await getUser(username, userCookie);
-  let userInitialPostsPage;
+  let userInitialArticlesPage;
   try {
-    userInitialPostsPage = await PostsAPI.getPostList(
-      `/posts?authorId=${user._id}`,
+    userInitialArticlesPage = await ArticlesAPI.getArticleList(
+      `/articles?authorId=${user._id}`,
       userCookie
     );
   } catch {
-    userInitialPostsPage = undefined;
+    userInitialArticlesPage = undefined;
   }
 
   return (
-    <PostsContextProvider
-      initialPage={userInitialPostsPage}
+    <ArticlesContextProvider
+      initialPage={userInitialArticlesPage}
       authorId={user._id}>
       <Profile user={user} />
-    </PostsContextProvider>
+    </ArticlesContextProvider>
   );
 }

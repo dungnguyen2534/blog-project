@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import usePostsLoader from "@/hooks/usePostsLoader";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface TagSelectorProps {
@@ -15,7 +15,7 @@ interface TagSelectorProps {
 }
 
 export default function TagSelector({ className }: TagSelectorProps) {
-  const { savedTagList, setPostList, setIsLoading } = usePostsLoader();
+  const { savedTagList, setArticleList, setIsLoading } = useArticlesLoader();
 
   const router = useRouter();
   const params = useSearchParams();
@@ -23,7 +23,7 @@ export default function TagSelector({ className }: TagSelectorProps) {
 
   function onValueChange(value: string) {
     setIsLoading(true);
-    setPostList([]);
+    setArticleList([]);
     if (value === "All")
       return router.replace(
         `/bookmarks?${searchQuery ? `&searchQuery=${searchQuery}` : ""}`

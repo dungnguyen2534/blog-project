@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import useAuth from "@/hooks/useAuth";
 import useNavigation from "@/hooks/useNavigation";
 
@@ -36,11 +36,11 @@ export function NavigationEvents() {
 
     // delete unused images when user navigates away from from pages that have the markdown editor
     async function deleteUnusedImages() {
-      await PostsAPI.deleteUnusedImages();
+      await ArticlesAPI.deleteUnusedImages();
     }
 
     window.addEventListener("beforeunload", deleteUnusedImages);
-    if (prevUrl.startsWith("/posts/") && prevUrl !== pathname) {
+    if (prevUrl.startsWith("/articles/") && prevUrl !== pathname) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }

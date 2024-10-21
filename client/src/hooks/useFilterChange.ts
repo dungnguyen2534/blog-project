@@ -1,12 +1,12 @@
-import usePostsLoader from "./usePostsLoader";
-import revalidateCachedData from "@/lib/revalidate";
+import useArticlesLoader from "./useArticlesLoader";
+import { revalidateTagData } from "@/lib/revalidate";
 
 export default function useFilterChange() {
-  const { setIsLoading, setPostList } = usePostsLoader();
+  const { setIsLoading, setArticleList } = useArticlesLoader();
 
-  function onTriggerClick(path: string) {
-    revalidateCachedData(path);
-    setPostList([]);
+  function onTriggerClick(tag?: string) {
+    tag && revalidateTagData(tag);
+    setArticleList([]);
     setIsLoading(true);
   }
 

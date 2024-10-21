@@ -10,7 +10,7 @@ import {
 } from "../ui/form";
 import MarkdownRenderer from "../MarkdownRenderer";
 import "react-markdown-editor-lite/lib/index.css";
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import { useToast } from "../ui/use-toast";
 import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import MdEditor from "react-markdown-editor-lite";
@@ -28,7 +28,7 @@ interface MarkdownEditorProps {
   showMenu?: boolean;
   showPreview?: boolean;
   autoFocus?: boolean;
-  forComment?: { postId: string };
+  forComment?: { articleId: string };
   defaultValue?: string;
 }
 
@@ -48,16 +48,16 @@ export default function MarkdownEditor({
   defaultValue,
 }: MarkdownEditorProps) {
   const { toast } = useToast();
-  async function uploadInPostImage(image: File) {
+  async function uploadInArticleImage(image: File) {
     try {
       if (forComment) {
-        const res = await PostsAPI.uploadInCommentImage(
-          forComment.postId,
+        const res = await ArticlesAPI.uploadInCommentImage(
+          forComment.articleId,
           image
         );
         return res.imageUrl;
       } else {
-        const res = await PostsAPI.uploadInPostImage(image);
+        const res = await ArticlesAPI.uploadInArticleImage(image);
         return res.imageUrl;
       }
     } catch (error) {
@@ -111,7 +111,7 @@ export default function MarkdownEditor({
               renderHTML={(text) => <MarkdownRenderer>{text}</MarkdownRenderer>}
               onChange={({ text }) => field.onChange(text)}
               placeholder={placeholder}
-              onImageUpload={uploadInPostImage}
+              onImageUpload={uploadInArticleImage}
               imageAccept=".png, .jpg, .jpeg, .webp"
               view={{ html: showPreview, md: true, menu: showMenu }}
               autoFocus={autoFocus}

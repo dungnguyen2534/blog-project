@@ -132,7 +132,7 @@
   }
 
   .primary-color {
-    @apply bg-neutral-100 dark:bg-black;
+    @apply bg-neutral-50 dark:bg-neutral-950;
   }
 
   .secondary-color {
@@ -172,7 +172,7 @@
 }
 
 .rc-md-editor .rc-md-navigation {
-  @apply dark:bg-neutral-950 dark:border-b-neutral-700 rounded-tl-md rounded-tr-md;
+  @apply !bg-neutral-50 dark:!bg-neutral-950 dark:border-b-neutral-700 rounded-tl-md rounded-tr-md;
 }
 
 .rc-md-editor .editor-container {
@@ -327,8 +327,6 @@
 .markdown > pre:has(> pre) {
   @apply !py-0 my-4;
 }
-
-/* dasdasdasd */
 
 .editor-container .custom-html-style table {
   @apply border-none;

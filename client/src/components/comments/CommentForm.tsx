@@ -3,7 +3,7 @@
 import MarkdownEditor from "../form/MarkdownEditor";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CommentBody, CommentBodySchema } from "@/validation/schema/post";
+import { CommentBody, CommentBodySchema } from "@/validation/schema/article";
 import FormWrapper from "../form/FormWrapper";
 import LoadingButton from "../LoadingButton";
 import { useToast } from "../ui/use-toast";
@@ -13,7 +13,7 @@ import useAuthDialogs from "@/hooks/useAuthDialogs";
 import EditorGuideButton from "../EditorGuideButton";
 
 interface CommentFormProps {
-  postId: string;
+  articleId: string;
   parentCommentId?: string;
   defaultValue?: string;
   noAvatar?: boolean;
@@ -23,10 +23,11 @@ interface CommentFormProps {
   className?: string;
   submitBtnText?: string;
   id?: string;
+  hideEditorGuideText?: boolean;
 }
 
 export default function CommentForm({
-  postId,
+  articleId,
   defaultValue,
   noAvatar,
   submitFunction,
@@ -35,6 +36,7 @@ export default function CommentForm({
   className,
   submitBtnText,
   id,
+  hideEditorGuideText,
 }: CommentFormProps) {
   const form = useForm<CommentBody>({
     resolver: zodResolver(CommentBodySchema),
@@ -67,7 +69,7 @@ export default function CommentForm({
         <UserAvatar
           username={user?.username}
           profilePicUrl={user?.profilePicPath}
-          className="mt-2 w-11 h-11"
+          className="mt-3 w-10 h-10 sm:mt-2 sm:w-11 sm:h-11"
         />
       )}
       <FormWrapper
@@ -100,7 +102,7 @@ export default function CommentForm({
           showMenu={true}
           showPreview={false}
           height={`min(${height || "15.5rem"}, 70vh)`}
-          forComment={{ postId }}
+          forComment={{ articleId }}
           placeholder="Share your thoughts..."
           className="transition-[outline] outline outline-2 outline-transparent focus-within:outline-neutral-600 dark:focus-within:outline-neutral-400"
         />
@@ -111,7 +113,7 @@ export default function CommentForm({
             type="submit"
             loading={isSubmitting}
           />
-          <EditorGuideButton />
+          <EditorGuideButton hideText={hideEditorGuideText} />
         </div>
       </FormWrapper>
     </div>

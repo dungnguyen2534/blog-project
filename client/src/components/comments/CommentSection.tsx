@@ -1,23 +1,23 @@
-import PostsAPI from "@/api/post";
+import ArticlesAPI from "@/api/article";
 import CommentList from "./CommentList";
 import CommentsContextProvider from "@/context/CommentsContext";
 import CommentCount from "./CommentCount";
 import CreateCommentBox from "./CreateCommentBox";
-import { Post } from "@/validation/schema/post";
+import { Article } from "@/validation/schema/article";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { cache } from "react";
 
 interface CommentSectionProps {
-  post: Post;
+  article: Article;
   userCookie?: RequestCookie;
 }
 
 const fetchComments = cache(
-  async (postId: string, userCookie?: RequestCookie) => {
+  async (articleId: string, userCookie?: RequestCookie) => {
     try {
-      const initialPage = await PostsAPI.getCommentList(
-        postId,
-        `posts/${postId}/comments?limit=12`,
+      const initialPage = await ArticlesAPI.getCommentList(
+        articleId,
+        `articles/${articleId}/comments?limit=12`,
         undefined,
         12,
         userCookie
@@ -30,8 +30,8 @@ const fetchComments = cache(
             totalComments: 0,
           };
 
-        const replyPage = await PostsAPI.getCommentList(
-          postId,
+        const replyPage = await ArticlesAPI.getCommentList(
+          articleId,
           undefined,
           parentComment._id,
           6,
@@ -48,15 +48,15 @@ const fetchComments = cache(
 );
 
 export default async function CommentSection({
-  post,
+  article,
   userCookie,
 }: CommentSectionProps) {
-  const postId = post._id;
+  const articleId = article._id;
   let initialPage, initialReplyPages;
 
-  if (post.commentCount > 0) {
+  if (article.commentCount > 0) {
     ({ initialPage, initialReplyPages } = await fetchComments(
-      postId,
+      articleId,
       userCookie
     ));
   }
@@ -65,7 +65,7 @@ export default async function CommentSection({
     <CommentsContextProvider
       initialPage={initialPage}
       initialReplyPages={initialReplyPages}
-      post={post}>
+      article={article}>
       <section className="rounded-t-none sm:py-5 p-3">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
@@ -73,7 +73,7 @@ export default async function CommentSection({
               <span>Comments</span>
               {<CommentCount />}
             </div>
-            <CreateCommentBox postId={postId} />
+            <CreateCommentBox articleId={articleId} />
           </div>
           <CommentList />
         </div>
