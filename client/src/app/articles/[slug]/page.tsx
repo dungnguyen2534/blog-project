@@ -2,14 +2,16 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { NotFoundError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import CommentSection from "@/components/comments/CommentSection";
 import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import ArticlesAPI from "@/api/article";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 import ArticleTags from "@/components/articles/ArticleTags";
 import ArticleOptions from "@/components/articles/ArticleOptions";
+import CommentSection from "@/components/comments/CommentSection";
 import InArticleLike from "@/components/articles/InArticleLike";
+import NavigateBackButton from "./NavigateBackButton";
+import ArticleContent from "./ArticleContent";
 
 const getArticle = cache(async (slug: string, cookies?: RequestCookie) => {
   try {
@@ -43,25 +45,14 @@ export async function generateMetadata({ params: { slug } }: ArticlePageProps) {
 export default async function ArticlePage({
   params: { slug },
 }: ArticlePageProps) {
-  const userCookie = cookies().get("connect.sid");
-  const article = await getArticle(slug, userCookie);
+  const article = await getArticle(slug);
 
   return (
     <ArticlesContextProvider>
-      <article className="secondary-container ring-1 ring-[#f4f4f4] dark:ring-neutral-950 md:my-[0.5rem] p-3 sm:pt-7 rounded-none sm:rounded-md">
-        <div className="max-w-prose m-auto flex flex-col gap-3 break-words pb-5 border-b-[1px]">
-          <header>
-            <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
-              {article.title}
-            </h1>
-            <ArticleTags tags={article.tags} className="mb-3" />
-            <ArticleOptions article={article} author={article.author} />
-          </header>
-          <MarkdownRenderer>{article.body}</MarkdownRenderer>
-        </div>
-        <InArticleLike article={article} />
-        <CommentSection article={article} userCookie={userCookie} />
-      </article>
+      <div className="secondary-container ring-1 ring-[#f0f0f0] dark:ring-0 mt-[4rem] md:!mt-[4.5rem] mb-2 p-3 sm:pt-7 rounded-none sm:rounded-sm">
+        <ArticleContent article={article} />
+        <CommentSection article={article} />
+      </div>
     </ArticlesContextProvider>
   );
 }

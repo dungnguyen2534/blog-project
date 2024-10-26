@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface SignInProps {
-  previousUrl: string | null;
+  previousUrl: string | undefined;
   onSignUpClick: () => void;
   onForgotPasswordClick: () => void;
 }
@@ -39,6 +39,8 @@ export default function SignIn({
     try {
       const user = await UserAPI.signin(credentials);
       mutateUser(user);
+
+      sessionStorage.clear();
       router.push(previousUrl || "/");
       router.refresh();
     } catch (error) {

@@ -152,7 +152,9 @@ export const getSavedArticles: RequestHandler<
       ...(searchQuery && {
         articleTitle: { $regex: searchQuery, $options: "i" },
       }),
-    }).sort({ articleId: -1 });
+    })
+      .sort({ articleId: -1 })
+      .select("-images");
 
     if (continueAfterId) {
       query = query.lt("articleId", continueAfterId);
@@ -202,8 +204,10 @@ export const getSavedArticles: RequestHandler<
           }),
         ]);
 
+        const readingTime = Math.ceil(article.body.split(/\s+/).length / 238);
+        const articleToSent = { ...article, body: "" };
         return {
-          ...article,
+          ...articleToSent,
           likeCount,
           ...(authenticatedUser && {
             isLoggedInUserLiked: !!isUserLikedArticle,
@@ -213,6 +217,7 @@ export const getSavedArticles: RequestHandler<
             },
           }),
           ...(authenticatedUser && { isSavedArticle: !!isSavedArticle }),
+          readingTime,
         };
       })
     );

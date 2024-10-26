@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { DialogHeader } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { useRouter } from "next/navigation";
 import { revalidatePathData } from "@/lib/revalidate";
@@ -38,12 +38,16 @@ import { BiShareAlt } from "react-icons/bi";
 import ArticleAuthor from "./ArticleAuthor";
 import useNavigation from "@/hooks/useNavigation";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import { SWRResponse } from "swr";
 
 interface ArticleOptionsProps {
   article: Article;
   author: User;
   menuOnTop?: boolean;
   articleEntry?: boolean;
+  isSaved?: boolean;
+  setIsSaved?: (isSaved: boolean) => void;
+  isLoading?: boolean;
 }
 
 export default function ArticleOptions({
@@ -51,12 +55,12 @@ export default function ArticleOptions({
   author,
   menuOnTop,
   articleEntry,
+  isSaved,
+  setIsSaved,
+  isLoading,
 }: ArticleOptionsProps) {
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
-
-  const [isSaved, setIsSaved] = useState(article.isSavedArticle);
-  const [isBookmarking, setIsBookmarking] = useState(false);
 
   const { setArticleList } = useArticlesLoader();
 
@@ -77,7 +81,9 @@ export default function ArticleOptions({
   const router = useRouter();
   const { pathname, prevUrl } = useNavigation();
 
-  async function bookmark() {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const bookmark = useCallback(async () => {
     if (!LoggedInUser) {
       toast({
         title: "Please sign in to bookmark this article",
@@ -85,28 +91,37 @@ export default function ArticleOptions({
       return;
     }
 
-    setIsBookmarking(true);
-    try {
-      if (isSaved) {
-        await ArticlesAPI.unsaveArticle(article._id);
-      } else {
-        await ArticlesAPI.saveArticle(article._id);
-      }
-      setIsSaved((prev) => !prev);
-      toast({
-        title: isSaved
-          ? "Article removed from bookmarks"
-          : "Article bookmarked",
-      });
-    } catch {
-      toast({
-        title: "An error occurred",
-        description: "Please try again later",
-      });
-    } finally {
-      setIsBookmarking(false);
+    if (isLoading) return;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-  }
+
+    const newIsSaved = !isSaved;
+    setIsSaved && setIsSaved(newIsSaved);
+
+    timeoutRef.current = setTimeout(async () => {
+      try {
+        if (isSaved) {
+          await ArticlesAPI.unsaveArticle(article._id);
+        } else {
+          await ArticlesAPI.saveArticle(article._id);
+        }
+        toast({
+          title: isSaved
+            ? "Article removed from bookmarks"
+            : "Article bookmarked",
+        });
+      } catch {
+        setIsSaved && setIsSaved(!newIsSaved);
+
+        toast({
+          title: "An error occurred",
+          description: "Please try again later",
+        });
+      }
+    }, 300);
+  }, [isSaved, article._id, toast, LoggedInUser, setIsSaved, isLoading]);
 
   async function deleteArticle() {
     setIsDeleting(true);
@@ -115,10 +130,11 @@ export default function ArticleOptions({
       await ArticlesAPI.deleteArticle(article._id);
       revalidatePathData("/articles/" + article.slug);
 
-      articleEntry &&
+      if (articleEntry) {
         setArticleList((prevList) =>
           prevList.filter((p) => p._id !== article._id)
         );
+      }
 
       if (pathname === "/articles/" + article.slug) {
         prevUrl === "/articles/create-article"
@@ -148,7 +164,7 @@ export default function ArticleOptions({
     <div className="flex justify-between items-center">
       <ArticleAuthor article={article} articleEntry />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <div
             className={`text-neutral-500 dark:text-neutral-400 ${
               menuOnTop ? "-mt-5" : ""
@@ -163,8 +179,7 @@ export default function ArticleOptions({
             {!articleEntry && (
               <DropdownMenuItem
                 className="cursor-pointer flex items-center gap-2"
-                onClick={bookmark}
-                disabled={isBookmarking}>
+                onClick={bookmark}>
                 {isSaved ? (
                   <MdBookmarkAdded size={24} className="-ml-[0.35rem]" />
                 ) : (

@@ -101,13 +101,6 @@ export const extractImageUrls = (markdown: string) => {
   return matches;
 };
 
-export function calculateReadingTime(text: string) {
-  const words = text.split(/\s+/).length;
-  const readingTime = words / 238; // 238 is the average reading speed in words per minute
-
-  return Math.ceil(readingTime);
-}
-
 export function generateTags(TagsString: string) {
   return (TagsString.match(/#[a-zA-Z0-9]+/g) || [])
     .flatMap((tag) => tag.split(/(?=#)/))

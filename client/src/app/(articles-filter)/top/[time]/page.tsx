@@ -1,9 +1,5 @@
-import { cookies } from "next/headers";
 import React from "react";
-import { NotFoundError } from "@/lib/http-errors";
-import { notFound } from "next/navigation";
 import TimeSpanFilter from "../TimeSpanFilter";
-import ArticlesAPI from "@/api/article";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 import ArticleListTabs from "@/components/articles/ArticleListTabs";
 import ArticleList from "@/components/articles/ArticleList";
@@ -30,25 +26,6 @@ export async function generateMetadata({
 export default async function TopArticlesPage({
   params: { time },
 }: TopArticlesPageProps) {
-  const userCookie = cookies().get("connect.sid");
-
-  let initialPage;
-  try {
-    initialPage = await ArticlesAPI.getTopArticles(
-      time,
-      undefined,
-      undefined,
-      undefined,
-      userCookie
-    );
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      notFound();
-    } else {
-      initialPage = undefined;
-    }
-  }
-
   const defaultTimeValue = time
     ? ((time.charAt(0).toUpperCase() + time.slice(1)) as
         | "Week"
@@ -58,11 +35,8 @@ export default async function TopArticlesPage({
     : "Week";
 
   return (
-    <ArticlesContextProvider
-      top
-      initialPage={initialPage}
-      timeSpan={time ?? "week"}>
-      <div className="flex container px-0 md:px-8 my-[0.35rem] md:my-2">
+    <ArticlesContextProvider top timeSpan={time ?? "week"}>
+      <main className="flex container px-0 md:px-8 mt-[4.3rem] md:!mt-20">
         <ArticleListTabs defaultValue="Top" className="">
           <TimeSpanFilter defaultValue={defaultTimeValue}>
             <ArticleList
@@ -72,7 +46,7 @@ export default async function TopArticlesPage({
             />
           </TimeSpanFilter>
         </ArticleListTabs>
-      </div>
+      </main>
     </ArticlesContextProvider>
   );
 }

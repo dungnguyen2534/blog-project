@@ -47,18 +47,12 @@ const fetchComments = cache(
   }
 );
 
-export default async function CommentSection({
-  article,
-  userCookie,
-}: CommentSectionProps) {
+export default async function CommentSection({ article }: CommentSectionProps) {
   const articleId = article._id;
   let initialPage, initialReplyPages;
 
   if (article.commentCount > 0) {
-    ({ initialPage, initialReplyPages } = await fetchComments(
-      articleId,
-      userCookie
-    ));
+    ({ initialPage, initialReplyPages } = await fetchComments(articleId));
   }
 
   return (
@@ -73,7 +67,7 @@ export default async function CommentSection({
               <span>Comments</span>
               {<CommentCount />}
             </div>
-            <CreateCommentBox articleId={articleId} />
+            <CreateCommentBox article={article} />
           </div>
           <CommentList />
         </div>

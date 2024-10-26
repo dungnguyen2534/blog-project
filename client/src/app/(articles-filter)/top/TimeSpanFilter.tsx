@@ -28,22 +28,22 @@ export default function TimeSpanFilter({
         <div className="">
           <TabsList className="rounded-none md:rounded-b-md mb-1 md:mb-2 grid md:hidden grid-cols-4 w-full bg-white dark:bg-neutral-900 [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-0 [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100 ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
             <TabsTrigger asChild value="Week">
-              <Link replace={true} href={"/top/week"}>
+              <Link replace href={"/top/week"}>
                 Week
               </Link>
             </TabsTrigger>
             <TabsTrigger asChild value="Month">
-              <Link replace={true} href={"/top/month"}>
+              <Link replace href={"/top/month"}>
                 Month
               </Link>
             </TabsTrigger>
             <TabsTrigger asChild value="Year">
-              <Link replace={true} href={"/top/year"}>
+              <Link replace href={"/top/year"}>
                 Year
               </Link>
             </TabsTrigger>
             <TabsTrigger asChild value="Infinity">
-              <Link replace={true} href={"/top/infinity"}>
+              <Link replace href={"/top/infinity"}>
                 Infinity
               </Link>
             </TabsTrigger>
@@ -55,21 +55,25 @@ export default function TimeSpanFilter({
 
             <div className="ml-auto flex gap-4 text-neutral-500 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
               <Link
+                replace
                 className={pathname === "/top/week" ? activeClass : ""}
                 href="/top/week">
                 Week
               </Link>
               <Link
+                replace
                 className={pathname === "/top/month" ? activeClass : ""}
                 href="/top/month">
                 Month
               </Link>
               <Link
+                replace
                 className={pathname === "/top/year" ? activeClass : ""}
                 href="/top/year">
                 Year
               </Link>
               <Link
+                replace
                 className={pathname === "/top/infinity" ? activeClass : ""}
                 href="/top/infinity">
                 Infinity

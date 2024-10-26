@@ -91,6 +91,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
       }
     }
 
+    sessionStorage.clear();
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
 
@@ -120,7 +121,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
   }
 
   return (
-    <div className="container px-1 sm:px-8 py-2 sm:py-4">
+    <div className="container px-1 sm:px-8 py-2 sm:py-4 mt-[4rem] md:!mt-[4.57rem]">
       <FormWrapper form={form} submitFunction={onSubmit}>
         <FormInput
           controller={form.control}

@@ -2,7 +2,7 @@
 
 import ArticlesAPI from "@/api/article";
 import { Article, ArticlePage } from "@/validation/schema/article";
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 interface ArticlesContextType {
   articleList: Article[];
@@ -25,13 +25,10 @@ interface ArticlesContextType {
     saved?: boolean
   ) => Promise<void>;
   setArticleList: React.Dispatch<React.SetStateAction<Article[]>>;
-  articlesLikeCount: { articleId: string; likeCount: number }[];
-  setArticlesLikeCount: React.Dispatch<
-    React.SetStateAction<{ articleId: string; likeCount: number }[]>
-  >;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   lastArticleReached: boolean;
+  setLastArticleReached: React.Dispatch<React.SetStateAction<boolean>>;
   pageLoadError: boolean;
   firstPageLoadError: boolean;
   savedTagList: string[] | undefined;
@@ -54,7 +51,6 @@ interface ArticlesContextProps {
 
 export default function ArticlesContextProvider({
   children,
-  initialPage,
   authorId,
   tag,
   top,
@@ -64,29 +60,13 @@ export default function ArticlesContextProvider({
   tagList,
   searchQuery,
 }: ArticlesContextProps) {
+  const [articleList, setArticleList] = useState<Article[]>([]);
   const [firstPageFetched, setFirstPageFetched] = useState(false);
-  const [articleList, setArticleList] = useState<Article[]>(
-    initialPage?.articles || []
-  );
   const [isLoading, setIsLoading] = useState(false);
-  const [lastArticleReached, setLastArticleReached] = useState(
-    initialPage?.lastArticleReached ?? false
-  );
+  const [lastArticleReached, setLastArticleReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
-
-  const [articlesLikeCount, setArticlesLikeCount] = useState(
-    saved
-      ? []
-      : articleList.map((article) => ({
-          articleId: article._id,
-          likeCount: article.likeCount,
-        }))
-  );
-
-  const [savedTagList, setSavedTagList] = useState<string[] | undefined>(
-    tagList
-  );
+  const [savedTagList, setSavedTagList] = useState(tagList);
 
   const continueAfterId = articleList[articleList.length - 1]?._id;
   const continueAfterLikeCount = articleList[articleList.length - 1]?.likeCount;
@@ -107,16 +87,7 @@ export default function ArticlesContextProvider({
 
   useEffect(() => {
     setFirstPageFetched(false);
-  }, [
-    initialPage,
-    authorId,
-    tag,
-    top,
-    timeSpan,
-    followedTarget,
-    saved,
-    searchQuery,
-  ]);
+  }, [authorId, tag, top, timeSpan, followedTarget, saved, searchQuery]);
 
   const fetchFirstPage = useCallback(
     async (
@@ -140,11 +111,7 @@ export default function ArticlesContextProvider({
       try {
         let firstPage: ArticlePage;
         if (top) {
-          firstPage = await ArticlesAPI.getTopArticles(
-            timeSpan || "week",
-            continueAfterId,
-            continueAfterLikeCount.toString()
-          );
+          firstPage = await ArticlesAPI.getTopArticles(timeSpan || "week");
         } else if (followedTarget) {
           firstPage = await ArticlesAPI.getArticleList(
             `/articles?followedTarget=${followedTarget}`
@@ -165,7 +132,7 @@ export default function ArticlesContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount, paramsCheck, searchQuery]
+    [paramsCheck, searchQuery]
   );
 
   const fetchNextPage = useCallback(
@@ -220,6 +187,7 @@ export default function ArticlesContextProvider({
           ...prevArticleList,
           ...nextPage.articles,
         ]);
+
         setLastArticleReached(nextPage.lastArticleReached);
       } catch (error) {
         setIsLoading(false);
@@ -232,7 +200,7 @@ export default function ArticlesContextProvider({
   );
 
   useEffect(() => {
-    if (!initialPage && !firstPageFetched) {
+    if (!firstPageFetched) {
       if (top) {
         fetchFirstPage(undefined, undefined, 12, top, timeSpan);
       } else if (followedTarget) {
@@ -259,7 +227,6 @@ export default function ArticlesContextProvider({
       }
     }
   }, [
-    initialPage,
     top,
     followedTarget,
     saved,
@@ -270,16 +237,6 @@ export default function ArticlesContextProvider({
     firstPageFetched,
   ]);
 
-  useEffect(() => {
-    !saved &&
-      setArticlesLikeCount(
-        articleList.map((article) => ({
-          articleId: article._id,
-          likeCount: article.likeCount,
-        }))
-      );
-  }, [articleList, setArticlesLikeCount, saved]);
-
   return (
     <ArticlesContext.Provider
       value={{
@@ -287,13 +244,12 @@ export default function ArticlesContextProvider({
         setArticleList,
         fetchFirstPage,
         fetchNextPage,
+        setLastArticleReached,
         lastArticleReached,
         isLoading,
         setIsLoading,
         pageLoadError,
         firstPageLoadError,
-        articlesLikeCount,
-        setArticlesLikeCount,
         savedTagList,
       }}>
       {children}

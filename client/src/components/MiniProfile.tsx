@@ -72,6 +72,7 @@ export default function MiniProfile({
               <div className="flex flex-col gap-1 mt-2">
                 {author._id !== LoggedInUser?._id ? (
                   <FollowButton
+                    className="w-full"
                     userId={author._id}
                     isLoggedInUserFollowing={author.isLoggedInUserFollowing}
                     totalFollowers={totalFollowers}

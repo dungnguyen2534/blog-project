@@ -1,18 +1,23 @@
 "use client";
 
-import { CommentBody, CommentBodySchema } from "@/validation/schema/article";
+import {
+  Article,
+  CommentBody,
+  CommentBodySchema,
+} from "@/validation/schema/article";
 import CommentForm from "./CommentForm";
 import { extractImageUrls } from "@/lib/utils";
 import ArticlesAPI from "@/api/article";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
+import { revalidatePathData } from "@/lib/revalidate";
 
 interface CreateCommentBoxProps {
-  articleId: string;
+  article: Article;
 }
 
-export default function CreateCommentBox({ articleId }: CreateCommentBoxProps) {
+export default function CreateCommentBox({ article }: CreateCommentBoxProps) {
   const { setCommentList, setCommentCount } = useCommentsLoader();
   const { toast } = useToast();
 
@@ -20,13 +25,15 @@ export default function CreateCommentBox({ articleId }: CreateCommentBoxProps) {
     const images = extractImageUrls(comment.body);
 
     try {
-      const newComment = await ArticlesAPI.createComment(articleId, {
+      const newComment = await ArticlesAPI.createComment(article._id, {
         body: comment.body,
         images,
       });
 
       setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
       setCommentCount((prevCount) => prevCount + 1);
+
+      revalidatePathData(`/articles/${article.slug}`);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
@@ -44,7 +51,7 @@ export default function CreateCommentBox({ articleId }: CreateCommentBoxProps) {
 
   return (
     <CommentForm
-      articleId={articleId}
+      articleId={article._id}
       submitFunction={onCreateComment}
       height="10rem"
     />

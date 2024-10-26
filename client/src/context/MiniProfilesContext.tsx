@@ -1,6 +1,5 @@
 "use client";
 
-import { User } from "@/validation/schema/user";
 import { createContext, useState } from "react";
 
 interface FollowContextProps {

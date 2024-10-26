@@ -102,6 +102,7 @@ export default function NewArticlePage() {
 
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
+    sessionStorage.clear();
 
     try {
       const { slug } = await ArticlesAPI.createArticle({
@@ -110,6 +111,7 @@ export default function NewArticlePage() {
         images,
       });
       clearAutoSavedValue();
+
       router.push("/articles/" + slug);
     } catch (error) {
       setIsSubmitting(false);
@@ -133,7 +135,7 @@ export default function NewArticlePage() {
   }
 
   return (
-    <div className="container px-1 sm:px-8 py-2 sm:py-4">
+    <div className="container px-1 sm:px-8 py-2 sm:py-4 mt-[4rem] md:!mt-[4.57rem]">
       <FormWrapper form={form}>
         <FormInput
           controller={form.control}

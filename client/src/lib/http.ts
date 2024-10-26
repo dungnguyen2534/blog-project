@@ -105,7 +105,7 @@ const http = {
     return request<Response>("GET", url, options);
   },
 
-  article<Response>(
+  post<Response>(
     url: string,
     body?: any,
     options?: Omit<customOptions, "body"> | undefined

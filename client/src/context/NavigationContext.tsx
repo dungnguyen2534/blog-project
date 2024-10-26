@@ -5,8 +5,8 @@ import { createContext, useEffect, useRef, useState } from "react";
 
 interface NavigationContextType {
   pathname: string;
-  prevUrl: string;
-  setPrevUrl: React.Dispatch<React.SetStateAction<string>>;
+  prevUrl: string | undefined;
+  setPrevUrl: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export const NavigationContext = createContext<NavigationContextType | null>(
@@ -23,11 +23,11 @@ export default function NavigationContextProvider({
   const pathname = usePathname();
   const prevUrlRef = useRef<string | null>(pathname);
 
-  const [prevUrl, setPrevUrl] = useState<string>("/");
+  const [prevUrl, setPrevUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (prevUrlRef.current !== pathname) {
-      setPrevUrl(prevUrlRef.current || "/");
+      setPrevUrl(prevUrlRef.current || undefined);
       prevUrlRef.current = pathname;
     }
   }, [pathname]);

@@ -19,7 +19,7 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 interface ForgotPasswordProps {
-  previousUrl: string | null;
+  previousUrl: string | undefined;
   onSignInClick: () => void;
   onSignUpClick: () => void;
 }

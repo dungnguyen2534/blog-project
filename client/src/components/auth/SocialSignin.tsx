@@ -6,7 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface SocialSigninProps {
-  previousUrl: string | null;
+  previousUrl: string | undefined;
 }
 
 export default function SocialSignin({ previousUrl }: SocialSigninProps) {

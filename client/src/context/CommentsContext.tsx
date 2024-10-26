@@ -1,12 +1,14 @@
 "use client";
 
 import ArticlesAPI from "@/api/article";
+import useAuth from "@/hooks/useAuth";
 import {
   CommentPage,
   Comment as CommentType,
   Article,
 } from "@/validation/schema/article";
-import { createContext, useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import useSWR from "swr";
 
 interface CommentsContextType {
   commentList: CommentType[];
@@ -25,11 +27,8 @@ interface CommentsContextType {
   setNewLocalReplies: React.Dispatch<React.SetStateAction<CommentType[]>>;
   commentCount: number;
   setCommentCount: React.Dispatch<React.SetStateAction<number>>;
-  commentsLikeCount: { commentId: string; likeCount: number }[];
-  setCommentsLikeCount: React.Dispatch<
-    React.SetStateAction<{ commentId: string; likeCount: number }[]>
-  >;
   articleAuthorId: string;
+  isClientSideLoading: boolean;
 }
 
 export const CommentsContext = createContext<CommentsContextType | null>(null);
@@ -47,36 +46,60 @@ export default function CommentsContextProvider({
   initialReplyPages,
   article,
 }: CommentsContextProps) {
+  const articleId = article._id;
+
   const [commentList, setCommentList] = useState<CommentType[]>(
     initialPage?.comments || []
   );
-
   const [replyPages, setReplyPages] = useState<CommentPage[]>(
     initialReplyPages || []
   );
-
   const [replies, setReplies] = useState<CommentType[]>(
     initialReplyPages?.flatMap((page) => page.comments) || []
   );
 
-  const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
-
-  const [commentCount, setCommentCount] = useState(article.commentCount);
-
-  const [commentsLikeCount, setCommentsLikeCount] = useState(
-    [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
-      commentId: comment._id,
-      likeCount: comment.likeCount,
-    }))
-  );
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [pageLoadError, setPageLoadError] = useState(false);
   const [lastCommentReached, setLastCommentReached] = useState<boolean>(
     initialPage?.lastCommentReached ?? true
   );
 
-  const articleId = article._id;
+  const [commentCount, setCommentCount] = useState(article.commentCount);
+  const [newLocalReplies, setNewLocalReplies] = useState<CommentType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [pageLoadError, setPageLoadError] = useState(false);
+
+  // replace the SSR comments with the client-side comments
+  const { isLoading: isClientSideLoading } = useSWR(
+    "commentStatus",
+    async () => {
+      const { comments, totalComments } = await ArticlesAPI.getCommentList(
+        articleId
+      );
+
+      const replyPagesPromises = comments.map(async (parentComment) => {
+        if (parentComment.replyCount === 0)
+          return {
+            comments: [],
+            lastCommentReached: true,
+            totalComments: 0,
+          };
+
+        const replyPage = await ArticlesAPI.getCommentList(
+          articleId,
+          undefined,
+          parentComment._id,
+          6
+        );
+
+        return replyPage;
+      });
+      const replyPages = await Promise.all(replyPagesPromises);
+
+      setCommentList(comments);
+      setReplies(replyPages.flatMap((page) => page.comments));
+      setCommentCount(totalComments);
+    }
+  );
+
   const fetchFirstPage = useCallback(
     async (limit?: number) => {
       setIsLoading(true);
@@ -179,15 +202,6 @@ export default function CommentsContextProvider({
     }
   }, [initialPage, initialReplyPages, fetchFirstPage, setCommentList]);
 
-  useEffect(() => {
-    setCommentsLikeCount(
-      [...commentList, ...replies, ...newLocalReplies].map((comment) => ({
-        commentId: comment._id,
-        likeCount: comment.likeCount,
-      }))
-    );
-  }, [commentList, replies, newLocalReplies, setCommentsLikeCount]);
-
   return (
     <CommentsContext.Provider
       value={{
@@ -207,9 +221,8 @@ export default function CommentsContextProvider({
         setNewLocalReplies,
         commentCount,
         setCommentCount,
-        commentsLikeCount,
-        setCommentsLikeCount,
         articleAuthorId: article.author._id,
+        isClientSideLoading,
       }}>
       {children}
     </CommentsContext.Provider>

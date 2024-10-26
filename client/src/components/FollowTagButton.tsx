@@ -4,6 +4,8 @@ import React, { useCallback, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "./ui/use-toast";
 import TagsAPI from "@/api/tag";
+import useAuthDialogs from "@/hooks/useAuthDialogs";
+import useAuth from "@/hooks/useAuth";
 
 interface FollowTagButtonProps {
   tagName: string;
@@ -31,10 +33,19 @@ export default function FollowTagButton({
   variant,
 }: FollowTagButtonProps) {
   const { toast } = useToast();
+
+  const { user } = useAuth();
+  const { showSignIn } = useAuthDialogs();
+
   const [isFollowing, setIsFollowing] = useState(isLoggedInUserFollowing);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = useCallback(async () => {
+    if (!user) {
+      showSignIn();
+      return;
+    }
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -63,7 +74,15 @@ export default function FollowTagButton({
         setTotalFollowers(totalFollowers);
       }
     }, 300);
-  }, [isFollowing, setTotalFollowers, totalFollowers, toast, tagName]);
+  }, [
+    isFollowing,
+    setTotalFollowers,
+    totalFollowers,
+    toast,
+    tagName,
+    showSignIn,
+    user,
+  ]);
 
   return (
     <Button onClick={handleClick} className={className} variant={variant}>

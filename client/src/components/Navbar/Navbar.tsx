@@ -5,16 +5,14 @@ import { ModeToggle } from "../ui/mode-toggle";
 import useAuth from "@/hooks/useAuth";
 import SignedOutView from "./SignedOutView";
 import SignedInView from "./SignedInView";
-import { usePathname } from "next/navigation";
 import { revalidateTagData } from "@/lib/revalidate";
 import { User } from "@/validation/schema/user";
 import { useState } from "react";
-import { Skeleton } from "../ui/skeleton";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { IoMdCodeDownload } from "react-icons/io";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { PiHouseLineLight } from "react-icons/pi";
 import { SiCodersrank } from "react-icons/si";
+import useNavigation from "@/hooks/useNavigation";
+import PreviousUrlButton from "../PreviousUrlButton";
+
 
 interface Navbar {
   authenticatedUser?: User;
@@ -26,9 +24,8 @@ export default function Navbar({ authenticatedUser }: Navbar) {
   >(authenticatedUser);
 
   const { user, isLoadingUser, mutateUser } = useAuth();
-  const pathname = usePathname();
-
-  let callToActions;
+  const { pathname } = useNavigation();
+  let callToActions = <SignedOutView />;
   if (user || authenticatedUserSSR) {
     callToActions = (
       <SignedInView
@@ -37,44 +34,32 @@ export default function Navbar({ authenticatedUser }: Navbar) {
         mutateUser={mutateUser}
       />
     );
-  } else if (!authenticatedUserSSR && isLoadingUser) {
-    callToActions = (
-      <div className="hidden md:flex items-center gap-2">
-        <Skeleton className="hidden md:block h-10 w-[117px]" />
-        <Skeleton className="h-12 w-12  md:h-10 md:w-10 rounded-full" />
-      </div>
-    );
-  } else {
-    callToActions = <SignedOutView />;
   }
-
   const LogoTag = pathname === "/onboarding" ? "div" : Link;
 
   if (pathname === "/auth") return null;
   const activeClass = "text-black dark:text-white underline";
+  const showPrevUrlCondition = [
+    "/articles",
+    "/users",
+    "/bookmarks",
+    "/tags",
+  ].some((path) => pathname.startsWith(path));
 
   return (
-    <header className="overflow-hidden h-16 z-50 flex items-center fixed w-full top-0 secondary-color border-b-[1px] pb-1 pt-2 md:py-[0.35rem] ring-1 ring-neutral-200 dark:ring-neutral-900">
-      <div className="container px-2 md:px-4  flex items-center relative">
+    <header className="overflow-hidden h-16 z-50 flex items-center fixed w-[calc(100vw-1px)] top-0 secondary-color ring-1 ring-[#e7e7e7] dark:ring-neutral-800">
+      <div className="container px-2 md:px-4 flex items-center relative">
         <LogoTag
           href="/"
           onClick={() => revalidateTagData("articles")}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-bold flex items-center">
-          <SiCodersrank size={32} className="mb-[0.2rem]" />
-          <span className="ml-1 text-xl font-bold italic">DEVFLOW</span>
+          <SiCodersrank size={28} className="mb-[0.2rem]" />
+          <span className="ml-1 text-xl font-extrabold italic">DEVFLOW</span>
         </LogoTag>
-        <span className="absolute left-48 rotate-[25deg] w-[1px] h-[150%] bg-neutral-200 dark:bg-neutral-700"></span>
+        <span className="absolute left-48 rotate-[25deg] w-[1px] h-[300%] bg-[#e7e7e7] dark:bg-neutral-800"></span>
         <div className="hidden md:flex ml-52 items-center gap-2 transition-all text-sm text-neutral-600 dark:text-neutral-400 [&>*]:p-2 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
-          {pathname.startsWith("/articles") ||
-          pathname.startsWith("/users") ||
-          pathname.startsWith("/bookmarks") ? (
-            <Link href="/" onClick={() => revalidateTagData("articles")}>
-              <span className="flex gap-1 items-center">
-                <HiOutlineArrowNarrowLeft />
-                <PiHouseLineLight size={20} />
-              </span>
-              Back to home
-            </Link>
+          {showPrevUrlCondition ? (
+            <PreviousUrlButton />
           ) : (
             <>
               <Link className={pathname === "/" ? activeClass : ""} href="/">

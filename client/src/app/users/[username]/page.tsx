@@ -3,8 +3,6 @@ import { NotFoundError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import Profile from "./Profile";
-import ArticlesAPI from "@/api/article";
-import { cookies } from "next/headers";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 
@@ -37,24 +35,10 @@ export async function generateMetadata({
 export default async function UserProfilePage({
   params: { username },
 }: UserProfilePageProps) {
-  const cookieStore = cookies();
-  const userCookie = cookieStore.get("connect.sid");
-
-  const user = await getUser(username, userCookie);
-  let userInitialArticlesPage;
-  try {
-    userInitialArticlesPage = await ArticlesAPI.getArticleList(
-      `/articles?authorId=${user._id}`,
-      userCookie
-    );
-  } catch {
-    userInitialArticlesPage = undefined;
-  }
+  const user = await getUser(username);
 
   return (
-    <ArticlesContextProvider
-      initialPage={userInitialArticlesPage}
-      authorId={user._id}>
+    <ArticlesContextProvider authorId={user._id}>
       <Profile user={user} />
     </ArticlesContextProvider>
   );

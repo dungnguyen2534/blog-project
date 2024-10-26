@@ -8,9 +8,13 @@ import useAuth from "@/hooks/useAuth";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import { Article } from "@/validation/schema/article";
 import { useToast } from "../ui/use-toast";
+import { SWRResponse } from "swr";
 
 interface InArticleLikeButtonProps {
   article: Article;
+  liked?: boolean;
+  setLiked: (liked: boolean) => void;
+  isLoading: boolean;
   className?: string;
   variant?:
     | "default"
@@ -28,10 +32,11 @@ export default function InArticleLikeButton({
   article,
   className,
   variant,
+  liked,
+  setLiked,
+  isLoading,
 }: InArticleLikeButtonProps) {
-  const [liked, setLiked] = useState(article.isLoggedInUserLiked);
   const [likes, setLikes] = useState(article.likeCount);
-
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user } = useAuth();
@@ -43,6 +48,8 @@ export default function InArticleLikeButton({
       showSignIn();
       return;
     }
+
+    if (isLoading) return;
 
     if (!user.username) return;
 
@@ -72,7 +79,7 @@ export default function InArticleLikeButton({
         setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [liked, likes, article._id, showSignIn, user, toast]);
+  }, [user, liked, likes, article, showSignIn, toast, setLiked, isLoading]);
 
   return (
     <Button
