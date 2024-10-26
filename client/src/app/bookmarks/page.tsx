@@ -1,5 +1,4 @@
 import TagSelector from "@/app/bookmarks/TagSelector";
-import { Input } from "@/components/ui/input";
 import BookmarkList from "./BookmarkList";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 import ArticlesAPI from "@/api/article";
@@ -32,7 +31,7 @@ export default async function BookmarksPage({
       tag={tag}
       tagList={tagList}
       searchQuery={searchQuery}>
-      <div className="secondary-container px-0 md:px-8 my-1 md:my-2 !bg-transparent">
+      <main className="secondary-container px-0 md:px-8 mt-[4rem] md:!mt-[4.7rem] !bg-transparent">
         <div className="px-3 md:px-0 secondary-container py-1 mb-1 md:py-0 md:mb-0 md:!bg-transparent rounded-none">
           <div className="flex justify-between items-center gap-5 [&>*]:flex-grow [&>*]:md:flex-grow-0">
             <h1 className="text-2xl md:text-3xl font-bold">Bookmarks</h1>
@@ -55,7 +54,7 @@ export default async function BookmarksPage({
         <hr className="hidden md:block md:my-3" />
 
         <BookmarkList tag={tag} />
-      </div>
+      </main>
     </ArticlesContextProvider>
   );
 }

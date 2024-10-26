@@ -30,7 +30,7 @@ export default function AuthPage() {
   }, [params]);
 
   return (
-    <div className="z-50 min-h-dvh w-full grid place-items-center bg-white dark:bg-black">
+    <main className="z-50 min-h-dvh w-full grid place-items-center bg-white dark:bg-black">
       <div className="container w-full sm:w-[30rem]">
         {!showSignIn && !showSignUp && !showForgotPassword && (
           <SignIn
@@ -91,6 +91,6 @@ export default function AuthPage() {
           />
         )}
       </div>
-    </div>
+    </main>
   );
 }

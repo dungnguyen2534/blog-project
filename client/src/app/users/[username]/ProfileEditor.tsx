@@ -26,7 +26,7 @@ import {
 } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface ProfileEditorProps {
@@ -45,7 +45,11 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
 
   const form = useForm<EditProfileBody>({
     resolver: zodResolver(EditProfileBodySchema),
-    defaultValues,
+    defaultValues: {
+      username: user.username,
+      about: user.about || "",
+      profilePicture: undefined,
+    },
   });
 
   const [showDialog, setShowDialog] = useState(false);
@@ -55,7 +59,17 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
   const { toast } = useToast();
   const { mutateUser } = useAuth();
 
+  const { isDirty } = form.formState;
   async function onSubmit(values: EditProfileBody) {
+    if (
+      !isDirty ||
+      (form.watch("username") === defaultValues.username &&
+        form.watch("about") === defaultValues.about)
+    ) {
+      setShowDialog(false);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -63,9 +77,6 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
 
       revalidatePathData("/users/" + user.username); // remove old user page from cache
       revalidateTagData("authenticated-user");
-
-      const { username, about } = updatedUser;
-      form.reset({ username, about, profilePicture: undefined });
 
       mutateUser(updatedUser);
       router.push("/users/" + updatedUser.username);
@@ -89,9 +100,13 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
   useEffect(() => {
     setShowDialog(false);
     setIsSubmitting(false);
-  }, [defaultValues, user.profilePicPath]);
+    form.reset({
+      username: defaultValues.username,
+      about: defaultValues.about,
+      profilePicture: undefined,
+    });
+  }, [defaultValues, user.profilePicPath, form]);
 
-  const { isDirty } = form.formState;
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogTrigger asChild>
@@ -137,7 +152,6 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
             text="Save"
             loadingText="Saving..."
             loading={isSubmitting}
-            disabled={!isDirty}
           />
         </FormWrapper>
       </DialogContent>

@@ -1,9 +1,7 @@
-import { cookies } from "next/headers";
 import React from "react";
 import FollowedPage from "./FollowedPage";
 import TargetFilter from "./TargetFilter";
 import { notFound } from "next/navigation";
-import ArticlesAPI from "@/api/article";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 import ArticleListTabs from "@/components/articles/ArticleListTabs";
 
@@ -26,28 +24,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function FollowedArticlesPage({
+export default function FollowedArticlesPage({
   params: { target },
 }: FollowedArticlesPageProps) {
   if (target !== "users" && target !== "tags" && target !== "all") {
     notFound();
   }
-
-  const userCookie = cookies().get("connect.sid");
-
-  let initialPage;
-  try {
-    initialPage = await ArticlesAPI.getArticleList(
-      "/articles?followedTarget=" + target,
-      userCookie
-    );
-  } catch {
-    initialPage = undefined;
-  }
-
   return (
-    <ArticlesContextProvider followedTarget={target} initialPage={initialPage}>
-      <div className="container px-0 md:px-8 my-[0.35rem] md:my-2">
+    <ArticlesContextProvider followedTarget={target}>
+      <main className="container px-0 md:px-8 mt-[4.3rem] md:!mt-[5.4rem]">
         <ArticleListTabs defaultValue="Followed">
           <TargetFilter
             defaultValue={
@@ -58,14 +43,10 @@ export default async function FollowedArticlesPage({
                     | "All")
                 : "All"
             }>
-            <FollowedPage
-              target={target}
-              key={`followed ${target} page`}
-              noInitialPage={!!!initialPage}
-            />
+            <FollowedPage target={target} key={`followed ${target} page`} />
           </TargetFilter>
         </ArticleListTabs>
-      </div>
+      </main>
     </ArticlesContextProvider>
   );
 }

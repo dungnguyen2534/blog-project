@@ -13,7 +13,6 @@ export function NavigationEvents() {
   const { pathname, prevUrl } = useNavigation();
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     // redirect user to onboarding page if they haven't set a username(social sign in)
     if (
@@ -40,7 +39,7 @@ export function NavigationEvents() {
     }
 
     window.addEventListener("beforeunload", deleteUnusedImages);
-    if (prevUrl.startsWith("/articles/") && prevUrl !== pathname) {
+    if (prevUrl?.startsWith("/articles/") && prevUrl !== pathname) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }

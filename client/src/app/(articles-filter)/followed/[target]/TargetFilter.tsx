@@ -29,12 +29,12 @@ export default function TargetFilter({
             asChild
             value="All"
             onClick={() => revalidateTagData("articles")}>
-            <Link replace={true} href={"/followed/all"}>
+            <Link replace href={"/followed/all"}>
               All
             </Link>
           </TabsTrigger>
           <TabsTrigger asChild value="Users">
-            <Link replace={true} href={"/followed/users"}>
+            <Link replace href={"/followed/users"}>
               Users
             </Link>
           </TabsTrigger>
@@ -42,7 +42,7 @@ export default function TargetFilter({
             onClick={() => revalidateTagData("articles")}
             asChild
             value="Tags">
-            <Link replace={true} href={"/followed/tags"}>
+            <Link replace href={"/followed/tags"}>
               Tags
             </Link>
           </TabsTrigger>
@@ -55,16 +55,19 @@ export default function TargetFilter({
 
           <div className="ml-auto flex gap-4 text-neutral-500 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
             <Link
+              replace
               className={pathname === "/followed/all" ? activeClass : ""}
               href="/followed/all">
               All
             </Link>
             <Link
+              replace
               className={pathname === "/followed/users" ? activeClass : ""}
               href="/followed/users">
               Users
             </Link>
             <Link
+              replace
               className={pathname === "/followed/tags" ? activeClass : ""}
               href="/followed/tags">
               Tags

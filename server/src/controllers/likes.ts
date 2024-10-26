@@ -41,8 +41,6 @@ export const likeTarget: RequestHandler<
     if (!existingLike) {
       await LikeModel.create({ userId, targetType, targetId });
       if (targetType === "article") {
-        console.log(targetId);
-
         await ArticleModel.updateOne(
           { _id: targetId },
           {

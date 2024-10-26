@@ -14,6 +14,7 @@ export const ArticleSchema = z.object({
   isLoggedInUserLiked: z.boolean().optional(),
   isSavedArticle: z.boolean().optional(),
   commentCount: z.number(),
+  readingTime: z.number().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -57,9 +58,21 @@ export const commentPageSchema = z.object({
   totalComments: z.number(),
 });
 
+export const commentStatusSchema = z.object({
+  commentCount: z.number(),
+  commentsWithStatus: z.array(
+    z.object({
+      _id: z.string(),
+      likeCount: z.number(),
+      isLoggedInUserLiked: z.boolean(),
+    })
+  ),
+});
+
 export type Article = z.infer<typeof ArticleSchema>;
 export type ArticleBody = z.infer<typeof ArticleBodySchema>;
 export type ArticlePage = z.infer<typeof ArticlePageSchema>;
 export type Comment = z.infer<typeof CommentSchema>;
 export type CommentBody = z.infer<typeof CommentBodySchema>;
 export type CommentPage = z.infer<typeof commentPageSchema>;
+export type CommentStatus = z.infer<typeof commentStatusSchema>;

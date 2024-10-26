@@ -21,7 +21,7 @@ export default function TagInfo({
   const [totalFollowers, setTotalFollowers] = useState(followerCount);
 
   return (
-    <div className="secondary-container rounded-none md:rounded-md bg-white dark:bg-neutral-900 flex p-5 mb-1 sm:mb-[0.35rem] items-center justify-between ring-1 ring-[#f4f4f4] dark:ring-neutral-900">
+    <div className="secondary-container rounded-none md:rounded-sm bg-white dark:bg-neutral-900 flex p-5 mb-1 md:mb-2 items-center justify-between ring-1 ring-[#f0f0f0] dark:ring-0">
       <div>
         <h1 className="font-bold text-2xl sm:text-3xl mb-2">{"#" + tagName}</h1>
         <div className="flex gap-3 items-center">

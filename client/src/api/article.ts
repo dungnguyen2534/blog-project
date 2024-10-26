@@ -6,12 +6,13 @@ import {
   ArticleBody,
   Article,
   ArticlePage,
+  CommentStatus,
 } from "@/validation/schema/article";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 
 const ArticlesAPI = {
   async createArticle(values: ArticleBody) {
-    const res = await http.article<Article>("/articles", values);
+    const res = await http.post<Article>("/articles", values);
     return res.payload;
   },
   async updateArticle(id: string, values: ArticleBody) {
@@ -25,7 +26,7 @@ const ArticlesAPI = {
   async uploadInArticleImage(image: File) {
     const formData = new FormData();
     formData.append("inArticleImage", image);
-    const res = await http.article<{ imageUrl: string }>(
+    const res = await http.post<{ imageUrl: string }>(
       "/articles/images",
       formData
     );
@@ -84,7 +85,7 @@ const ArticlesAPI = {
     return res.payload;
   },
   async saveArticle(articleId: string) {
-    const res = await http.article(`/articles/${articleId}/save`);
+    const res = await http.post(`/articles/${articleId}/save`);
     return res.payload;
   },
   async getSavedTags(cookie?: RequestCookie) {
@@ -118,7 +119,7 @@ const ArticlesAPI = {
     return res.payload;
   },
   async createComment(articleId: string, values: CommentBody) {
-    const res = await http.article<Comment>(
+    const res = await http.post<Comment>(
       `/articles/${articleId}/comments`,
       values
     );
@@ -140,7 +141,7 @@ const ArticlesAPI = {
   async uploadInCommentImage(articleId: string, image: File) {
     const formData = new FormData();
     formData.append("inCommentImage", image);
-    const res = await http.article<{ imageUrl: string }>(
+    const res = await http.post<{ imageUrl: string }>(
       `/articles/${articleId}/comments/images`,
       formData
     );
@@ -168,20 +169,14 @@ const ArticlesAPI = {
     return res.payload;
   },
   async like(targetId: string, targetType: "article" | "comment") {
-    const res = await http.article<{ totalLikes: number }>(
+    const res = await http.post<{ totalLikes: number }>(
       `/${targetType}/${targetId}/like`
     );
     return res.payload;
   },
   async unlike(targetId: string, targetType: "article" | "comment") {
-    const res = await http.article<{ totalLikes: number }>(
+    const res = await http.post<{ totalLikes: number }>(
       `/${targetType}/${targetId}/unlike`
-    );
-    return res.payload;
-  },
-  async getLikeStatus(targetId: string, targetType: "article" | "comment") {
-    const res = await http.get<{ liked: boolean }>(
-      `/${targetType}/${targetId}/status`
     );
     return res.payload;
   },

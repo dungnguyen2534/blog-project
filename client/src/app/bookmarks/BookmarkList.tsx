@@ -1,11 +1,7 @@
 "use client";
 
 import useAuth from "@/hooks/useAuth";
-import {
-  calculateReadingTime,
-  formatDate,
-  formatUpdatedDate,
-} from "@/lib/utils";
+import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { Article } from "@/validation/schema/article";
 import Link from "next/link";
 import { useCallback } from "react";
@@ -125,11 +121,6 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
                 <h2 className="text-lg md:text-xl font-bold">
                   {article.title}
                 </h2>
-                {article.summary && (
-                  <p className="line-clamp-2 break-words my-1 text-sm text-neutral-600 dark:text-neutral-400">
-                    {article.summary}
-                  </p>
-                )}
               </Link>
 
               <ArticleTags className="!mt-0 my-1" tags={article.tags} />
@@ -142,7 +133,7 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
                 <div className="flex items-center gap-3">
                   <div className="text-muted-foreground text-xs mt-[0.1rem]">
                     <span> • {articleDate(article)},</span>{" "}
-                    <span>{calculateReadingTime(article.body)} min read</span>
+                    <span>{article.readingTime} min read</span>
                   </div>
                 </div>
               </div>

@@ -8,10 +8,10 @@ import AuthDialogsProvider from "@/components/auth/AuthDialogsProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Suspense } from "react";
 import { NavigationEvents } from "./NavigationEvents";
-import UserAPI from "@/api/user";
-import { cookies } from "next/headers";
 import NavigationContextProvider from "@/context/NavigationContext";
 import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
+import { cookies } from "next/headers";
+import UserAPI from "@/api/user";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -50,7 +50,7 @@ export default async function RootLayout({
             <AuthDialogsProvider>
               <MiniProfilesContextProvider>
                 <Navbar authenticatedUser={authenticatedUser} />
-                <main className="mt-16">{children}</main>
+                {children}
                 <Toaster />
                 <Suspense fallback={null}>
                   <NavigationEvents />

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import ArticleEntry from "./ArticleEntry";
 import EmptyArticleList from "./EmptyArticleList";
 import { User } from "@/validation/schema/user";
@@ -10,7 +10,6 @@ import useFollowUser from "@/hooks/useFollowUser";
 interface ArticlesListProps {
   author?: User;
   tag?: string;
-  saved?: boolean;
   top?: boolean;
   timeSpan?: "week" | "month" | "year" | "infinity";
   followedTarget?: "users" | "tags" | "all";
@@ -38,8 +37,9 @@ export default function ArticleList({
     pageLoadError,
     firstPageLoadError,
   } = useArticlesLoader();
-  const { setUsersToFollow } = useFollowUser();
 
+  // sync users follow status if there is more than one
+  const { setUsersToFollow } = useFollowUser();
   useEffect(() => {
     setUsersToFollow(
       articleList.map((article) => ({
@@ -50,6 +50,7 @@ export default function ArticleList({
     );
   }, [setUsersToFollow, articleList]);
 
+  // fetcher functions
   const handleFetchFirstPage = useCallback(() => {
     if (top) {
       fetchFirstPage(undefined, undefined, 12, top, timeSpan);
@@ -84,6 +85,7 @@ export default function ArticleList({
     }
   }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
 
+  // ref as a callback make the callback to be called when the component is mounted
   const articleRef = useCallback(
     (articleEntry: HTMLElement | null) => {
       if (!articleEntry || lastArticleReached) return;
@@ -104,7 +106,7 @@ export default function ArticleList({
   );
 
   return (
-    <div className="flex flex-col gap-[0.35rem] md:gap-2 m-auto">
+    <div className="flex flex-col gap-1 md:gap-2 m-auto mb-2">
       {articleList.length > 0 &&
         articleList.map((article, index) => (
           <ArticleEntry
@@ -113,9 +115,11 @@ export default function ArticleList({
             ref={index === articleList.length - 1 ? articleRef : null}
           />
         ))}
+
       {!firstPageLoadError && !lastArticleReached && !pageLoadError && (
         <ArticleListSkeleton skeletonCount={4} />
       )}
+
       {!author && firstPageLoadError && (
         <EmptyArticleList
           retryFunction={async () => handleFetchFirstPage()}
@@ -123,6 +127,7 @@ export default function ArticleList({
           className="mt-48"
         />
       )}
+
       {author && firstPageLoadError && (
         <EmptyArticleList
           text={`Failed to load`}
@@ -131,6 +136,7 @@ export default function ArticleList({
           hideIcon
         />
       )}
+
       {!author && pageLoadError && (
         <EmptyArticleList
           text="Failed to load"
@@ -138,6 +144,7 @@ export default function ArticleList({
           hideIcon
         />
       )}
+
       {author && pageLoadError && (
         <EmptyArticleList
           text="Failed to load"

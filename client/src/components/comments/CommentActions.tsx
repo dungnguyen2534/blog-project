@@ -112,7 +112,7 @@ export default function CommentActions({
           <>
             <LikeCommentButton
               commentId={comment._id}
-              initialLikeCount={comment.likeCount}
+              likeCount={comment.likeCount}
               isLoggedInUserLiked={comment.isLoggedInUserLiked}
               className="gap-2 px-3 py-2 -ml-3 rounded-md"
               variant="ghost"

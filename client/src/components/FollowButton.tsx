@@ -113,7 +113,10 @@ export default function FollowButton({
   ]);
 
   return (
-    <Button onClick={handleClick} className={className} variant={variant}>
+    <Button
+      onClick={handleClick}
+      className={`w-24 ${className}`}
+      variant={variant}>
       {isFollowing ? "Followed" : "Follow"}
     </Button>
   );

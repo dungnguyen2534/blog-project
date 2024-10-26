@@ -10,13 +10,9 @@ import { TbMoodEmpty } from "react-icons/tb";
 
 interface FollowedPageProps {
   target: "users" | "tags" | "all";
-  noInitialPage: boolean;
 }
 
-export default function FollowedPage({
-  target,
-  noInitialPage,
-}: FollowedPageProps) {
+export default function FollowedPage({ target }: FollowedPageProps) {
   const { user, isLoadingUser } = useAuth();
 
   let noFollowedContent;
@@ -48,17 +44,15 @@ export default function FollowedPage({
 
   return (
     <>
-      {(!noInitialPage || user) && (
+      {user && (
         <ArticleList key={"followed-articles"} followedTarget={target} />
       )}
 
-      {noInitialPage && isLoadingUser && (
-        <ArticleListSkeleton skeletonCount={4} />
-      )}
+      {isLoadingUser && <ArticleListSkeleton skeletonCount={1} />}
 
       {noFollowedContent}
 
-      {noInitialPage && !user && !isLoadingUser && (
+      {!user && !isLoadingUser && (
         <div className="mt-32 flex flex-col items-center gap-2">
           <FaSignInAlt size={140} />
           <div>

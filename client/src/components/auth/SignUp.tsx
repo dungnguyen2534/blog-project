@@ -20,7 +20,7 @@ import { SignUpBody, SignUpBodySchema } from "@/validation/schema/user";
 import { useRouter } from "next/navigation";
 
 interface SignUp {
-  previousUrl: string | null;
+  previousUrl: string | undefined;
   onSignInClick: () => void;
 }
 

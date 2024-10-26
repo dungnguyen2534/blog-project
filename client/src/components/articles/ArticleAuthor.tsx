@@ -3,11 +3,7 @@
 import Link from "next/link";
 import UserAvatar from "../UserAvatar";
 import { Article } from "@/validation/schema/article";
-import {
-  calculateReadingTime,
-  formatDate,
-  formatUpdatedDate,
-} from "@/lib/utils";
+import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { TooltipTrigger } from "@/components/ui/tooltip";
 import MiniProfile from "../MiniProfile";
 
@@ -60,9 +56,7 @@ export default function ArticleAuthor({
         </TooltipTrigger>
         <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-11">
           {articleDate}
-          {!articleEntry && (
-            <span> • {calculateReadingTime(article.body)} min read </span>
-          )}
+          {!articleEntry && <span> • {article.readingTime} min read </span>}
         </div>
       </div>
     </MiniProfile>

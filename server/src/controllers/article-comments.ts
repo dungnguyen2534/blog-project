@@ -337,6 +337,7 @@ export const getCommentList: RequestHandler<
     next(error);
   }
 };
+
 export const uploadInCommentImages: RequestHandler = async (req, res, next) => {
   const image = req.file;
   const authenticatedUser = req.user;

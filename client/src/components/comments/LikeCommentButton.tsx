@@ -3,13 +3,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { PiHeart, PiHeartFill } from "react-icons/pi";
-import useCommentsLoader from "@/hooks/useCommentsLoader";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import useAuth from "@/hooks/useAuth";
 import ArticlesAPI from "@/api/article";
+import useCommentsLoader from "@/hooks/useCommentsLoader";
 
 interface LikeCommentButtonProps {
-  initialLikeCount?: number;
+  likeCount: number;
   commentId: string;
   isLoggedInUserLiked?: boolean;
   className?: string;
@@ -26,20 +26,20 @@ interface LikeCommentButtonProps {
 
 export default function LikeCommentButton({
   commentId,
-  initialLikeCount,
+  likeCount,
   isLoggedInUserLiked,
   variant,
   className,
 }: LikeCommentButtonProps) {
-  const { commentsLikeCount, setCommentsLikeCount } = useCommentsLoader();
-  const [likes, setLikes] = useState(
-    commentsLikeCount.find((comment) => comment.commentId === commentId)
-      ?.likeCount ||
-      initialLikeCount ||
-      0
-  );
-
+  const [likes, setLikes] = useState(likeCount);
   const [liked, setLiked] = useState(isLoggedInUserLiked);
+
+  useEffect(() => {
+    setLikes(likeCount);
+    setLiked(isLoggedInUserLiked);
+  }, [likeCount, isLoggedInUserLiked]);
+
+  const { isClientSideLoading } = useCommentsLoader();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user } = useAuth();
@@ -50,6 +50,8 @@ export default function LikeCommentButton({
       showSignIn();
       return;
     }
+
+    if (isClientSideLoading) return;
 
     if (!user.username) return;
 
@@ -73,23 +75,12 @@ export default function LikeCommentButton({
           newLikeCount = (await ArticlesAPI.like(commentId, "comment"))
             .totalLikes;
         }
-
-        setCommentsLikeCount((prevCounts) =>
-          prevCounts.map((comment) =>
-            comment.commentId === commentId
-              ? {
-                  ...comment,
-                  likeCount: newLikeCount,
-                }
-              : comment
-          )
-        );
       } catch {
         setLiked(!newLiked);
         setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [liked, commentId, user, setCommentsLikeCount, showSignIn, likes]);
+  }, [liked, commentId, user, showSignIn, likes, isClientSideLoading]);
 
   return (
     <Button onClick={handleClick} variant={variant} className={className}>

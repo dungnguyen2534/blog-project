@@ -350,7 +350,7 @@ export const getArticleList: RequestHandler<
   };
 
   try {
-    let query = ArticleModel.find(filter).sort({ _id: -1 });
+    let query = ArticleModel.find(filter).sort({ _id: -1 }).select("-images");
 
     if (followedTarget) {
       assertIsDefined(authenticatedUser);
@@ -407,40 +407,33 @@ export const getArticleList: RequestHandler<
 
     const articlesWithStatus = await Promise.all(
       articleList.map(async (article) => {
-        const [
-          isUserLikedArticle,
-          isLoggedInUserFollowing,
-          likeCount,
-          isSavedArticle,
-        ] = await Promise.all([
-          authenticatedUser
-            ? LikeModel.exists({
-                userId: authenticatedUser._id,
-                targetType: "article",
-                targetId: article._id,
-              })
-            : Promise.resolve(false),
-          authenticatedUser
-            ? FollowerModel.exists({
-                user: article.author._id,
-                follower: authenticatedUser._id,
-              })
-            : Promise.resolve(false),
-          LikeModel.countDocuments({
-            targetId: article._id,
-            targetType: "article",
-          }),
-          authenticatedUser
-            ? SavedArticleModel.exists({
-                userId: authenticatedUser._id,
-                articleId: article._id,
-              })
-            : Promise.resolve(false),
-        ]);
+        const [isUserLikedArticle, isLoggedInUserFollowing, isSavedArticle] =
+          await Promise.all([
+            authenticatedUser
+              ? LikeModel.exists({
+                  userId: authenticatedUser._id,
+                  targetType: "article",
+                  targetId: article._id,
+                })
+              : Promise.resolve(false),
+            authenticatedUser
+              ? FollowerModel.exists({
+                  user: article.author._id,
+                  follower: authenticatedUser._id,
+                })
+              : Promise.resolve(false),
+            authenticatedUser
+              ? SavedArticleModel.exists({
+                  userId: authenticatedUser._id,
+                  articleId: article._id,
+                })
+              : Promise.resolve(false),
+          ]);
 
+        const readingTime = Math.ceil(article.body.split(/\s+/).length / 238);
+        const articleToSent = { ...article, body: "" }; // reduce the response size when save the list to session storage on frontend
         return {
-          ...article,
-          likeCount,
+          ...articleToSent,
           ...(authenticatedUser && {
             isLoggedInUserLiked: !!isUserLikedArticle,
             author: {
@@ -449,6 +442,7 @@ export const getArticleList: RequestHandler<
             },
           }),
           ...(authenticatedUser && { isSavedArticle: !!isSavedArticle }),
+          readingTime,
         };
       })
     );
@@ -497,18 +491,26 @@ export const getTopArticles: RequestHandler<
   };
 
   try {
-    const query = ArticleModel.find(filter).sort({
-      likeCount: -1,
-      createdAt: -1,
-    });
+    let query = ArticleModel.find(filter)
+      .sort({
+        likeCount: -1,
+        createdAt: -1,
+      })
+      .select("-images");
 
     if (continueAfterLikeCount && continueAfterId) {
-      query.find({
+      query = ArticleModel.find({
         ...filter,
-        ...{
-          likeCount: { $lte: continueAfterLikeCount },
-          _id: { $lt: continueAfterId },
-        },
+        $or: [
+          { likeCount: { $lt: continueAfterLikeCount } },
+          {
+            likeCount: continueAfterLikeCount,
+            _id: { $lt: continueAfterId },
+          },
+        ],
+      }).sort({
+        likeCount: -1,
+        createdAt: -1,
       });
     }
 
@@ -553,9 +555,10 @@ export const getTopArticles: RequestHandler<
               })
             : Promise.resolve(false),
         ]);
-
+        const readingTime = Math.ceil(article.body.split(/\s+/).length / 238);
+        const articleToSent = { ...article, body: "" };
         return {
-          ...article,
+          ...articleToSent,
           likeCount,
           ...(authenticatedUser && {
             isLoggedInUserLiked: !!isUserLikedArticle,
@@ -565,6 +568,7 @@ export const getTopArticles: RequestHandler<
             },
           }),
           ...(authenticatedUser && { isSavedArticle: !!isSavedArticle }),
+          readingTime,
         };
       })
     );

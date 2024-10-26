@@ -8,7 +8,6 @@ import { IoChatboxOutline } from "react-icons/io5";
 import { Button } from "../ui/button";
 import ArticleTags from "./ArticleTags";
 import ArticleEntryLikeButton from "./ArticleEntryLikeButton";
-import { calculateReadingTime } from "@/lib/utils";
 import { MdBookmarkAdded, MdOutlineBookmarkAdd } from "react-icons/md";
 import useAuth from "@/hooks/useAuth";
 import ArticlesAPI from "@/api/article";
@@ -55,6 +54,7 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
           } else {
             await ArticlesAPI.saveArticle(article._id);
           }
+
           toast({
             title: isSaved
               ? "Article removed from bookmarks"
@@ -73,7 +73,7 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
     return (
       <article
         ref={ref}
-        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md ring-1 ring-[#f4f4f4] dark:ring-neutral-900 overflow-hidden break-words">
+        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-sm ring-1 ring-[#f0f0f0] dark:ring-0 overflow-hidden break-words">
         <ArticleOptions
           article={article}
           author={article.author}
@@ -100,13 +100,15 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
                 className="-ml-3"
                 variant="ghost"
               />
-              <Button asChild variant="ghost" className="gap-1 px-3 py-2 -ml-3">
+              <Button asChild variant="ghost" className="px-3 py-2 -ml-3 gap-1">
                 <Link href={`/articles/${article.slug}#comment-section`}>
                   <IoChatboxOutline size={22} className="mt-[0.14rem]" />
-                  <span>
-                    {article.commentCount > 0 && article.commentCount}
-                  </span>
-                  <span className={`hidden sm:block `}>
+
+                  {article.commentCount > 0 && (
+                    <span>{article.commentCount}</span>
+                  )}
+
+                  <span className={`hidden sm:block`}>
                     {article.commentCount <= 1 ? "Comment" : "Comments"}
                   </span>
                 </Link>
@@ -114,14 +116,14 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
             </div>
 
             <TooltipProvider>
-              <Tooltip>
+              <Tooltip delayDuration={1000}>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
                     className="text-muted-foreground cursor-pointer hover:text-black dark:hover:text-white items-center gap-1 -mr-1 px-3"
                     onClick={bookmark}>
                     <span className="font-medium text-xs">
-                      {calculateReadingTime(article.body)} min read
+                      {article.readingTime} min read
                     </span>
                     {isSaved ? (
                       <MdBookmarkAdded size={19} />

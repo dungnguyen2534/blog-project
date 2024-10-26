@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import { PiHeart, PiHeartFill } from "react-icons/pi";
 import ArticlesAPI from "@/api/article";
-import useArticlesLoader from "@/hooks/useArticlesLoader";
 import { useToast } from "../ui/use-toast";
 import { Article } from "@/validation/schema/article";
 import {
@@ -35,12 +34,8 @@ export default function ArticleEntryLikeButton({
   className,
   variant,
 }: ArticleEntryLikeButtonProps) {
-  const { articlesLikeCount, setArticlesLikeCount } = useArticlesLoader();
-
   const [liked, setLiked] = useState(article.isLoggedInUserLiked);
-  const [likes, setLikes] = useState(
-    articlesLikeCount.find((p) => p.articleId === article._id)?.likeCount || 0
-  );
+  const [likes, setLikes] = useState(article.likeCount);
 
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
@@ -58,17 +53,6 @@ export default function ArticleEntryLikeButton({
       const newLikeCount = (await ArticlesAPI.unlike(article._id, "article"))
         .totalLikes;
 
-      setArticlesLikeCount((prevCounts) =>
-        prevCounts.map((p) =>
-          p.articleId === article._id
-            ? {
-                ...p,
-                likeCount: newLikeCount,
-              }
-            : p
-        )
-      );
-
       setLiked(false);
       setLikes((prevLikes) => prevLikes - 1);
       setOpenDialog(false);
@@ -77,7 +61,7 @@ export default function ArticleEntryLikeButton({
         title: "An error occurred, please try again later",
       });
     }
-  }, [article._id, setArticlesLikeCount, toast]);
+  }, [article._id, toast]);
 
   const buttonContent = (
     <>

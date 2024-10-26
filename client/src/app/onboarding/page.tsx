@@ -60,7 +60,7 @@ export default function OnboardingPage() {
   }, [router, searchParams, user?.username]);
 
   return (
-    <div className="container flex flex-col justify-center items-center sm:block p-8 w-screen">
+    <main className="container flex flex-col justify-center items-center sm:block p-8 w-screen mt-[4rem] md:!mt-[4.57rem]">
       <h1 className="text-4xl font-bold">Onboarding</h1>
       <p className="mb-5 mt-1">
         Welcome, please enter your username to continue.
@@ -82,6 +82,6 @@ export default function OnboardingPage() {
           type="submit"
         />
       </FormWrapper>
-    </div>
+    </main>
   );
 }

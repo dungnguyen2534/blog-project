@@ -9,6 +9,7 @@ interface UserAvatarProps {
   className?: string;
   width?: number;
   height?: number;
+  priority?: boolean;
 }
 
 export default function UserAvatar({
@@ -17,6 +18,7 @@ export default function UserAvatar({
   profilePicUrl,
   width,
   height,
+  priority,
 }: UserAvatarProps) {
   return (
     <Avatar className={`w-[2.4rem] h-[2.4rem] ${className} `}>
@@ -26,6 +28,7 @@ export default function UserAvatar({
           alt={`${username || "user"} avatar`}
           width={width || 80}
           height={height || 80}
+          priority={priority}
         />
       </AvatarImage>
       <AvatarFallback className="overflow-hidden">

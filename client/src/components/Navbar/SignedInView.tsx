@@ -54,6 +54,7 @@ export default function SignedInView({
       setAuthenticatedUserSSR(undefined);
       mutateUser(null);
 
+      sessionStorage.clear();
       window.location.reload();
     } catch (error) {
       setIsSigningOut(false);
@@ -79,11 +80,11 @@ export default function SignedInView({
         )}
 
       <MobileMenu username={user?.username} setOpenDialog={setOpenDialog} />
-      <div className="hidden md:block">
+      <div className="hidden md:flex">
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           {user?.username && !(pathname === "/onboarding") && (
             <DropdownMenu modal={false}>
-              <DropdownMenuTrigger aria-label="menu" className="mt-[0.32rem]">
+              <DropdownMenuTrigger aria-label="menu">
                 <UserAvatar
                   username={user?.username}
                   profilePicUrl={user?.profilePicPath}
