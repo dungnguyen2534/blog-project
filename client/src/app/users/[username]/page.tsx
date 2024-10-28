@@ -37,9 +37,5 @@ export default async function UserProfilePage({
 }: UserProfilePageProps) {
   const user = await getUser(username);
 
-  return (
-    <ArticlesContextProvider authorId={user._id}>
-      <Profile user={user} />
-    </ArticlesContextProvider>
-  );
+  return <Profile user={user} />;
 }

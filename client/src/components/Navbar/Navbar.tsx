@@ -5,35 +5,28 @@ import { ModeToggle } from "../ui/mode-toggle";
 import useAuth from "@/hooks/useAuth";
 import SignedOutView from "./SignedOutView";
 import SignedInView from "./SignedInView";
-import { revalidateTagData } from "@/lib/revalidate";
-import { User } from "@/validation/schema/user";
-import { useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { SiCodersrank } from "react-icons/si";
+import { FaTerminal } from "react-icons/fa";
 import useNavigation from "@/hooks/useNavigation";
 import PreviousUrlButton from "../PreviousUrlButton";
+import { Skeleton } from "../ui/skeleton";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
-
-interface Navbar {
-  authenticatedUser?: User;
-}
-
-export default function Navbar({ authenticatedUser }: Navbar) {
-  const [authenticatedUserSSR, setAuthenticatedUserSSR] = useState<
-    User | undefined
-  >(authenticatedUser);
-
+export default function Navbar() {
   const { user, isLoadingUser, mutateUser } = useAuth();
   const { pathname } = useNavigation();
-  let callToActions = <SignedOutView />;
-  if (user || authenticatedUserSSR) {
-    callToActions = (
-      <SignedInView
-        user={user || authenticatedUserSSR}
-        setAuthenticatedUserSSR={setAuthenticatedUserSSR}
-        mutateUser={mutateUser}
-      />
-    );
+  const { handleArticleListChange, cacheRef } = useArticlesLoader();
+
+  let callToActions = (
+    <div className="hidden md:flex items-center gap-3">
+      <Skeleton className="hidden sm:block h-10 w-[7.8275rem]" />
+      <Skeleton className="h-12 w-12  sm:h-[2.4rem] sm:w-[2.4rem] rounded-full" />
+    </div>
+  );
+  if (user) {
+    callToActions = <SignedInView user={user} mutateUser={mutateUser} />;
+  } else if (!user && !isLoadingUser) {
+    callToActions = <SignedOutView />;
   }
   const LogoTag = pathname === "/onboarding" ? "div" : Link;
 
@@ -51,28 +44,36 @@ export default function Navbar({ authenticatedUser }: Navbar) {
       <div className="container px-2 md:px-4 flex items-center relative">
         <LogoTag
           href="/"
-          onClick={() => revalidateTagData("articles")}
+          onClick={() => {
+            handleArticleListChange("/");
+            cacheRef.current = {};
+          }}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-bold flex items-center">
-          <SiCodersrank size={28} className="mb-[0.2rem]" />
-          <span className="ml-1 text-xl font-extrabold italic">DEVFLOW</span>
+          <FaTerminal size={26} className="" />
+          <span className="ml-1 text-xl font-extrabold">DEVFLOW</span>
         </LogoTag>
-        <span className="absolute left-48 rotate-[25deg] w-[1px] h-[300%] bg-[#e7e7e7] dark:bg-neutral-800"></span>
+        <span className="absolute left-44 rotate-[18deg] w-[1px] h-[300%] bg-[#e7e7e7] dark:bg-neutral-800"></span>
         <div className="hidden md:flex ml-52 items-center gap-2 transition-all text-sm text-neutral-600 dark:text-neutral-400 [&>*]:p-2 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
           {showPrevUrlCondition ? (
             <PreviousUrlButton />
           ) : (
             <>
-              <Link className={pathname === "/" ? activeClass : ""} href="/">
+              <Link
+                className={pathname === "/" ? activeClass : ""}
+                href="/"
+                onClick={() => handleArticleListChange("/")}>
                 Latest
               </Link>
               <Link
                 className={pathname.startsWith("/top") ? activeClass : ""}
-                href="/top/week">
+                href="/top/week"
+                onClick={() => handleArticleListChange("/top/week")}>
                 Top
               </Link>
               <Link
                 className={pathname.startsWith("/followed") ? activeClass : ""}
-                href="/followed/all">
+                href="/followed/all"
+                onClick={() => handleArticleListChange("/followed/all")}>
                 Followed
               </Link>
             </>
@@ -86,7 +87,7 @@ export default function Navbar({ authenticatedUser }: Navbar) {
           <RxHamburgerMenu
             size={40}
             className={`md:hidden mr-2 text-muted-foreground ${
-              !authenticatedUser && isLoadingUser ? "" : "hidden"
+              isLoadingUser ? "" : "hidden"
             }`}
           />
           {callToActions}

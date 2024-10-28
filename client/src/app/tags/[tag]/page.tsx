@@ -32,16 +32,14 @@ export default async function TagPage({ params: { tag } }: TagPageProps) {
   }
 
   return (
-    <ArticlesContextProvider tag={tag}>
-      <main className="container px-0 sm:px-8 mt-[4rem] md:!mt-[4.57rem]">
-        <TagInfo
-          tagName={tag}
-          followerCount={tagInfo.followerCount}
-          articleCount={tagInfo.articleCount}
-          isLoggedInUserFollowing={tagInfo.isLoggedInUserFollowing}
-        />
-        <ArticleList tag={tag} />
-      </main>
-    </ArticlesContextProvider>
+    <main className="container px-0 sm:px-8 mt-[4rem] md:!mt-[4.57rem]">
+      <TagInfo
+        tagName={tag}
+        followerCount={tagInfo.followerCount}
+        articleCount={tagInfo.articleCount}
+        isLoggedInUserFollowing={tagInfo.isLoggedInUserFollowing}
+      />
+      <ArticleList tag={tag} />
+    </main>
   );
 }

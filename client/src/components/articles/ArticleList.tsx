@@ -1,11 +1,13 @@
 "use client";
-import { useCallback, useEffect, useMemo } from "react";
+
+import { useCallback, useEffect } from "react";
 import ArticleEntry from "./ArticleEntry";
 import EmptyArticleList from "./EmptyArticleList";
 import { User } from "@/validation/schema/user";
 import ArticleListSkeleton from "./ArticleListSkeleton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import useFollowUser from "@/hooks/useFollowUser";
+import { usePathname } from "next/navigation";
 
 interface ArticlesListProps {
   author?: User;
@@ -31,14 +33,43 @@ export default function ArticleList({
 
   const {
     articleList,
+    setArticleList,
     fetchFirstPage,
+    firstPageFetched,
     fetchNextPage,
     lastArticleReached,
     pageLoadError,
     firstPageLoadError,
+    cacheRef,
   } = useArticlesLoader();
 
-  // sync users follow status if there is more than one
+  // fetcher functions
+  const handleFetchFirstPage = useCallback(() => {
+    fetchFirstPage(author?._id, tag, 12, top, timeSpan, followedTarget);
+  }, [fetchFirstPage, tag, author?._id, top, followedTarget, timeSpan]);
+
+  const handleFetchNextPage = useCallback(() => {
+    fetchNextPage(author?._id, tag, 12, top, timeSpan, followedTarget);
+  }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
+
+  // use stored data if available when navigating back using browser or the custom navbar back button
+  const pathname = usePathname();
+  useEffect(() => {
+    if (cacheRef.current[pathname] && firstPageFetched) {
+      setArticleList(cacheRef.current[pathname]);
+    }
+    if (!firstPageFetched) {
+      handleFetchFirstPage();
+    }
+  }, [
+    firstPageFetched,
+    handleFetchFirstPage,
+    cacheRef,
+    pathname,
+    setArticleList,
+  ]);
+
+  // sync author follow status if there is more than one of the same author on the list
   const { setUsersToFollow } = useFollowUser();
   useEffect(() => {
     setUsersToFollow(
@@ -49,41 +80,6 @@ export default function ArticleList({
       }))
     );
   }, [setUsersToFollow, articleList]);
-
-  // fetcher functions
-  const handleFetchFirstPage = useCallback(() => {
-    if (top) {
-      fetchFirstPage(undefined, undefined, 12, top, timeSpan);
-    } else if (followedTarget) {
-      fetchFirstPage(
-        undefined,
-        undefined,
-        12,
-        undefined,
-        undefined,
-        followedTarget
-      );
-    } else {
-      fetchFirstPage(author?._id, tag, 12);
-    }
-  }, [fetchFirstPage, tag, author?._id, top, followedTarget, timeSpan]);
-
-  const handleFetchNextPage = useCallback(() => {
-    if (top) {
-      fetchNextPage(undefined, undefined, 12, top, timeSpan);
-    } else if (followedTarget) {
-      fetchNextPage(
-        undefined,
-        undefined,
-        12,
-        undefined,
-        undefined,
-        followedTarget
-      );
-    } else {
-      fetchNextPage(author?._id, tag, 12);
-    }
-  }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
 
   // ref as a callback make the callback to be called when the component is mounted
   const articleRef = useCallback(
@@ -117,7 +113,10 @@ export default function ArticleList({
         ))}
 
       {!firstPageLoadError && !lastArticleReached && !pageLoadError && (
-        <ArticleListSkeleton skeletonCount={4} />
+        <>
+          <ArticleListSkeleton className="hidden md:flex" skeletonCount={4} />
+          <ArticleListSkeleton className="flex md:hidden" skeletonCount={6} />
+        </>
       )}
 
       {!author && firstPageLoadError && (

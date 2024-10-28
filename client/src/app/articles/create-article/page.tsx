@@ -24,6 +24,7 @@ import {
 import TextInput from "@/components/form/TextInput";
 import useAutoSave from "@/hooks/useAutoSave";
 import EditorGuideButton from "@/components/EditorGuideButton";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 export default function NewArticlePage() {
   const form = useForm<ArticleBody>({
@@ -39,6 +40,7 @@ export default function NewArticlePage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setFirstPageFetched } = useArticlesLoader();
 
   const title = form.watch("title");
   const body = form.watch("body");
@@ -102,7 +104,7 @@ export default function NewArticlePage() {
 
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
-    sessionStorage.clear();
+    setFirstPageFetched(false);
 
     try {
       const { slug } = await ArticlesAPI.createArticle({

@@ -48,11 +48,9 @@ export default async function ArticlePage({
   const article = await getArticle(slug);
 
   return (
-    <ArticlesContextProvider>
-      <div className="secondary-container ring-1 ring-[#f0f0f0] dark:ring-0 mt-[4rem] md:!mt-[4.5rem] mb-2 p-3 sm:pt-7 rounded-none sm:rounded-sm">
-        <ArticleContent article={article} />
-        <CommentSection article={article} />
-      </div>
-    </ArticlesContextProvider>
+    <div className="secondary-container ring-1 ring-[#f0f0f0] dark:ring-0 mt-[4rem] md:!mt-[4.5rem] md:mb-2 p-3 sm:pt-7 rounded-none sm:rounded-sm">
+      <ArticleContent article={article} />
+      <CommentSection article={article} />
+    </div>
   );
 }

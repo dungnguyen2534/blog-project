@@ -14,6 +14,8 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import Link from "next/link";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface ArticleEntryLikeButtonProps {
   article: Article;
@@ -37,6 +39,9 @@ export default function ArticleEntryLikeButton({
   const [liked, setLiked] = useState(article.isLoggedInUserLiked);
   const [likes, setLikes] = useState(article.likeCount);
 
+  const { cacheRef } = useArticlesLoader();
+  const { pathname } = useNavigation();
+
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
 
@@ -50,8 +55,16 @@ export default function ArticleEntryLikeButton({
 
   const unlikeArticle = useCallback(async () => {
     try {
-      const newLikeCount = (await ArticlesAPI.unlike(article._id, "article"))
-        .totalLikes;
+      await ArticlesAPI.unlike(article._id, "article");
+
+      const articleIndex = cacheRef.current[pathname].findIndex(
+        (a) => a._id === article._id
+      );
+
+      if (articleIndex !== -1) {
+        cacheRef.current[pathname][articleIndex].isLoggedInUserLiked = false;
+        cacheRef.current[pathname][articleIndex].likeCount -= 1;
+      }
 
       setLiked(false);
       setLikes((prevLikes) => prevLikes - 1);
@@ -61,7 +74,7 @@ export default function ArticleEntryLikeButton({
         title: "An error occurred, please try again later",
       });
     }
-  }, [article._id, toast]);
+  }, [article._id, toast, cacheRef, pathname]);
 
   const buttonContent = (
     <>

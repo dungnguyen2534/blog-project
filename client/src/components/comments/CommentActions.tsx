@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ArticlesAPI from "@/api/article";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Button } from "../ui/button";
 import { IoChatboxOutline } from "react-icons/io5";
 import CommentForm from "./CommentForm";
 import {
+  Article,
   CommentBody,
   Comment as CommentType,
 } from "@/validation/schema/article";
@@ -16,10 +17,13 @@ import useAuth from "@/hooks/useAuth";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import LikeCommentButton from "./LikeCommentButton";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
+import { revalidatePathData } from "@/lib/revalidate";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface CommentActionsProps {
   comment: CommentType;
-  articleId: string;
+  article: Article;
   parentCommentId: string;
   notTopLevelComment?: boolean;
   usernameToReplyTo: string;
@@ -27,11 +31,24 @@ interface CommentActionsProps {
 
 export default function CommentActions({
   comment,
-  articleId,
+  article,
   parentCommentId,
   notTopLevelComment,
   usernameToReplyTo,
 }: CommentActionsProps) {
+  const [likes, setLikes] = useState(comment.likeCount || 0);
+  const [liked, setLiked] = useState<boolean>(
+    comment.isLoggedInUserLiked || false
+  );
+
+  const { cacheRef } = useArticlesLoader();
+  const { prevUrl } = useNavigation();
+
+  useEffect(() => {
+    setLikes(comment.likeCount);
+    setLiked(comment.isLoggedInUserLiked || false);
+  }, [comment]);
+
   const { setReplyPages, setNewLocalReplies, setCommentCount } =
     useCommentsLoader();
 
@@ -40,7 +57,7 @@ export default function CommentActions({
 
   async function reply(comment: CommentBody) {
     try {
-      const newComment = await ArticlesAPI.createComment(articleId, {
+      const newComment = await ArticlesAPI.createComment(article._id, {
         ...comment,
         parentCommentId,
       });
@@ -59,6 +76,17 @@ export default function CommentActions({
         })
       );
 
+      if (prevUrl) {
+        const articleIndex = cacheRef.current[prevUrl].findIndex(
+          (a) => a._id === article._id
+        );
+
+        if (articleIndex !== -1) {
+          cacheRef.current[prevUrl][articleIndex].commentCount += 1;
+        }
+      }
+
+      revalidatePathData(`/articles/${article.slug}`);
       setNewLocalReplies((prevReplies) => [...prevReplies, newComment]);
       setCommentCount((prevCount) => prevCount + 1);
       setIsReplying(false);
@@ -87,7 +115,7 @@ export default function CommentActions({
         {isReplying ? (
           <div className="w-full relative">
             <CommentForm
-              articleId={articleId}
+              articleId={article._id}
               submitFunction={reply}
               noAvatar
               autoFocus
@@ -112,8 +140,10 @@ export default function CommentActions({
           <>
             <LikeCommentButton
               commentId={comment._id}
-              likeCount={comment.likeCount}
-              isLoggedInUserLiked={comment.isLoggedInUserLiked}
+              liked={liked}
+              setLiked={setLiked}
+              likes={likes}
+              setLikes={setLikes}
               className="gap-2 px-3 py-2 -ml-3 rounded-md"
               variant="ghost"
             />

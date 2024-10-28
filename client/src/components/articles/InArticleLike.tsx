@@ -10,20 +10,17 @@ interface InArticleLikeProps {
   article: Article;
   liked?: boolean;
   setLiked: (liked: boolean) => void;
+  likes: number;
+  setLikes: (likes: number) => void;
   isLoading: boolean;
 }
 
-export default function InArticleLike({
-  article,
-  liked,
-  setLiked,
-  isLoading,
-}: InArticleLikeProps) {
+export default function InArticleLike(props: InArticleLikeProps) {
   const { toast } = useToast();
 
   function handleCopyLink() {
     navigator.clipboard.writeText(
-      `${window.location.origin}/articles/${article.slug}`
+      `${window.location.origin}/articles/${props.article.slug}`
     );
     toast({
       title: "Article link copied to clipboard",
@@ -37,14 +34,7 @@ export default function InArticleLike({
         Do you like this article?
       </span>
 
-      <InArticleLikeButton
-        variant="outline"
-        article={article}
-        className="ml-3"
-        liked={liked}
-        setLiked={setLiked}
-        isLoading={isLoading}
-      />
+      <InArticleLikeButton variant="outline" className="ml-3" {...props} />
       <Button onClick={handleCopyLink} variant="outline" className="gap-2 ml-1">
         <BiShareAlt size={22} className="-ml-1" />
         Share

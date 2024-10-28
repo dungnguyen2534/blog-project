@@ -29,6 +29,7 @@ import {
   ArticleBodySchema,
 } from "@/validation/schema/article";
 import ArticlesAPI from "@/api/article";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface ArticleUpdaterProps {
   article: Article;
@@ -48,6 +49,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setFirstPageFetched } = useArticlesLoader();
 
   const title = form.watch("title");
   const body = form.watch("body");
@@ -91,9 +93,9 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
       }
     }
 
-    sessionStorage.clear();
     setIsSubmitting(true);
     const images = extractImageUrls(values.body);
+    setFirstPageFetched(false);
 
     try {
       const { slug } = await ArticlesAPI.updateArticle(article._id, {

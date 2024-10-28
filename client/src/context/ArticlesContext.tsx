@@ -2,7 +2,14 @@
 
 import ArticlesAPI from "@/api/article";
 import { Article, ArticlePage } from "@/validation/schema/article";
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 interface ArticlesContextType {
   articleList: Article[];
@@ -13,7 +20,8 @@ interface ArticlesContextType {
     top?: boolean,
     timeSpan?: "week" | "month" | "year" | "infinity",
     followedTarget?: "users" | "tags" | "all",
-    saved?: boolean
+    saved?: boolean,
+    searchQuery?: string
   ) => Promise<void>;
   fetchNextPage: (
     authorId?: string,
@@ -22,7 +30,8 @@ interface ArticlesContextType {
     top?: boolean,
     timeSpan?: "week" | "month" | "year" | "infinity",
     followedTarget?: "users" | "tags" | "all",
-    saved?: boolean
+    saved?: boolean,
+    searchQuery?: string
   ) => Promise<void>;
   setArticleList: React.Dispatch<React.SetStateAction<Article[]>>;
   isLoading: boolean;
@@ -30,35 +39,22 @@ interface ArticlesContextType {
   lastArticleReached: boolean;
   setLastArticleReached: React.Dispatch<React.SetStateAction<boolean>>;
   pageLoadError: boolean;
+  firstPageFetched: boolean;
+  setFirstPageFetched: React.Dispatch<React.SetStateAction<boolean>>;
   firstPageLoadError: boolean;
-  savedTagList: string[] | undefined;
+  handleArticleListChange: (targetPathname: string) => void;
+  isChangingArticleList: boolean;
+  cacheRef: React.MutableRefObject<{ [key: string]: Article[] }>;
 }
 
 export const ArticlesContext = createContext<ArticlesContextType | null>(null);
 
 interface ArticlesContextProps {
   children: React.ReactNode;
-  initialPage?: ArticlePage;
-  authorId?: string;
-  tag?: string;
-  top?: boolean;
-  timeSpan?: "week" | "month" | "year" | "infinity" | undefined;
-  followedTarget?: "users" | "tags" | "all";
-  saved?: boolean;
-  tagList?: string[];
-  searchQuery?: string;
 }
 
 export default function ArticlesContextProvider({
   children,
-  authorId,
-  tag,
-  top,
-  timeSpan,
-  followedTarget,
-  saved,
-  tagList,
-  searchQuery,
 }: ArticlesContextProps) {
   const [articleList, setArticleList] = useState<Article[]>([]);
   const [firstPageFetched, setFirstPageFetched] = useState(false);
@@ -66,28 +62,12 @@ export default function ArticlesContextProvider({
   const [lastArticleReached, setLastArticleReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
-  const [savedTagList, setSavedTagList] = useState(tagList);
+
+  const pathname = usePathname();
+  const cacheRef = useRef<{ [key: string]: Article[] }>({});
 
   const continueAfterId = articleList[articleList.length - 1]?._id;
   const continueAfterLikeCount = articleList[articleList.length - 1]?.likeCount;
-
-  const paramsCheck = useCallback(() => {
-    if (
-      (top && followedTarget) ||
-      (top && saved) ||
-      (followedTarget && saved)
-    ) {
-      throw new Error("Only one of top, followedTarget, or saved can be true");
-    }
-
-    if (top && !timeSpan) {
-      throw new Error("Time span must be provided for top articles");
-    }
-  }, [top, followedTarget, saved, timeSpan]);
-
-  useEffect(() => {
-    setFirstPageFetched(false);
-  }, [authorId, tag, top, timeSpan, followedTarget, saved, searchQuery]);
 
   const fetchFirstPage = useCallback(
     async (
@@ -97,9 +77,22 @@ export default function ArticlesContextProvider({
       top?: boolean,
       timeSpan?: "week" | "month" | "year" | "infinity",
       followedTarget?: "users" | "tags" | "all",
-      saved?: boolean
+      saved?: boolean,
+      searchQuery?: string
     ) => {
-      paramsCheck();
+      if (
+        (top && followedTarget) ||
+        (top && saved) ||
+        (followedTarget && saved)
+      ) {
+        throw new Error(
+          "Only one of top, followedTarget, or saved can be true"
+        );
+      }
+
+      if (top && !timeSpan) {
+        throw new Error("Time span must be provided for top articles");
+      }
 
       setFirstPageLoadError(false);
       setIsLoading(true);
@@ -123,6 +116,7 @@ export default function ArticlesContextProvider({
         }
 
         setArticleList(firstPage.articles);
+        cacheRef.current[pathname] = firstPage.articles;
         setLastArticleReached(firstPage.lastArticleReached);
         setFirstPageFetched(true);
       } catch {
@@ -132,7 +126,7 @@ export default function ArticlesContextProvider({
         setIsLoading(false);
       }
     },
-    [paramsCheck, searchQuery]
+    [pathname]
   );
 
   const fetchNextPage = useCallback(
@@ -143,9 +137,22 @@ export default function ArticlesContextProvider({
       top?: boolean,
       timeSpan?: "week" | "month" | "year" | "infinity",
       followedTarget?: "users" | "tags" | "all",
-      saved?: boolean
+      saved?: boolean,
+      searchQuery?: string
     ) => {
-      paramsCheck();
+      if (
+        (top && followedTarget) ||
+        (top && saved) ||
+        (followedTarget && saved)
+      ) {
+        throw new Error(
+          "Only one of top, followedTarget, or saved can be true"
+        );
+      }
+
+      if (top && !timeSpan) {
+        throw new Error("Time span must be provided for top articles");
+      }
 
       setPageLoadError(false);
       setIsLoading(true);
@@ -174,19 +181,17 @@ export default function ArticlesContextProvider({
             searchQuery,
             continueAfterId
           );
-
-          if (!tagList) {
-            const savedTags = await ArticlesAPI.getSavedTags();
-            setSavedTagList(savedTags);
-          }
         } else {
           nextPage = await ArticlesAPI.getArticleList(query);
         }
 
-        setArticleList((prevArticleList) => [
-          ...prevArticleList,
-          ...nextPage.articles,
-        ]);
+        setArticleList((prevArticleList) => {
+          cacheRef.current[pathname] = [
+            ...prevArticleList,
+            ...nextPage.articles,
+          ];
+          return [...prevArticleList, ...nextPage.articles];
+        });
 
         setLastArticleReached(nextPage.lastArticleReached);
       } catch (error) {
@@ -196,46 +201,28 @@ export default function ArticlesContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount, paramsCheck, tagList, searchQuery]
+    [continueAfterId, continueAfterLikeCount, pathname]
   );
 
-  useEffect(() => {
-    if (!firstPageFetched) {
-      if (top) {
-        fetchFirstPage(undefined, undefined, 12, top, timeSpan);
-      } else if (followedTarget) {
-        fetchFirstPage(
-          undefined,
-          undefined,
-          12,
-          undefined,
-          undefined,
-          followedTarget
-        );
-      } else if (saved) {
-        fetchFirstPage(
-          undefined,
-          tag,
-          12,
-          undefined,
-          undefined,
-          undefined,
-          true
-        );
-      } else {
-        fetchFirstPage(authorId, tag, 12);
+  // All navigation in Next built on transition, useTransition to prevent set state before navigation
+  const [isChangingArticleList, startTransition] = useTransition();
+  const handleArticleListChange = useCallback(
+    (targetPathname: string) => {
+      if (targetPathname && pathname === targetPathname) {
+        return;
       }
-    }
-  }, [
-    top,
-    followedTarget,
-    saved,
-    fetchFirstPage,
-    authorId,
-    tag,
-    timeSpan,
-    firstPageFetched,
-  ]);
+
+      startTransition(() => {
+        cacheRef.current[targetPathname] = [];
+        setArticleList([]);
+        setFirstPageLoadError(false);
+        setLastArticleReached(false);
+        setPageLoadError(false);
+        setFirstPageFetched(false);
+      });
+    },
+    [pathname]
+  );
 
   return (
     <ArticlesContext.Provider
@@ -243,6 +230,8 @@ export default function ArticlesContextProvider({
         articleList,
         setArticleList,
         fetchFirstPage,
+        setFirstPageFetched,
+        firstPageFetched,
         fetchNextPage,
         setLastArticleReached,
         lastArticleReached,
@@ -250,7 +239,9 @@ export default function ArticlesContextProvider({
         setIsLoading,
         pageLoadError,
         firstPageLoadError,
-        savedTagList,
+        handleArticleListChange,
+        isChangingArticleList,
+        cacheRef,
       }}>
       {children}
     </ArticlesContext.Provider>
