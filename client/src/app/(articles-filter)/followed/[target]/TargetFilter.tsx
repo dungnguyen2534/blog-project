@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
-import { revalidateTagData } from "@/lib/revalidate";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePathname } from "next/navigation";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface TargetFilterProps {
   defaultValue: "Users" | "Tags" | "All";
@@ -19,6 +18,8 @@ export default function TargetFilter({
 }: TargetFilterProps) {
   const pathname = usePathname();
   const activeClass = "text-black dark:text-white underline";
+  const { handleArticleListChange } = useArticlesLoader();
+
   return (
     <Tabs
       defaultValue={defaultValue}
@@ -28,18 +29,21 @@ export default function TargetFilter({
           <TabsTrigger
             asChild
             value="All"
-            onClick={() => revalidateTagData("articles")}>
+            onClick={() => handleArticleListChange("/followed/all")}>
             <Link replace href={"/followed/all"}>
               All
             </Link>
           </TabsTrigger>
-          <TabsTrigger asChild value="Users">
+          <TabsTrigger
+            asChild
+            value="Users"
+            onClick={() => handleArticleListChange("/followed/users")}>
             <Link replace href={"/followed/users"}>
               Users
             </Link>
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => revalidateTagData("articles")}
+            onClick={() => handleArticleListChange("/followed/tags")}
             asChild
             value="Tags">
             <Link replace href={"/followed/tags"}>
@@ -57,19 +61,22 @@ export default function TargetFilter({
             <Link
               replace
               className={pathname === "/followed/all" ? activeClass : ""}
-              href="/followed/all">
+              href="/followed/all"
+              onClick={() => handleArticleListChange("/followed/all")}>
               All
             </Link>
             <Link
               replace
               className={pathname === "/followed/users" ? activeClass : ""}
-              href="/followed/users">
+              href="/followed/users"
+              onClick={() => handleArticleListChange("/followed/users")}>
               Users
             </Link>
             <Link
               replace
               className={pathname === "/followed/tags" ? activeClass : ""}
-              href="/followed/tags">
+              href="/followed/tags"
+              onClick={() => handleArticleListChange("/followed/tags")}>
               Tags
             </Link>
           </div>

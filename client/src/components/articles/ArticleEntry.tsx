@@ -18,6 +18,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface ArticleEntryProps {
   article: Article;
@@ -29,6 +31,8 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
 
     const { user } = useAuth();
     const { toast } = useToast();
+    const { cacheRef } = useArticlesLoader();
+    const { pathname } = useNavigation();
 
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -55,6 +59,15 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
             await ArticlesAPI.saveArticle(article._id);
           }
 
+          const articleIndex = cacheRef.current[pathname].findIndex(
+            (a) => a._id === article._id
+          );
+
+          if (articleIndex !== -1) {
+            cacheRef.current[pathname][articleIndex].isSavedArticle =
+              newIsSaved;
+          }
+
           toast({
             title: isSaved
               ? "Article removed from bookmarks"
@@ -68,7 +81,7 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
           });
         }
       }, 300);
-    }, [isSaved, article._id, toast, user]);
+    }, [isSaved, article._id, toast, user, cacheRef, pathname]);
 
     return (
       <article

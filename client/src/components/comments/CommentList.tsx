@@ -3,8 +3,13 @@
 import Comment from "./Comment";
 import LoadingButton from "../LoadingButton";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
+import { Article } from "@/validation/schema/article";
 
-export default function CommentList() {
+interface CommentListProps {
+  article: Article;
+}
+
+export default function CommentList({ article }: CommentListProps) {
   const {
     commentList,
     fetchNextPage,
@@ -16,7 +21,9 @@ export default function CommentList() {
   return (
     <>
       {commentList.map((comment) => {
-        return <Comment key={comment._id} comment={comment} />;
+        return (
+          <Comment key={comment._id} comment={comment} article={article} />
+        );
       })}
 
       {!lastCommentReached && !pageLoadError && !(commentList.length === 0) && (

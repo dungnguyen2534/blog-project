@@ -9,11 +9,15 @@ import useAuthDialogs from "@/hooks/useAuthDialogs";
 import { Article } from "@/validation/schema/article";
 import { useToast } from "../ui/use-toast";
 import { SWRResponse } from "swr";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface InArticleLikeButtonProps {
   article: Article;
   liked?: boolean;
   setLiked: (liked: boolean) => void;
+  likes: number;
+  setLikes: (likes: number) => void;
   isLoading: boolean;
   className?: string;
   variant?:
@@ -34,14 +38,18 @@ export default function InArticleLikeButton({
   variant,
   liked,
   setLiked,
+  likes,
+  setLikes,
   isLoading,
 }: InArticleLikeButtonProps) {
-  const [likes, setLikes] = useState(article.likeCount);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user } = useAuth();
   const { showSignIn } = useAuthDialogs();
   const { toast } = useToast();
+
+  const { cacheRef } = useArticlesLoader();
+  const { prevUrl } = useNavigation();
 
   const handleClick = useCallback(async () => {
     if (!user) {
@@ -50,7 +58,6 @@ export default function InArticleLikeButton({
     }
 
     if (isLoading) return;
-
     if (!user.username) return;
 
     if (timeoutRef.current) {
@@ -70,6 +77,18 @@ export default function InArticleLikeButton({
         } else {
           await ArticlesAPI.like(article._id, "article");
         }
+
+        if (prevUrl) {
+          const articleIndex = cacheRef.current[prevUrl].findIndex(
+            (a) => a._id === article._id
+          );
+
+          if (articleIndex !== -1) {
+            cacheRef.current[prevUrl][articleIndex].likeCount = newLikes;
+            cacheRef.current[prevUrl][articleIndex].isLoggedInUserLiked =
+              newLiked;
+          }
+        }
       } catch {
         toast({
           title: "An error occurred",
@@ -79,7 +98,19 @@ export default function InArticleLikeButton({
         setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [user, liked, likes, article, showSignIn, toast, setLiked, isLoading]);
+  }, [
+    user,
+    liked,
+    likes,
+    article,
+    showSignIn,
+    toast,
+    setLiked,
+    isLoading,
+    setLikes,
+    prevUrl,
+    cacheRef,
+  ]);
 
   return (
     <Button
@@ -87,8 +118,9 @@ export default function InArticleLikeButton({
       variant={variant}
       className={`gap-1 px-3 py-2 ${className}`}>
       {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
-      {likes > 0 && <span>{likes}</span>}
-      {likes <= 1 ? <span>Like</span> : <span>Likes</span>}
+
+      <span>{likes > 0 && likes}</span>
+      <span>{likes === 1 ? "Like" : "Likes"}</span>
     </Button>
   );
 }

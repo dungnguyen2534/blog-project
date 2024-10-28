@@ -69,7 +69,7 @@ export default async function CommentSection({ article }: CommentSectionProps) {
             </div>
             <CreateCommentBox article={article} />
           </div>
-          <CommentList />
+          <CommentList article={article} />
         </div>
       </section>
     </CommentsContextProvider>

@@ -17,9 +17,9 @@ export default function BookmarkSearch({
   searchQuery,
   className,
 }: BookmarkSearchProps) {
-  const { setIsLoading, setArticleList } = useArticlesLoader();
+  const { setIsLoading, setArticleList, isLoading } = useArticlesLoader();
 
-  const [searchValue, setSearchValue] = useState(searchQuery);
+  const [searchValue, setSearchValue] = useState(searchQuery || "");
 
   const router = useRouter();
 
@@ -34,9 +34,7 @@ export default function BookmarkSearch({
     const query = encodeURIComponent(sanitizeInput(searchValue));
     if (searchQueryRef.current === query) return;
     timeoutRef.current = setTimeout(() => {
-      setArticleList([]);
       setIsLoading(true);
-
       router.replace(
         `/bookmarks?${tag ? `tag=${tag}` : ""}${
           query ? `&searchQuery=${query}` : ""
@@ -61,11 +59,18 @@ export default function BookmarkSearch({
   ]);
 
   return (
-    <Input
-      className={className}
-      value={searchValue}
-      onChange={(e) => setSearchValue(e.target.value)}
-      placeholder="Search..."
-    />
+    <div className={`relative w-full ${className}`}>
+      <Input
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
+        placeholder="Search..."
+      />
+
+      {isLoading && (
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 pl-1 bg-white dark:bg-neutral-950">
+          <LoaderCircle size={24} className="animate-spin mx-auto" />
+        </span>
+      )}
+    </div>
   );
 }

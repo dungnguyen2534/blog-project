@@ -9,19 +9,26 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import InArticleLike from "@/components/articles/InArticleLike";
 import useSWR from "swr";
 import ArticlesAPI from "@/api/article";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface ArticleContentProps {
   article: Article;
 }
 
 export default function ArticleContent({ article }: ArticleContentProps) {
-  const [liked, setLiked] = useState<boolean | undefined>(false);
-  const [isSaved, setIsSaved] = useState<boolean | undefined>(false);
+  const [liked, setLiked] = useState<boolean | undefined>(
+    article.isLoggedInUserLiked
+  );
+  const [isSaved, setIsSaved] = useState<boolean | undefined>(
+    article.isSavedArticle
+  );
+  const [likes, setLikes] = useState<number>(article.likeCount);
 
   const articleStatus = useSWR("articleStatus", async () => {
     const articleStatus = await ArticlesAPI.getArticle(article.slug);
     setIsSaved(articleStatus.isSavedArticle);
     setLiked(articleStatus.isLoggedInUserLiked);
+    setLikes(articleStatus.likeCount);
     return articleStatus;
   });
 
@@ -48,6 +55,8 @@ export default function ArticleContent({ article }: ArticleContentProps) {
         article={article}
         liked={liked}
         setLiked={setLiked}
+        likes={likes}
+        setLikes={setLikes}
         isLoading={articleStatus.isLoading}
       />
     </article>

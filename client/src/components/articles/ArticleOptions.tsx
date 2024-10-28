@@ -62,7 +62,7 @@ export default function ArticleOptions({
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
 
-  const { setArticleList } = useArticlesLoader();
+  const { setArticleList, cacheRef } = useArticlesLoader();
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -107,6 +107,17 @@ export default function ArticleOptions({
         } else {
           await ArticlesAPI.saveArticle(article._id);
         }
+
+        if (prevUrl) {
+          const articleIndex = cacheRef.current[prevUrl].findIndex(
+            (a) => a._id === article._id
+          );
+
+          if (articleIndex !== -1) {
+            cacheRef.current[prevUrl][articleIndex].isSavedArticle = newIsSaved;
+          }
+        }
+
         toast({
           title: isSaved
             ? "Article removed from bookmarks"
@@ -121,7 +132,17 @@ export default function ArticleOptions({
         });
       }
     }, 300);
-  }, [isSaved, article._id, toast, LoggedInUser, setIsSaved, isLoading]);
+  }, [
+    isSaved,
+    article._id,
+    toast,
+    LoggedInUser,
+    setIsSaved,
+    isLoading,
+    prevUrl,
+    ,
+    cacheRef,
+  ]);
 
   async function deleteArticle() {
     setIsDeleting(true);
@@ -131,9 +152,11 @@ export default function ArticleOptions({
       revalidatePathData("/articles/" + article.slug);
 
       if (articleEntry) {
-        setArticleList((prevList) =>
-          prevList.filter((p) => p._id !== article._id)
-        );
+        setArticleList((prevList) => {
+          const updatedList = prevList.filter((p) => p._id !== article._id);
+          cacheRef.current[pathname] = updatedList;
+          return updatedList;
+        });
       }
 
       if (pathname === "/articles/" + article.slug) {

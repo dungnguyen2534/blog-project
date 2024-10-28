@@ -31,22 +31,20 @@ export default function FollowedArticlesPage({
     notFound();
   }
   return (
-    <ArticlesContextProvider followedTarget={target}>
-      <main className="container px-0 md:px-8 mt-[4.3rem] md:!mt-[5.4rem]">
-        <ArticleListTabs defaultValue="Followed">
-          <TargetFilter
-            defaultValue={
-              target
-                ? ((target.charAt(0).toUpperCase() + target.slice(1)) as
-                    | "Users"
-                    | "Tags"
-                    | "All")
-                : "All"
-            }>
-            <FollowedPage target={target} key={`followed ${target} page`} />
-          </TargetFilter>
-        </ArticleListTabs>
-      </main>
-    </ArticlesContextProvider>
+    <main className="container px-0 md:px-8 mt-[4.3rem] md:!mt-[5.4rem]">
+      <ArticleListTabs defaultValue="Followed">
+        <TargetFilter
+          defaultValue={
+            target
+              ? ((target.charAt(0).toUpperCase() + target.slice(1)) as
+                  | "Users"
+                  | "Tags"
+                  | "All")
+              : "All"
+          }>
+          <FollowedPage target={target} key={`followed ${target} page`} />
+        </TargetFilter>
+      </ArticleListTabs>
+    </main>
   );
 }

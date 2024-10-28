@@ -3,6 +3,7 @@
 import type {
   Comment as CommentType,
   CommentBody,
+  Article,
 } from "@/validation/schema/article";
 import MarkdownRenderer from "../MarkdownRenderer";
 import UserAvatar from "../UserAvatar";
@@ -23,6 +24,7 @@ import { Button } from "../ui/button";
 import CommentActions from "./CommentActions";
 import Replies from "./Replies";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
+import { revalidatePathData } from "@/lib/revalidate";
 
 interface CommentProps {
   comment: CommentType;
@@ -30,6 +32,7 @@ interface CommentProps {
   onEditReply?: (comment: CommentType) => void;
   onDeleteReply?: (comment: CommentType) => void;
   className?: string;
+  article: Article;
 }
 
 export default function Comment({
@@ -38,6 +41,7 @@ export default function Comment({
   onEditReply,
   onDeleteReply,
   className,
+  article,
 }: CommentProps) {
   if (replyComment && (!onEditReply || !onDeleteReply)) {
     throw new Error(
@@ -79,6 +83,7 @@ export default function Comment({
       }
 
       setIsEditing(false);
+      revalidatePathData(`/articles/${article.slug}`);
     } catch (error) {
       if (error instanceof UnauthorizedError) {
         toast({
@@ -131,6 +136,7 @@ export default function Comment({
             ref={heightRef}
             className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-md px-5">
             <CommentOptions
+              article={article}
               comment={comment}
               onDeleteReply={replyComment ? onDeleteReply : undefined}>
               {isAuthor ? (
@@ -162,12 +168,12 @@ export default function Comment({
           </div>
           <CommentActions
             comment={comment}
-            articleId={articleId}
+            article={article}
             parentCommentId={topLevelCommentId}
             notTopLevelComment={notTopLevelComment}
             usernameToReplyTo={comment.author.username}
           />
-          <Replies articleId={articleId} parentCommentId={comment._id} />
+          <Replies parentCommentId={comment._id} article={article} />
         </div>
       )}
     </div>

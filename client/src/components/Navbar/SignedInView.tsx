@@ -27,20 +27,17 @@ import { DialogHeader } from "../ui/dialog";
 import { useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import MobileMenu from "./MobileMenu";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface SignedInViewProps {
   user?: User;
-  setAuthenticatedUserSSR: (user: User | undefined) => void;
   mutateUser: (user: User | null) => void;
 }
 
-export default function SignedInView({
-  user,
-  mutateUser,
-  setAuthenticatedUserSSR,
-}: SignedInViewProps) {
+export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
   const pathname = usePathname();
   const { toast } = useToast();
+  const { handleArticleListChange } = useArticlesLoader();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -51,10 +48,8 @@ export default function SignedInView({
     try {
       await ArticlesAPI.deleteUnusedImages();
       await UserAPI.signout();
-      setAuthenticatedUserSSR(undefined);
       mutateUser(null);
 
-      sessionStorage.clear();
       window.location.reload();
     } catch (error) {
       setIsSigningOut(false);
@@ -93,6 +88,9 @@ export default function SignedInView({
               <DropdownMenuContent className="w-[30vh] [&>*]:cursor-pointer [&>*]:p-2 text-base md:w-auto hidden md:block">
                 <DropdownMenuItem className="text-base" asChild>
                   <Link
+                    onClick={() =>
+                      handleArticleListChange("/users/" + user?.username)
+                    }
                     className="font-medium flex flex-col text-start !items-start"
                     href={"/users/" + user?.username}>
                     Personal Profile
@@ -103,7 +101,10 @@ export default function SignedInView({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="!py-0" />
                 <DropdownMenuItem className="text-base" asChild>
-                  <Link className="font-medium" href="/bookmarks">
+                  <Link
+                    className="font-medium"
+                    href="/bookmarks"
+                    onClick={() => handleArticleListChange("/bookmarks")}>
                     Bookmarks
                   </Link>
                 </DropdownMenuItem>

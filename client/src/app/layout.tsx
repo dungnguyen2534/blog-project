@@ -10,8 +10,7 @@ import { Suspense } from "react";
 import { NavigationEvents } from "./NavigationEvents";
 import NavigationContextProvider from "@/context/NavigationContext";
 import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
-import { cookies } from "next/headers";
-import UserAPI from "@/api/user";
+import ArticlesContextProvider from "@/context/ArticlesContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,15 +24,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const userCookie = cookies().get("connect.sid");
-  let authenticatedUser = undefined;
-
-  try {
-    authenticatedUser = await UserAPI.getAuthenticatedUser(userCookie);
-  } catch {
-    authenticatedUser = undefined;
-  }
-
   return (
     <html
       lang="en"
@@ -46,18 +36,20 @@ export default async function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <NavigationContextProvider>
-            <AuthDialogsProvider>
-              <MiniProfilesContextProvider>
-                <Navbar authenticatedUser={authenticatedUser} />
-                {children}
-                <Toaster />
-                <Suspense fallback={null}>
-                  <NavigationEvents />
-                </Suspense>
-              </MiniProfilesContextProvider>
-            </AuthDialogsProvider>
-          </NavigationContextProvider>
+          <ArticlesContextProvider>
+            <NavigationContextProvider>
+              <AuthDialogsProvider>
+                <MiniProfilesContextProvider>
+                  <Navbar />
+                  {children}
+                  <Toaster />
+                  <Suspense fallback={null}>
+                    <NavigationEvents />
+                  </Suspense>
+                </MiniProfilesContextProvider>
+              </AuthDialogsProvider>
+            </NavigationContextProvider>
+          </ArticlesContextProvider>
         </ThemeProvider>
       </body>
     </html>

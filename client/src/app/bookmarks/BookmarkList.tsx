@@ -4,7 +4,7 @@ import useAuth from "@/hooks/useAuth";
 import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { Article } from "@/validation/schema/article";
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BookmarkListSkeleton from "./BookmarkListSkeleton";
 import { Button } from "@/components/ui/button";
 import { BsThreeDots } from "react-icons/bs";
@@ -22,9 +22,10 @@ import ArticleTags from "@/components/articles/ArticleTags";
 
 interface BookmarkListProps {
   tag?: string;
+  searchQuery: string;
 }
 
-export default function BookmarkList({ tag }: BookmarkListProps) {
+export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
   const {
     articleList,
     fetchFirstPage,
@@ -37,13 +38,44 @@ export default function BookmarkList({ tag }: BookmarkListProps) {
   } = useArticlesLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
 
+  useEffect(() => {
+    fetchFirstPage(
+      undefined,
+      tag,
+      12,
+      undefined,
+      undefined,
+      undefined,
+      true,
+      searchQuery
+    );
+  }, [fetchFirstPage, tag, searchQuery]);
+
   const handleFetchFirstPage = useCallback(() => {
-    fetchFirstPage(undefined, tag, 12, undefined, undefined, undefined, true);
-  }, [fetchFirstPage, tag]);
+    fetchFirstPage(
+      undefined,
+      tag,
+      12,
+      undefined,
+      undefined,
+      undefined,
+      true,
+      searchQuery
+    );
+  }, [fetchFirstPage, tag, searchQuery]);
 
   const handleFetchNextPage = useCallback(() => {
-    fetchNextPage(undefined, tag, 12, undefined, undefined, undefined, true);
-  }, [fetchNextPage, tag]);
+    fetchNextPage(
+      undefined,
+      tag,
+      12,
+      undefined,
+      undefined,
+      undefined,
+      true,
+      searchQuery
+    );
+  }, [fetchNextPage, tag, searchQuery]);
 
   const articleRef = useCallback(
     (articleEntry: HTMLElement | null) => {

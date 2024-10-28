@@ -9,9 +9,11 @@ import ArticlesAPI from "@/api/article";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
 
 interface LikeCommentButtonProps {
-  likeCount: number;
+  liked: boolean;
+  setLiked: (liked: boolean) => void;
+  likes: number;
+  setLikes: (likes: number) => void;
   commentId: string;
-  isLoggedInUserLiked?: boolean;
   className?: string;
   variant?:
     | "default"
@@ -26,19 +28,13 @@ interface LikeCommentButtonProps {
 
 export default function LikeCommentButton({
   commentId,
-  likeCount,
-  isLoggedInUserLiked,
+  liked,
+  setLiked,
+  likes,
+  setLikes,
   variant,
   className,
 }: LikeCommentButtonProps) {
-  const [likes, setLikes] = useState(likeCount);
-  const [liked, setLiked] = useState(isLoggedInUserLiked);
-
-  useEffect(() => {
-    setLikes(likeCount);
-    setLiked(isLoggedInUserLiked);
-  }, [likeCount, isLoggedInUserLiked]);
-
   const { isClientSideLoading } = useCommentsLoader();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -80,7 +76,16 @@ export default function LikeCommentButton({
         setLikes(newLiked ? likes - 1 : likes + 1);
       }
     }, 300);
-  }, [liked, commentId, user, showSignIn, likes, isClientSideLoading]);
+  }, [
+    liked,
+    commentId,
+    user,
+    showSignIn,
+    likes,
+    isClientSideLoading,
+    setLiked,
+    setLikes,
+  ]);
 
   return (
     <Button onClick={handleClick} variant={variant} className={className}>

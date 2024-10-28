@@ -9,7 +9,7 @@ import { PiPencilLine } from "react-icons/pi";
 import { BsPeople } from "react-icons/bs";
 import FollowButton from "@/components/FollowButton";
 import { useState } from "react";
-import { CgMenuCake } from "react-icons/cg";
+import { LuCalendarCheck2 } from "react-icons/lu";
 import ArticleList from "@/components/articles/ArticleList";
 
 interface ProfileProps {
@@ -75,7 +75,7 @@ export default function Profile({ user }: ProfileProps) {
               <time
                 className="flex text-muted-foreground gap-1 items-center md:justify-center"
                 dateTime={user.createdAt}>
-                <CgMenuCake size={23} className="mb-1" />
+                <LuCalendarCheck2 size={18} className="mb-1" />
                 Joined {formatDate(user.createdAt, false)}
               </time>
             </div>

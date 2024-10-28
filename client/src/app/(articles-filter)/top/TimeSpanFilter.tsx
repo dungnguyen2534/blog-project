@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useTransition } from "react";
 import Link from "next/link";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { time } from "console";
 import { usePathname } from "next/navigation";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface TimeSpanFilterProps {
   defaultValue: "Week" | "Month" | "Year" | "Infinity";
@@ -19,6 +20,7 @@ export default function TimeSpanFilter({
 }: TimeSpanFilterProps) {
   const pathname = usePathname();
   const activeClass = "text-black dark:text-white underline";
+  const { handleArticleListChange } = useArticlesLoader();
 
   return (
     <>
@@ -27,22 +29,34 @@ export default function TimeSpanFilter({
         className={`secondary-container -mt-[0.2rem] md:-mt-[0.4rem]  w-full !bg-transparent ${className}`}>
         <div className="">
           <TabsList className="rounded-none md:rounded-b-md mb-1 md:mb-2 grid md:hidden grid-cols-4 w-full bg-white dark:bg-neutral-900 [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-0 [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100 ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
-            <TabsTrigger asChild value="Week">
+            <TabsTrigger
+              asChild
+              value="Week"
+              onClick={() => handleArticleListChange("/top/week")}>
               <Link replace href={"/top/week"}>
                 Week
               </Link>
             </TabsTrigger>
-            <TabsTrigger asChild value="Month">
+            <TabsTrigger
+              asChild
+              value="Month"
+              onClick={() => handleArticleListChange("/top/month")}>
               <Link replace href={"/top/month"}>
                 Month
               </Link>
             </TabsTrigger>
-            <TabsTrigger asChild value="Year">
+            <TabsTrigger
+              asChild
+              value="Year"
+              onClick={() => handleArticleListChange("/top/year")}>
               <Link replace href={"/top/year"}>
                 Year
               </Link>
             </TabsTrigger>
-            <TabsTrigger asChild value="Infinity">
+            <TabsTrigger
+              asChild
+              value="Infinity"
+              onClick={() => handleArticleListChange("/top/infinity")}>
               <Link replace href={"/top/infinity"}>
                 Infinity
               </Link>
@@ -57,25 +71,29 @@ export default function TimeSpanFilter({
               <Link
                 replace
                 className={pathname === "/top/week" ? activeClass : ""}
-                href="/top/week">
+                href="/top/week"
+                onClick={() => handleArticleListChange("/top/week")}>
                 Week
               </Link>
               <Link
                 replace
                 className={pathname === "/top/month" ? activeClass : ""}
-                href="/top/month">
+                href="/top/month"
+                onClick={() => handleArticleListChange("/top/month")}>
                 Month
               </Link>
               <Link
                 replace
                 className={pathname === "/top/year" ? activeClass : ""}
-                href="/top/year">
+                href="/top/year"
+                onClick={() => handleArticleListChange("/top/year")}>
                 Year
               </Link>
               <Link
                 replace
                 className={pathname === "/top/infinity" ? activeClass : ""}
-                href="/top/infinity">
+                href="/top/infinity"
+                onClick={() => handleArticleListChange("/top/infinity")}>
                 Infinity
               </Link>
             </div>

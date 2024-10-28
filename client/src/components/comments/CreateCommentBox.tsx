@@ -12,6 +12,8 @@ import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 import { revalidatePathData } from "@/lib/revalidate";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface CreateCommentBoxProps {
   article: Article;
@@ -19,7 +21,9 @@ interface CreateCommentBoxProps {
 
 export default function CreateCommentBox({ article }: CreateCommentBoxProps) {
   const { setCommentList, setCommentCount } = useCommentsLoader();
+  const { cacheRef } = useArticlesLoader();
   const { toast } = useToast();
+  const { prevUrl } = useNavigation();
 
   async function onCreateComment(comment: CommentBody) {
     const images = extractImageUrls(comment.body);
@@ -31,7 +35,20 @@ export default function CreateCommentBox({ article }: CreateCommentBoxProps) {
       });
 
       setCommentList((prevCommentList) => [newComment, ...prevCommentList]);
-      setCommentCount((prevCount) => prevCount + 1);
+      setCommentCount((prevCount) => {
+        if (prevUrl) {
+          const articleIndex = cacheRef.current[prevUrl].findIndex(
+            (a) => a._id === article._id
+          );
+
+          if (articleIndex !== -1) {
+            cacheRef.current[prevUrl][articleIndex].commentCount =
+              prevCount + 1;
+          }
+        }
+
+        return prevCount + 1;
+      });
 
       revalidatePathData(`/articles/${article.slug}`);
     } catch (error) {

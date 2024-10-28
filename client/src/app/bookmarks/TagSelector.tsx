@@ -9,13 +9,16 @@ import {
 } from "@/components/ui/select";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 interface TagSelectorProps {
   className?: string;
+  tagList?: string[];
 }
 
-export default function TagSelector({ className }: TagSelectorProps) {
-  const { savedTagList, setArticleList, setIsLoading } = useArticlesLoader();
+export default function TagSelector({ className, tagList }: TagSelectorProps) {
+  const { setArticleList, setIsLoading } = useArticlesLoader();
+  const [savedTagList, setSavedTagList] = useState<string[]>(tagList || []);
 
   const router = useRouter();
   const params = useSearchParams();

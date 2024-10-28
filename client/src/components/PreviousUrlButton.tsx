@@ -1,32 +1,45 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { TiArrowLeft } from "react-icons/ti";
 import { useRouter } from "next/navigation";
 import useNavigation from "@/hooks/useNavigation";
-import { revalidateTagData } from "@/lib/revalidate";
 import nProgress from "nprogress";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 export default function PreviousUrlButton() {
   const router = useRouter();
-  const { prevUrl } = useNavigation();
-  const backHomeCondition =
-    prevUrl === "/articles/create-article" ||
-    prevUrl?.startsWith("/articles/update-article") ||
-    prevUrl?.startsWith("/auth");
+  const { prevUrl, pathname } = useNavigation();
+  const { handleArticleListChange } = useArticlesLoader();
 
+  const backHomeCondition = useMemo(
+    () =>
+      prevUrl === "/articles/create-article" ||
+      prevUrl?.startsWith("/articles/update-article") ||
+      prevUrl?.startsWith("/auth"),
+    [prevUrl]
+  );
+
+  const articleListChangeCondition = useMemo(
+    () =>
+      pathname?.startsWith("/users") ||
+      pathname?.startsWith("/bookmarks") ||
+      pathname?.startsWith("/tags"),
+    [pathname]
+  );
+
+  // have to use nProgress here because next top loader doesn't work with router functions
   return (
     <div
       className="cursor-pointer"
       onClick={() => {
         if (backHomeCondition) {
           nProgress.start();
-          revalidateTagData("articles");
           router.push("/");
-        } else if (prevUrl?.startsWith("/users")) {
-          revalidateTagData("articles");
+        } else if (articleListChangeCondition) {
           nProgress.start();
-          router.push(prevUrl);
+          router.back();
+          handleArticleListChange(prevUrl ? prevUrl : "/");
         } else if (!prevUrl) {
           nProgress.start();
           router.push("/");

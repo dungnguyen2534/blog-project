@@ -4,15 +4,18 @@ import useCommentsLoader from "@/hooks/useCommentsLoader";
 import { Dispatch, useCallback, useEffect, useState } from "react";
 import LoadingButton from "../LoadingButton";
 import Comment from "./Comment";
-import { Comment as CommentType } from "@/validation/schema/article";
+import { Article, Comment as CommentType } from "@/validation/schema/article";
 import ArticlesAPI from "@/api/article";
+import { revalidatePathData } from "@/lib/revalidate";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface RepliesProps {
-  articleId: string;
+  article: Article;
   parentCommentId: string;
 }
 
-export default function Replies({ articleId, parentCommentId }: RepliesProps) {
+export default function Replies({ article, parentCommentId }: RepliesProps) {
   const {
     replyPages,
     setReplyPages,
@@ -24,6 +27,8 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
+  const { cacheRef } = useArticlesLoader();
+  const { prevUrl } = useNavigation();
 
   const replyPage = replyPages.find((page) =>
     page.comments.find((c) => c.parentCommentId === parentCommentId)
@@ -47,6 +52,7 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
         reply._id === comment._id ? { ...reply, ...comment } : reply
       )
     );
+    revalidatePathData(`/articles/${article.slug}`);
   }
 
   function onDeleteReply(comment: CommentType) {
@@ -57,6 +63,17 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
     setNewLocalReplies((prevReplies) =>
       prevReplies.filter((reply) => reply._id !== comment._id)
     );
+
+    if (prevUrl) {
+      const articleIndex = cacheRef.current[prevUrl].findIndex(
+        (a) => a._id === article._id
+      );
+
+      if (articleIndex !== -1) {
+        cacheRef.current[prevUrl][articleIndex].commentCount -= 1;
+      }
+    }
+    revalidatePathData(`/articles/${article.slug}`);
   }
 
   const fetchNextPage = useCallback(
@@ -65,10 +82,10 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
       continueAfterId: string,
       limit?: number
     ) => {
-      const query = `articles/${articleId}/comments?parentCommentId=${parentCommentId}&continueAfterId=${continueAfterId}&limit=${limit}`;
+      const query = `articles/${article._id}/comments?parentCommentId=${parentCommentId}&continueAfterId=${continueAfterId}&limit=${limit}`;
       setIsLoading(true);
       try {
-        const nextPage = await ArticlesAPI.getCommentList(articleId, query);
+        const nextPage = await ArticlesAPI.getCommentList(article._id, query);
         setReplyPages((prevReplyPage) => [...prevReplyPage, nextPage]);
         setReplies((prevReplies) => [...prevReplies, ...nextPage.comments]);
 
@@ -88,7 +105,7 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
         setIsLoading(false);
       }
     },
-    [articleId, setReplyPages, setReplies, setNewLocalReplies]
+    [article, setReplyPages, setReplies, setNewLocalReplies]
   );
 
   const repliesToShow = replies.filter(
@@ -101,9 +118,10 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
 
   return (
     <div className="">
-      <div className="-mt-3">
+      <div className="-mt-2 mb-3">
         {repliesToShow.map((reply) => (
           <Comment
+            article={article}
             replyComment
             className="!mt-2 first:!mt-5"
             key={reply._id}
@@ -114,7 +132,7 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
         ))}
       </div>
       {!lastReplyReached && !pageLoadError && (
-        <div className="ml-[3.1rem] mt-5 mb-1">
+        <div className="ml-[3.1rem] my-2">
           <LoadingButton
             className="w-full"
             variant="secondary"
@@ -133,6 +151,7 @@ export default function Replies({ articleId, parentCommentId }: RepliesProps) {
       <div className="-mt-3">
         {localReplies.map((reply) => (
           <Comment
+            article={article}
             replyComment
             className="!mt-2 first:!mt-5"
             key={reply._id}
