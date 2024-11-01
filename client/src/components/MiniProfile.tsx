@@ -14,6 +14,8 @@ import { Button } from "./ui/button";
 import FollowButton from "./FollowButton";
 import { usePathname } from "next/navigation";
 import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface MiniProfileProps {
   children: React.ReactNode;
@@ -32,6 +34,7 @@ export default function MiniProfile({
   const isMobile = useMobileDeviceDetecter();
 
   const [totalFollowers, setTotalFollowers] = useState(author.totalFollowers);
+  const { handleArticleListChange } = useArticlesLoader();
 
   useEffect(() => {
     if (isMobile) {
@@ -51,6 +54,9 @@ export default function MiniProfile({
           <TooltipContent>
             <div className="w-56 py-1">
               <Link
+                onClick={() =>
+                  handleArticleListChange("/users/" + author.username)
+                }
                 href={"/users/" + author.username}
                 className="flex gap-2 items-center mb-2">
                 <UserAvatar
@@ -81,18 +87,33 @@ export default function MiniProfile({
                   />
                 ) : (
                   <Button asChild variant="secondary">
-                    <Link href={`/users/${author.username}`}>Your Profile</Link>
+                    <Link
+                      onClick={() =>
+                        handleArticleListChange("/users/" + author.username)
+                      }
+                      href={`/users/${author.username}`}>
+                      Your Profile
+                    </Link>
                   </Button>
                 )}
-                <div className="mt-1 mb-[0.1rem]">{author.about}</div>
-                <div className="flex flex-col">
-                  <div className="font-semibold text-xs text-neutral-500 uppercase">
-                    JOINED
+                <div className="relative grid grid-cols-2 text-center mt-2">
+                  <div className="flex flex-col">
+                    <div className="font-semibold text-xs text-neutral-500 uppercase">
+                      ARTICLES
+                    </div>
+                    <div>{author.totalArticles}</div>
                   </div>
-                  <time suppressHydrationWarning dateTime={author.createdAt}>
-                    {formatDate(author.createdAt, false)}
-                  </time>
+                  <Separator className="absolute bg-neutral-200 dark:bg-neutral-800 w-[1px] h-full left-1/2 top-0" />
+                  <div className="flex flex-col">
+                    <div className="font-semibold text-xs text-neutral-500 uppercase">
+                      JOINED
+                    </div>
+                    <time suppressHydrationWarning dateTime={author.createdAt}>
+                      {formatDate(author.createdAt, false)}
+                    </time>
+                  </div>
                 </div>
+                <div className="mt-1 mb-[0.1rem]">{author.about}</div>
               </div>
             </div>
           </TooltipContent>

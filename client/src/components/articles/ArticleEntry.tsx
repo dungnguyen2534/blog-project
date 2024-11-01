@@ -86,7 +86,7 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
     return (
       <article
         ref={ref}
-        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-sm ring-1 ring-[#f0f0f0] dark:ring-0 overflow-hidden break-words">
+        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md ring-1 ring-[#f0f0f0] dark:ring-0 overflow-hidden break-words">
         <ArticleOptions
           article={article}
           author={article.author}
@@ -113,7 +113,11 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
                 className="-ml-3"
                 variant="ghost"
               />
-              <Button asChild variant="ghost" className="px-3 py-2 -ml-3 gap-1">
+              <Button
+                asChild
+                variant="ghost"
+                className="px-3 py-2 -ml-3 gap-1"
+                aria-label={`Comments on ${article.title}`}>
                 <Link href={`/articles/${article.slug}#comment-section`}>
                   <IoChatboxOutline size={22} className="mt-[0.14rem]" />
 

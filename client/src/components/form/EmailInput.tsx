@@ -21,6 +21,7 @@ interface EmailInputProps {
   disabled?: boolean;
   loading?: boolean;
   onEmailSubmit: () => void;
+  autoFocus?: boolean;
 }
 
 export default function EmailInput({
@@ -34,6 +35,7 @@ export default function EmailInput({
   disabled,
   loading,
   onEmailSubmit,
+  autoFocus,
 }: EmailInputProps) {
   return (
     <FormField
@@ -50,6 +52,7 @@ export default function EmailInput({
                 placeholder="Your email address"
                 autoComplete={autoComplete || "on"}
                 {...field}
+                autoFocus={autoFocus}
               />
             </FormControl>
             <Button

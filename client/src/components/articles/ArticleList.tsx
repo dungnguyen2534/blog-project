@@ -8,6 +8,7 @@ import ArticleListSkeleton from "./ArticleListSkeleton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import useFollowUser from "@/hooks/useFollowUser";
 import { usePathname } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
 
 interface ArticlesListProps {
   author?: User;
@@ -53,6 +54,7 @@ export default function ArticleList({
   }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
 
   // use stored data if available when navigating back using browser or the custom navbar back button
+  // for some reason the articleList flash the old data for a second before setting it again, use a ref with saved data fixes that
   const pathname = usePathname();
   useEffect(() => {
     if (cacheRef.current[pathname] && firstPageFetched) {
@@ -114,8 +116,22 @@ export default function ArticleList({
 
       {!firstPageLoadError && !lastArticleReached && !pageLoadError && (
         <>
-          <ArticleListSkeleton className="hidden md:flex" skeletonCount={4} />
-          <ArticleListSkeleton className="flex md:hidden" skeletonCount={6} />
+          {followedTarget ? (
+            <>
+              <ArticleListSkeleton skeletonCount={1} />
+            </>
+          ) : (
+            <>
+              <ArticleListSkeleton
+                className="hidden md:flex"
+                skeletonCount={4}
+              />
+              <ArticleListSkeleton
+                className="flex md:hidden"
+                skeletonCount={6}
+              />
+            </>
+          )}
         </>
       )}
 

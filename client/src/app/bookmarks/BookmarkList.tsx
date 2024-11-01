@@ -35,6 +35,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
     firstPageLoadError,
     setArticleList,
     isLoading,
+    handleArticleListChange,
   } = useArticlesLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
 
@@ -158,6 +159,9 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
               <ArticleTags className="!mt-0 my-1" tags={article.tags} />
               <div className="font-medium text-sm flex items-center gap-1">
                 <Link
+                  onClick={() =>
+                    handleArticleListChange("/users/" + article.author.username)
+                  }
                   href={`/users/${article.author.username}`}
                   className="hover:underline">
                   {article.author.username}

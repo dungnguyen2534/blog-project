@@ -63,7 +63,7 @@ export default async function CommentSection({ article }: CommentSectionProps) {
       <section className="rounded-t-none sm:py-5 p-3">
         <div className="max-w-prose mx-auto">
           <div className="mb-6">
-            <div className="flex gap-1 text-2xl font-extrabold mb-4">
+            <div className="flex gap-1 text-2xl font-extrabold mb-3">
               <span>Comments</span>
               {<CommentCount />}
             </div>

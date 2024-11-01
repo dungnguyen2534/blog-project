@@ -27,6 +27,7 @@ interface FormInputProps {
   alternative?: boolean;
   alternativeText?: string;
   alternativeAction?: () => void;
+  autoFocus?: boolean;
 }
 
 export default function FormInput({
@@ -44,6 +45,7 @@ export default function FormInput({
   alternative,
   alternativeText,
   alternativeAction,
+  autoFocus,
 }: FormInputProps) {
   const [charCount, setCharCount] = useState(0);
 
@@ -70,6 +72,7 @@ export default function FormInput({
                 maxLength={limit}
                 {...field}
                 onChange={handleChange}
+                autoFocus={autoFocus}
               />
             </FormControl>
             {alternative && (

@@ -90,9 +90,8 @@ export default function LikeCommentButton({
   return (
     <Button onClick={handleClick} variant={variant} className={className}>
       {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
-      {likes === 0 && "Like"}
-      {likes > 0 && likes < 2 && `${likes} Like`}
-      {likes >= 2 && `${likes} Likes`}
+      <span>{likes > 0 && likes}</span>
+      <span>{likes <= 1 ? "Like" : "Likes"}</span>
     </Button>
   );
 }

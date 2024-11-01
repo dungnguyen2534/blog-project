@@ -1,7 +1,6 @@
 "use client";
 
 import ArticleList from "@/components/articles/ArticleList";
-import ArticleListSkeleton from "@/components/articles/ArticleListSkeleton";
 import { Button } from "@/components/ui/button";
 import useAuth from "@/hooks/useAuth";
 import Link from "next/link";
@@ -48,7 +47,11 @@ export default function FollowedPage({ target }: FollowedPageProps) {
         <ArticleList key={"followed-articles"} followedTarget={target} />
       )}
 
-      {isLoadingUser && <ArticleListSkeleton skeletonCount={1} />}
+      {isLoadingUser && (
+        <div className="text-center mt-10 md:text-left md:mt-0">
+          Sign in check...
+        </div>
+      )}
 
       {noFollowedContent}
 

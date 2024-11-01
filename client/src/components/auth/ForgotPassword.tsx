@@ -120,6 +120,7 @@ export default function ForgotPassword({
           disabled={timeLeft > 0}
           loading={isSendingOTP}
           description="The email you used to create your account"
+          autoFocus
         />
         <FormInput
           label="New password"

@@ -103,79 +103,86 @@ export default function Comment({
   const heightRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`flex gap-2 mt-3 md:mt-4 ${className} max-w-full`}>
-      <UserAvatar
-        username={comment.author.username}
-        profilePicUrl={comment.author.profilePicPath}
-        className="mt-3 w-10 h-10  sm:mt-2 sm:w-11 sm:h-11"
-      />
-      {isEditing ? (
-        <div className="flex-grow relative">
-          <CommentForm
-            articleId={comment.articleId}
-            submitFunction={onEditComment}
-            defaultValue={comment.body}
-            noAvatar
-            autoFocus
-            height={
-              isMobile
-                ? "10rem"
-                : heightRef.current?.clientHeight.toString() + "px"
-            }
+    <div className={`mt-5 ${className} max-w-full`}>
+      <div className="flex gap-2">
+        <div className="relative">
+          <UserAvatar
+            username={comment.author.username}
+            profilePicUrl={comment.author.profilePicPath}
+            className="z-20 mt-3 w-10 h-10  sm:mt-2 sm:w-11 sm:h-11"
           />
-          <Button
-            variant="secondary"
-            className="absolute bottom-0 left-[7.5rem] sm:left-[9.5rem]"
-            onClick={() => setIsEditing(false)}>
-            Dismiss
-          </Button>
         </div>
-      ) : (
-        <div className="flex-grow flex flex-col">
-          <div
-            ref={heightRef}
-            className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-md px-5">
-            <CommentOptions
-              article={article}
-              comment={comment}
-              onDeleteReply={replyComment ? onDeleteReply : undefined}>
-              {isAuthor ? (
-                <>
-                  <DropdownMenuItem
-                    className="flex items-center gap-2 w-full h-full py-2 cursor-pointer"
-                    onClick={() => setIsEditing(true)}>
-                    <FaRegEdit size={18} className="mb-[1px]" /> Edit
-                  </DropdownMenuItem>
 
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                      <MdOutlineDeleteForever
-                        size={22}
-                        className="-ml-1 mb-[1px]"
-                      />
-                      Delete
-                    </DropdownMenuItem>
-                  </DialogTrigger>
-                </>
-              ) : (
-                <DropdownMenuItem>(to be implemented)</DropdownMenuItem>
-              )}
-            </CommentOptions>
-
-            <div className="[overflow-wrap:anywhere]">
-              <MarkdownRenderer>{comment.body}</MarkdownRenderer>
-            </div>
+        {isEditing ? (
+          <div className="flex-grow relative">
+            <CommentForm
+              articleId={comment.articleId}
+              submitFunction={onEditComment}
+              defaultValue={comment.body}
+              noAvatar
+              autoFocus
+              height={
+                isMobile
+                  ? "10rem"
+                  : heightRef.current?.clientHeight.toString() + "px"
+              }
+            />
+            <Button
+              variant="secondary"
+              className="absolute bottom-0 left-[7.5rem] sm:left-[9.5rem]"
+              onClick={() => setIsEditing(false)}>
+              Dismiss
+            </Button>
           </div>
-          <CommentActions
-            comment={comment}
-            article={article}
-            parentCommentId={topLevelCommentId}
-            notTopLevelComment={notTopLevelComment}
-            usernameToReplyTo={comment.author.username}
-          />
-          <Replies parentCommentId={comment._id} article={article} />
-        </div>
-      )}
+        ) : (
+          <div className="flex-grow flex flex-col">
+            <div
+              ref={heightRef}
+              className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-md px-5">
+              <CommentOptions
+                article={article}
+                comment={comment}
+                onDeleteReply={replyComment ? onDeleteReply : undefined}>
+                {isAuthor ? (
+                  <>
+                    <DropdownMenuItem
+                      className="flex items-center gap-2 w-full h-full py-2 cursor-pointer"
+                      onClick={() => setIsEditing(true)}>
+                      <FaRegEdit size={18} className="mb-[1px]" /> Edit
+                    </DropdownMenuItem>
+
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                        <MdOutlineDeleteForever
+                          size={22}
+                          className="-ml-1 mb-[1px]"
+                        />
+                        Delete
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                  </>
+                ) : (
+                  <DropdownMenuItem>(to be implemented)</DropdownMenuItem>
+                )}
+              </CommentOptions>
+
+              <div className="[overflow-wrap:anywhere]">
+                <MarkdownRenderer>{comment.body}</MarkdownRenderer>
+              </div>
+            </div>
+            <CommentActions
+              comment={comment}
+              article={article}
+              parentCommentId={topLevelCommentId}
+              notTopLevelComment={notTopLevelComment}
+              usernameToReplyTo={comment.author.username}
+            />
+          </div>
+        )}
+      </div>
+      <div className="ml-[3.2rem]">
+        <Replies parentCommentId={comment._id} article={article} />
+      </div>
     </div>
   );
 }

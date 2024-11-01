@@ -350,6 +350,8 @@ export const getArticleList: RequestHandler<
   };
 
   try {
+    await new Promise((resolve) => setTimeout(resolve, 500)); // simulate slow connection
+
     let query = ArticleModel.find(filter).sort({ _id: -1 }).select("-images");
 
     if (followedTarget) {

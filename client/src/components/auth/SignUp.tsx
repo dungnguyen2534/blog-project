@@ -117,6 +117,7 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
           disabled={timeLeft > 0}
           loading={isSendingOTP}
           autoComplete="off"
+          autoFocus
         />
         <FormInput
           label="Username"

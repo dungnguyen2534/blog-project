@@ -7,7 +7,13 @@ import useNavigation from "@/hooks/useNavigation";
 import nProgress from "nprogress";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 
-export default function PreviousUrlButton() {
+interface PreviousUrlButtonProps {
+  className?: string;
+}
+
+export default function PreviousUrlButton({
+  className,
+}: PreviousUrlButtonProps) {
   const router = useRouter();
   const { prevUrl, pathname } = useNavigation();
   const { handleArticleListChange } = useArticlesLoader();
@@ -31,7 +37,7 @@ export default function PreviousUrlButton() {
   // have to use nProgress here because next top loader doesn't work with router functions
   return (
     <div
-      className="cursor-pointer"
+      className={`cursor-pointer ${className}`}
       onClick={() => {
         if (backHomeCondition) {
           nProgress.start();
@@ -48,9 +54,9 @@ export default function PreviousUrlButton() {
           router.back();
         }
       }}>
-      <span className="flex gap-1 items-center">
-        <TiArrowLeft size={24} />
-        {backHomeCondition ? "/" : prevUrl ? prevUrl : "/"}
+      <span className="flex gap-1 items-center text-xs font-bold italic">
+        <TiArrowLeft size={22} className="mb-[0.1rem]" />
+        BACK
       </span>
     </div>
   );

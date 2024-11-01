@@ -82,6 +82,7 @@ export default function SignIn({
           name="username"
           placeholder="Your username"
           errorDescription={errors.username?.message}
+          autoFocus
         />
 
         <FormInput

@@ -120,7 +120,7 @@ export default function InArticleLikeButton({
       {liked ? <PiHeartFill size={22} color="red" /> : <PiHeart size={22} />}
 
       <span>{likes > 0 && likes}</span>
-      <span>{likes === 1 ? "Like" : "Likes"}</span>
+      <span>{likes <= 1 ? "Like" : "Likes"}</span>
     </Button>
   );
 }

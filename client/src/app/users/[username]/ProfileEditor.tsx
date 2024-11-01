@@ -147,6 +147,7 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
             placeholder="A short bio about yourself"
             limit={200}
             showCharCount
+            autoFocus
           />
           <LoadingButton
             text="Save"

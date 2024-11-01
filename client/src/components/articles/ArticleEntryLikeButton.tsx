@@ -88,7 +88,7 @@ export default function ArticleEntryLikeButton({
     </>
   );
 
-  // conditionally using a link for the button to show the progress bar(only show when using next/link)
+  // conditionally using a link for the button to show the progress bar(it only show when using next/link)
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       {likes > 0 ? (
@@ -98,7 +98,11 @@ export default function ArticleEntryLikeButton({
           variant={variant}
           className={`gap-1 px-3 py-2 ${className}`}>
           {!liked ? (
-            <Link href={`/articles/${article.slug}`}>{buttonContent}</Link>
+            <Link
+              href={`/articles/${article.slug}`}
+              aria-label={`Read article: ${article.title}`}>
+              {buttonContent}
+            </Link>
           ) : (
             buttonContent
           )}
@@ -110,7 +114,11 @@ export default function ArticleEntryLikeButton({
           variant={variant}
           className={`gap-1 px-3 py-2 sm:hidden ${className}`}>
           {!liked ? (
-            <Link href={`/articles/${article.slug}`}>{buttonContent}</Link>
+            <Link
+              href={`/articles/${article.slug}`}
+              aria-label={`Read article: ${article.title}`}>
+              {buttonContent}
+            </Link>
           ) : (
             buttonContent
           )}

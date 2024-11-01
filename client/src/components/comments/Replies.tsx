@@ -117,13 +117,13 @@ export default function Replies({ article, parentCommentId }: RepliesProps) {
   );
 
   return (
-    <div className="">
+    <div>
       <div className="-mt-2 mb-3">
         {repliesToShow.map((reply) => (
           <Comment
             article={article}
             replyComment
-            className="!mt-2 first:!mt-5"
+            className="mt-2 first:!mt-5"
             key={reply._id}
             comment={reply}
             onEditReply={onEditReply}
@@ -132,7 +132,7 @@ export default function Replies({ article, parentCommentId }: RepliesProps) {
         ))}
       </div>
       {!lastReplyReached && !pageLoadError && (
-        <div className="ml-[3.1rem] my-2">
+        <div className="ml-[3.15rem] mt-5 mb-7">
           <LoadingButton
             className="w-full"
             variant="secondary"

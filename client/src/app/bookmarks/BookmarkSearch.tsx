@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import { sanitizeInput } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -22,10 +23,6 @@ export default function BookmarkSearch({
   const [searchValue, setSearchValue] = useState(searchQuery || "");
 
   const router = useRouter();
-
-  function sanitizeInput(input?: string) {
-    return input?.replace(/[^a-zA-Z0-9\s]/g, "") || "";
-  }
 
   const searchQueryRef = useRef(sanitizeInput(searchQuery));
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);

@@ -144,7 +144,7 @@ export default function CommentActions({
               setLiked={setLiked}
               likes={likes}
               setLikes={setLikes}
-              className="gap-2 px-3 py-2 -ml-3 rounded-md"
+              className="gap-1 px-3 py-2 -ml-3 rounded-md"
               variant="ghost"
             />
             <Button

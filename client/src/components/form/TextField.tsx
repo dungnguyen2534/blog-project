@@ -27,6 +27,7 @@ interface TextFieldProps {
   alternativeText?: string;
   alternativeAction?: () => void;
   resizable?: boolean;
+  autoFocus?: boolean;
 }
 
 export default function TextField({
@@ -43,6 +44,7 @@ export default function TextField({
   alternativeText,
   alternativeAction,
   resizable = true,
+  autoFocus,
 }: TextFieldProps) {
   const [charCount, setCharCount] = useState(0);
 
@@ -69,6 +71,7 @@ export default function TextField({
                 {...field}
                 maxLength={limit}
                 onChange={handleChange}
+                autoFocus={autoFocus}
               />
             </FormControl>
             {alternative && (
