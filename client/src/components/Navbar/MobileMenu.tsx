@@ -43,9 +43,11 @@ export default function MobileMenu({
 
   return (
     <Sheet open={openMenu} onOpenChange={setOpenMenu}>
-      <SheetTrigger className="relative md:hidden sm:my-0 p-1 px-2">
+      <SheetTrigger
+        className="relative md:hidden sm:my-0 p-1 px-2"
+        aria-label="Open menu">
         <RxHamburgerMenu
-          size={40}
+          size={36}
           className={isLoadingUser ? "text-muted-foreground" : ""}
         />
       </SheetTrigger>
@@ -72,9 +74,9 @@ export default function MobileMenu({
 
           <Button
             variant="ghost"
-            className="!flex -mt-3  px-1 py-6 items-center hover:be-neutral-100 dark:hover:bg-neutral-900"
+            className="!flex -mt-3 -mr-2  px-3 py-7 items-center hover:be-neutral-100 dark:hover:bg-neutral-900"
             onClick={() => setOpenMenu(false)}>
-            <AiOutlineClose size={43} />
+            <AiOutlineClose size={36} />
           </Button>
         </div>
         <div className="flex flex-col items-end  [&>a]:p-3 [&>a]:rounded-md [&>a:hover]:bg-neutral-100 [&>a:hover]:dark:bg-neutral-900 [&>*]:w-full [&>*]:transition-colors [&>*]:text-end">

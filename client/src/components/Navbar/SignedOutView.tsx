@@ -9,7 +9,7 @@ export default function SignedOutView() {
         <Link href="/auth?signin">Sign in</Link>
       </Button>
       <div className="flex gap-2">
-        <Button asChild variant="outline" className="h-12 md:h-10">
+        <Button asChild variant="outline" className="h-11 md:h-10 ml-2 md:ml-0">
           <Link href="/auth?signup">
             <span className="hidden md:block">Create account</span>
             <span className="md:hidden text-lg">Sign up</span>

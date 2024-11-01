@@ -6,6 +6,7 @@ import { Article } from "@/validation/schema/article";
 import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { TooltipTrigger } from "@/components/ui/tooltip";
 import MiniProfile from "../MiniProfile";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface ArticleAuthorProps {
   article: Article;
@@ -39,19 +40,18 @@ export default function ArticleAuthor({
     );
   }
 
-  const author = article.author;
+  const { handleArticleListChange } = useArticlesLoader();
+  const { username, profilePicPath } = article.author;
   return (
-    <MiniProfile author={author} customTrigger>
+    <MiniProfile author={article.author} customTrigger>
       <div className="relative flex">
         <TooltipTrigger asChild>
           <Link
-            href={"/users/" + author.username}
+            onClick={() => handleArticleListChange("/users/" + username)}
+            href={"/users/" + username}
             className="flex gap-[0.4rem] items-center">
-            <UserAvatar
-              username={author.username}
-              profilePicUrl={author.profilePicPath}
-            />
-            <span className="text-sm font-medium mb-5">{author.username}</span>
+            <UserAvatar username={username} profilePicUrl={profilePicPath} />
+            <span className="text-sm font-medium mb-5">{username}</span>
           </Link>
         </TooltipTrigger>
         <div className="text-nowrap text-xs text-neutral-500 dark:text-neutral-400 absolute bottom-0 left-11">

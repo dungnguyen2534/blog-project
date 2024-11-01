@@ -1,13 +1,12 @@
 "use client";
 
 import ArticlesAPI from "@/api/article";
-import useAuth from "@/hooks/useAuth";
 import {
   CommentPage,
   Comment as CommentType,
   Article,
 } from "@/validation/schema/article";
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { createContext, useCallback, useState } from "react";
 import useSWR from "swr";
 
 interface CommentsContextType {
@@ -67,9 +66,9 @@ export default function CommentsContextProvider({
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
 
-  // replace the SSR comments with the client-side comments
+  // replace the SSR comments with the client-side comments to get latest comments state
   const { isLoading: isClientSideLoading } = useSWR(
-    "commentStatus",
+    "comments",
     async () => {
       const { comments, totalComments } = await ArticlesAPI.getCommentList(
         articleId
@@ -97,6 +96,9 @@ export default function CommentsContextProvider({
       setCommentList(comments);
       setReplies(replyPages.flatMap((page) => page.comments));
       setCommentCount(totalComments);
+    },
+    {
+      revalidateOnFocus: false,
     }
   );
 
@@ -195,12 +197,6 @@ export default function CommentsContextProvider({
     },
     [articleId]
   );
-
-  useEffect(() => {
-    if (initialPage == undefined || initialReplyPages == undefined) {
-      fetchFirstPage(12);
-    }
-  }, [initialPage, initialReplyPages, fetchFirstPage, setCommentList]);
 
   return (
     <CommentsContext.Provider

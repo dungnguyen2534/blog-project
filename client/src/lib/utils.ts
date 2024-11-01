@@ -107,3 +107,7 @@ export function generateTags(TagsString: string) {
     .filter((tag) => tag.length > 1)
     .map((tag) => tag.toLowerCase());
 }
+
+export function sanitizeInput(input?: string) {
+  return input?.replace(/[^a-zA-Z0-9\s]/g, "") || "";
+}

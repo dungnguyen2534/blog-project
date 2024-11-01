@@ -11,6 +11,8 @@ import useNavigation from "@/hooks/useNavigation";
 import PreviousUrlButton from "../PreviousUrlButton";
 import { Skeleton } from "../ui/skeleton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import SearchButton from "./SearchButton";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 export default function Navbar() {
   const { user, isLoadingUser, mutateUser } = useAuth();
@@ -53,9 +55,9 @@ export default function Navbar() {
           <span className="ml-1 text-xl font-extrabold">DEVFLOW</span>
         </LogoTag>
         <span className="absolute left-44 rotate-[18deg] w-[1px] h-[300%] bg-[#e7e7e7] dark:bg-neutral-800"></span>
-        <div className="hidden md:flex ml-52 items-center gap-2 transition-all text-sm text-neutral-600 dark:text-neutral-400 [&>*]:p-2 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
+        <div className="hidden md:flex ml-[11.35rem] items-center gap-2 transition-all text-sm text-neutral-600 dark:text-neutral-400 [&>*]:p-2 hover:[&>*]:text-black dark:hover:[&>*]:text-white">
           {showPrevUrlCondition ? (
-            <PreviousUrlButton />
+            <PreviousUrlButton className="mt-1 -ml-3" />
           ) : (
             <>
               <Link
@@ -82,11 +84,17 @@ export default function Navbar() {
 
         <div className="flex justify-center items-center gap-3 ml-auto">
           {pathname === "/onboarding" && <ModeToggle className="md:hidden" />}
-          <ModeToggle className="hidden md:flex" />
+
+          <div className="flex gap-1">
+            <SearchButton className={isLoadingUser ? "hidden md:flex" : ""} />
+            <ModeToggle className="hidden md:flex" />
+          </div>
+
+          <Separator className="block w-[1px] h-6 bg-neutral-200 dark:bg-neutral-800 mr-1 md:mr-2" />
 
           <RxHamburgerMenu
-            size={40}
-            className={`md:hidden mr-2 text-muted-foreground ${
+            size={36}
+            className={`md:hidden mx-2 text-muted-foreground ${
               isLoadingUser ? "" : "hidden"
             }`}
           />
