@@ -37,10 +37,14 @@ export default function ArticleContent({ article }: ArticleContentProps) {
       <div className="max-w-prose m-auto flex flex-col gap-3 break-words pb-5 border-b-[1px]">
         <header>
           <NavigateBackButton />
-          <h1 className="text-3xl sm:text-4xl font-black mt-2 mb-3">
+          <h1 className="text-3xl sm:text-4xl font-black md:mt-1 mb-4">
             {article.title}
           </h1>
-          <ArticleTags tags={article.tags} className="mb-3" />
+
+          {article.tags.length > 0 && (
+            <ArticleTags tags={article.tags} className="-mt-4 mb-4" />
+          )}
+
           <ArticleOptions
             article={article}
             isSaved={isSaved}

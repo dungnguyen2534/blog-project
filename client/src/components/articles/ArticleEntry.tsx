@@ -31,8 +31,8 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
 
     const { user } = useAuth();
     const { toast } = useToast();
-    const { cacheRef } = useArticlesLoader();
-    const { pathname } = useNavigation();
+    const { articleList, setArticleList } = useArticlesLoader();
+    const { setPrevScrollPosition } = useNavigation();
 
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -59,13 +59,14 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
             await ArticlesAPI.saveArticle(article._id);
           }
 
-          const articleIndex = cacheRef.current[pathname].findIndex(
+          const articleIndex = articleList.findIndex(
             (a) => a._id === article._id
           );
 
           if (articleIndex !== -1) {
-            cacheRef.current[pathname][articleIndex].isSavedArticle =
-              newIsSaved;
+            const updatedArticleList = [...articleList];
+            updatedArticleList[articleIndex].isSavedArticle = newIsSaved;
+            setArticleList(updatedArticleList);
           }
 
           toast({
@@ -81,12 +82,12 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
           });
         }
       }, 300);
-    }, [isSaved, article._id, toast, user, cacheRef, pathname]);
+    }, [isSaved, article._id, toast, user, articleList, setArticleList]);
 
     return (
       <article
         ref={ref}
-        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md ring-1 ring-[#f0f0f0] dark:ring-0 overflow-hidden break-words">
+        className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-2 rounded-none md:rounded-md md:main-outline overflow-hidden break-words">
         <ArticleOptions
           article={article}
           author={article.author}
@@ -97,6 +98,7 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
         <div className="md:ml-[2.85rem]">
           <Link
             href={`/articles/${article.slug}`}
+            onClick={() => setPrevScrollPosition(window.scrollY)}
             className="flex flex-col gap-2">
             <h2 className="text-lg sm:text-2xl font-bold">{article.title}</h2>
             {article.summary && (

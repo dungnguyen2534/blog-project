@@ -16,8 +16,8 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 
 export default function Navbar() {
   const { user, isLoadingUser, mutateUser } = useAuth();
-  const { pathname } = useNavigation();
-  const { handleArticleListChange, cacheRef } = useArticlesLoader();
+  const { pathname, setPrevScrollPosition } = useNavigation();
+  const { handleArticleListChange } = useArticlesLoader();
 
   let callToActions = (
     <div className="hidden md:flex items-center gap-3">
@@ -42,13 +42,13 @@ export default function Navbar() {
   ].some((path) => pathname.startsWith(path));
 
   return (
-    <header className="overflow-hidden h-16 z-50 flex items-center fixed w-[calc(100vw-1px)] top-0 secondary-color ring-1 ring-[#e7e7e7] dark:ring-neutral-800">
+    <header className="overflow-hidden h-16 z-50 flex items-center fixed w-[calc(100vw-1px)] top-0 main-color ring-1 ring-[#e7e7e7] dark:ring-neutral-800">
       <div className="container px-2 md:px-4 flex items-center relative">
         <LogoTag
           href="/"
           onClick={() => {
             handleArticleListChange("/");
-            cacheRef.current = {};
+            setPrevScrollPosition(0);
           }}
           className="absolute top-1/2 transform -translate-y-1/2 text-xl font-bold flex items-center">
           <FaTerminal size={26} className="" />

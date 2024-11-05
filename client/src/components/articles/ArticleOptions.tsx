@@ -62,7 +62,7 @@ export default function ArticleOptions({
   const { user: LoggedInUser } = useAuth();
   const isAuthor = LoggedInUser?._id === author._id;
 
-  const { setArticleList, cacheRef } = useArticlesLoader();
+  const { setArticleList, articleList } = useArticlesLoader();
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -108,16 +108,15 @@ export default function ArticleOptions({
           await ArticlesAPI.saveArticle(article._id);
         }
 
-        if (prevUrl) {
-          const articleIndex = cacheRef.current[prevUrl].findIndex(
-            (a) => a._id === article._id
-          );
+        const articleIndex = articleList.findIndex(
+          (a) => a._id === article._id
+        );
 
-          if (articleIndex !== -1) {
-            cacheRef.current[prevUrl][articleIndex].isSavedArticle = newIsSaved;
-          }
+        if (articleIndex !== -1) {
+          const updatedArticleList = [...articleList];
+          updatedArticleList[articleIndex].isSavedArticle = newIsSaved;
+          setArticleList(updatedArticleList);
         }
-
         toast({
           title: isSaved
             ? "Article removed from bookmarks"
@@ -139,9 +138,8 @@ export default function ArticleOptions({
     LoggedInUser,
     setIsSaved,
     isLoading,
-    prevUrl,
-    ,
-    cacheRef,
+    articleList,
+    setArticleList,
   ]);
 
   async function deleteArticle() {
@@ -153,9 +151,13 @@ export default function ArticleOptions({
 
       if (articleEntry) {
         setArticleList((prevList) => {
-          const updatedList = prevList.filter((p) => p._id !== article._id);
-          cacheRef.current[pathname] = updatedList;
-          return updatedList;
+          const articleIndex = prevList.findIndex((p) => p._id === article._id);
+          if (articleIndex !== -1) {
+            const updatedArticleList = [...prevList];
+            updatedArticleList.splice(articleIndex, 1);
+            return updatedArticleList;
+          }
+          return prevList;
         });
       }
 

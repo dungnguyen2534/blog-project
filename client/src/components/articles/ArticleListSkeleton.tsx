@@ -20,7 +20,7 @@ export default function ArticleListSkeleton({
 
 function ArticleSkeleton() {
   return (
-    <div className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-3 rounded-none md:rounded-md ring-1 ring-[#f0f0f0] dark:ring-0">
+    <div className="secondary-container px-4 pt-3 !pb-1 sm:!pb-2 md:p-4 w-full flex flex-col gap-3 rounded-none md:rounded-md main-outline">
       <div className="flex gap-[0.35rem] h-10">
         <Skeleton className="h-[2.4rem] w-[2.4rem] rounded-full" />
         <div className="flex flex-col justify-evenly gap-1">

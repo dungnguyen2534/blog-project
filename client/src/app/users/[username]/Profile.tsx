@@ -23,7 +23,7 @@ export default function Profile({ user }: ProfileProps) {
 
   return (
     <main className="mt-[4rem] md:!mt-[4.5rem]">
-      <div className="secondary-container p-3 md:mt-[0.5rem] md:p-7 md:pb-5 rounded-none md:rounded-md ring-1 ring-[#f0f0f0] dark:ring-0">
+      <div className="secondary-container p-3 md:mt-[0.5rem] md:p-7 md:pb-5 rounded-none md:rounded-md main-outline">
         <div className="relative flex gap-3 flex-col md:items-center">
           {loggedInUser && (
             <div className="absolute top-1 right-1 md:-top-4 md:-right-4">

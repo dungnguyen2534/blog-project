@@ -26,7 +26,7 @@ export default function PreviousUrlButton({
     [prevUrl]
   );
 
-  const articleListChangeCondition = useMemo(
+  const changingArticleList = useMemo(
     () =>
       pathname?.startsWith("/users") ||
       pathname?.startsWith("/bookmarks") ||
@@ -42,16 +42,16 @@ export default function PreviousUrlButton({
         if (backHomeCondition) {
           nProgress.start();
           router.push("/");
-        } else if (articleListChangeCondition) {
+        } else if (changingArticleList) {
           nProgress.start();
-          router.back();
+          router.push(prevUrl ? prevUrl : "/");
           handleArticleListChange(prevUrl ? prevUrl : "/");
         } else if (!prevUrl) {
           nProgress.start();
           router.push("/");
         } else {
           nProgress.start();
-          router.back();
+          router.push(prevUrl);
         }
       }}>
       <span className="flex gap-1 items-center text-xs font-bold italic">

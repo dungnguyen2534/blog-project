@@ -36,17 +36,23 @@ const ArticlesAPI = {
     const res = await http.delete("/articles/images");
     return res.payload;
   },
-  async getArticleList(url?: string, cookie?: RequestCookie) {
+  async getArticleList(
+    signal?: AbortSignal,
+    url?: string,
+    cookie?: RequestCookie
+  ) {
     const res = await http.get<ArticlePage>(url || "/articles", {
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
       next: { tags: ["articles"] },
+      signal: signal,
     });
     return res.payload;
   },
 
   async getTopArticles(
+    signal?: AbortSignal,
     timeSpan?: "week" | "month" | "year" | "infinity",
     continueAfterId?: string,
     continueAfterLikeCount?: string,
@@ -69,6 +75,7 @@ const ArticlesAPI = {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
       next: { tags: ["top-articles"] },
+      signal: signal,
     });
     return res.payload;
   },
@@ -81,6 +88,7 @@ const ArticlesAPI = {
       headers: {
         cookie: userCookie ? `${userCookie.name}=${userCookie.value}` : "",
       },
+      next: { tags: [slug] },
     });
     return res.payload;
   },
@@ -97,6 +105,7 @@ const ArticlesAPI = {
     return res.payload;
   },
   async getSavedArticles(
+    signal?: AbortSignal,
     tag?: string,
     searchQuery?: string,
     continueAfterId?: string,
@@ -110,6 +119,7 @@ const ArticlesAPI = {
         headers: {
           cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
         },
+        signal: signal,
       }
     );
     return res.payload;

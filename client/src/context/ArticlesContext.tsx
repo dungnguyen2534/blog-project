@@ -14,6 +14,7 @@ import {
 interface ArticlesContextType {
   articleList: Article[];
   fetchFirstPage: (
+    signal?: AbortSignal,
     authorId?: string,
     tag?: string,
     limit?: number,
@@ -44,7 +45,6 @@ interface ArticlesContextType {
   firstPageLoadError: boolean;
   handleArticleListChange: (targetPathname: string) => void;
   isChangingArticleList: boolean;
-  cacheRef: React.MutableRefObject<{ [key: string]: Article[] }>;
 }
 
 export const ArticlesContext = createContext<ArticlesContextType | null>(null);
@@ -62,15 +62,14 @@ export default function ArticlesContextProvider({
   const [lastArticleReached, setLastArticleReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
-
   const pathname = usePathname();
-  const cacheRef = useRef<{ [key: string]: Article[] }>({});
 
   const continueAfterId = articleList[articleList.length - 1]?._id;
   const continueAfterLikeCount = articleList[articleList.length - 1]?.likeCount;
 
   const fetchFirstPage = useCallback(
     async (
+      signal?: AbortSignal,
       authorId?: string,
       tag?: string,
       limit?: number,
@@ -104,29 +103,44 @@ export default function ArticlesContextProvider({
       try {
         let firstPage: ArticlePage;
         if (top) {
-          firstPage = await ArticlesAPI.getTopArticles(timeSpan || "week");
+          firstPage = await ArticlesAPI.getTopArticles(
+            signal,
+            timeSpan || "week"
+          );
         } else if (followedTarget) {
           firstPage = await ArticlesAPI.getArticleList(
-            `/articles?followedTarget=${followedTarget}`
+            signal,
+            `/articles?followedTarget=${followedTarget}`,
+            undefined
           );
         } else if (saved) {
-          firstPage = await ArticlesAPI.getSavedArticles(tag, searchQuery);
+          firstPage = await ArticlesAPI.getSavedArticles(
+            signal,
+            tag,
+            searchQuery
+          );
         } else {
-          firstPage = await ArticlesAPI.getArticleList(query);
+          firstPage = await ArticlesAPI.getArticleList(
+            signal,
+            query,
+            undefined
+          );
         }
 
         setArticleList(firstPage.articles);
-        cacheRef.current[pathname] = firstPage.articles;
         setLastArticleReached(firstPage.lastArticleReached);
         setFirstPageFetched(true);
-      } catch {
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
+
         setFirstPageFetched(false);
         setFirstPageLoadError(true);
       } finally {
         setIsLoading(false);
       }
     },
-    [pathname]
+    []
   );
 
   const fetchNextPage = useCallback(
@@ -167,31 +181,31 @@ export default function ArticlesContextProvider({
         let nextPage: ArticlePage;
         if (top) {
           nextPage = await ArticlesAPI.getTopArticles(
+            undefined,
             timeSpan || "week",
             continueAfterId,
             continueAfterLikeCount.toString()
           );
         } else if (followedTarget) {
           nextPage = await ArticlesAPI.getArticleList(
+            undefined,
             `/articles?followedTarget=${followedTarget}&continueAfterId=${continueAfterId}`
           );
         } else if (saved) {
           nextPage = await ArticlesAPI.getSavedArticles(
+            undefined,
             tag,
             searchQuery,
             continueAfterId
           );
         } else {
-          nextPage = await ArticlesAPI.getArticleList(query);
+          nextPage = await ArticlesAPI.getArticleList(undefined, query);
         }
 
-        setArticleList((prevArticleList) => {
-          cacheRef.current[pathname] = [
-            ...prevArticleList,
-            ...nextPage.articles,
-          ];
-          return [...prevArticleList, ...nextPage.articles];
-        });
+        setArticleList((prevArticleList) => [
+          ...prevArticleList,
+          ...nextPage.articles,
+        ]);
 
         setLastArticleReached(nextPage.lastArticleReached);
       } catch (error) {
@@ -201,7 +215,7 @@ export default function ArticlesContextProvider({
         setIsLoading(false);
       }
     },
-    [continueAfterId, continueAfterLikeCount, pathname]
+    [continueAfterId, continueAfterLikeCount]
   );
 
   // All navigation in Next built on transition, useTransition to prevent set state before navigation
@@ -213,7 +227,6 @@ export default function ArticlesContextProvider({
       }
 
       startTransition(() => {
-        cacheRef.current[targetPathname] = [];
         setArticleList([]);
         setFirstPageLoadError(false);
         setLastArticleReached(false);
@@ -241,7 +254,6 @@ export default function ArticlesContextProvider({
         firstPageLoadError,
         handleArticleListChange,
         isChangingArticleList,
-        cacheRef,
       }}>
       {children}
     </ArticlesContext.Provider>

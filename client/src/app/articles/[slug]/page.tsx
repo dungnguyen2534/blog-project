@@ -48,7 +48,7 @@ export default async function ArticlePage({
   const article = await getArticle(slug);
 
   return (
-    <div className="secondary-container ring-1 ring-[#f0f0f0] dark:ring-0 mt-[4rem] md:!mt-[4.5rem] md:mb-2 p-3 sm:pt-7 rounded-none sm:rounded-md">
+    <div className="secondary-container main-outline mt-[4rem] md:!mt-[4.5rem] md:mb-2 p-3 sm:pt-7 rounded-none sm:rounded-md">
       <ArticleContent article={article} />
       <CommentSection article={article} />
     </div>

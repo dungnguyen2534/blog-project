@@ -131,16 +131,16 @@
     @apply bg-[#222] dark:bg-[#121212] !p-4;
   }
 
-  .primary-color {
-    @apply bg-neutral-50 dark:bg-neutral-950;
+  .main-color {
+    @apply bg-white dark:bg-neutral-950;
   }
 
-  .secondary-color {
-    @apply bg-white dark:bg-neutral-900;
+  .main-outline {
+    @apply outline outline-[1.5px] outline-[#eaeaea] dark:outline-[#222];
   }
 
   .secondary-container {
-    @apply secondary-color rounded-md max-w-3xl m-auto;
+    @apply main-color rounded-md max-w-3xl m-auto;
   }
 
   .animate-slide-bg-dark {
@@ -217,7 +217,7 @@
 }
 
 .rc-md-editor .editor-container {
-  @apply primary-color;
+  @apply main-color;
 }
 
 /* Markdown edit field */
@@ -227,12 +227,12 @@
 }
 
 .rc-md-editor .editor-container .sec-md .input {
-  @apply text-base bg-white dark:bg-neutral-900 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 !important;
+  @apply text-base bg-white dark:bg-neutral-950 dark:text-white placeholder:text-neutral-500 dark:placeholder:text-neutral-400 !important;
 }
 
 /* Preview field */
 .editor-container .html-wrap {
-  @apply bg-white dark:bg-neutral-900;
+  @apply bg-white dark:bg-neutral-950;
 }
 
 .editor-container .html-wrap .custom-html-style {

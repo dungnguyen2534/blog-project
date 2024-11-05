@@ -26,9 +26,9 @@ export default function TimeSpanFilter({
     <>
       <Tabs
         defaultValue={defaultValue}
-        className={`secondary-container -mt-[0.2rem] md:-mt-[0.4rem]  w-full !bg-transparent ${className}`}>
+        className={`secondary-container -mt-[0.2rem] dark:-mt-[0.1rem] md:-mt-[0.4rem]  w-full !bg-transparent ${className}`}>
         <div className="">
-          <TabsList className="rounded-none md:rounded-b-md mb-1 md:mb-2 grid md:hidden grid-cols-4 w-full bg-white dark:bg-neutral-900 [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-0 [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100 ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
+          <TabsList className="rounded-none md:rounded-b-md mb-1 md:mb-2 grid md:hidden grid-cols-4 w-full bg-white dark:bg-neutral-950 [&>a[data-state='active']]:ring-1 [&>a[data-state='active']]:ring-neutral-200 [&>a[data-state='active']]:dark:ring-[#222] [&>a[data-state='active']]:text-black [&>a[data-state='active']]:dark:text-neutral-100 ring-1 ring-[#f1f1f1] dark:ring-neutral-950">
             <TabsTrigger
               asChild
               value="Week"
