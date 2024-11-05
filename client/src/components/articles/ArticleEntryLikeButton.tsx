@@ -39,7 +39,7 @@ export default function ArticleEntryLikeButton({
   const [liked, setLiked] = useState(article.isLoggedInUserLiked);
   const [likes, setLikes] = useState(article.likeCount);
 
-  const { cacheRef } = useArticlesLoader();
+  const { articleList, setArticleList } = useArticlesLoader();
   const { pathname } = useNavigation();
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -57,13 +57,13 @@ export default function ArticleEntryLikeButton({
     try {
       await ArticlesAPI.unlike(article._id, "article");
 
-      const articleIndex = cacheRef.current[pathname].findIndex(
-        (a) => a._id === article._id
-      );
+      const articleIndex = articleList.findIndex((a) => a._id === article._id);
 
       if (articleIndex !== -1) {
-        cacheRef.current[pathname][articleIndex].isLoggedInUserLiked = false;
-        cacheRef.current[pathname][articleIndex].likeCount -= 1;
+        const updatedArticleList = [...articleList];
+        updatedArticleList[articleIndex].isLoggedInUserLiked = false;
+        updatedArticleList[articleIndex].likeCount -= 1;
+        setArticleList(updatedArticleList);
       }
 
       setLiked(false);
@@ -74,7 +74,7 @@ export default function ArticleEntryLikeButton({
         title: "An error occurred, please try again later",
       });
     }
-  }, [article._id, toast, cacheRef, pathname]);
+  }, [article._id, toast, articleList, setArticleList]);
 
   const buttonContent = (
     <>

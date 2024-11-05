@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { BsThreeDots } from "react-icons/bs";
-import { cache, useState } from "react";
+import { useState } from "react";
 import LoadingButton from "../LoadingButton";
 import { Button } from "../ui/button";
 import useCommentsLoader from "@/hooks/useCommentsLoader";
@@ -28,8 +28,7 @@ import { TooltipTrigger } from "../ui/tooltip";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { PiPencilLine } from "react-icons/pi";
-import { revalidatePathData } from "@/lib/revalidate";
-import useNavigation from "@/hooks/useNavigation";
+import { revalidateTagData } from "@/lib/revalidate";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface CommentOptionsProps {
@@ -57,8 +56,7 @@ export default function CommentOptions({
 
   const [showDialog, setShowDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { prevUrl } = useNavigation();
-  const { cacheRef } = useArticlesLoader();
+  const { articleList, setArticleList } = useArticlesLoader();
 
   async function deleteComment() {
     setIsDeleting(true);
@@ -88,17 +86,15 @@ export default function CommentOptions({
         );
       }
 
-      if (prevUrl) {
-        const articleIndex = cacheRef.current[prevUrl].findIndex(
-          (a) => a._id === article._id
-        );
+      const articleIndex = articleList.findIndex((a) => a._id === article._id);
 
-        if (articleIndex !== -1) {
-          cacheRef.current[prevUrl][articleIndex].commentCount = totalComments;
-        }
+      if (articleIndex !== -1) {
+        const updatedArticleList = [...articleList];
+        updatedArticleList[articleIndex].commentCount = totalComments;
+        setArticleList(updatedArticleList);
       }
 
-      revalidatePathData(`/articles/${article.slug}`);
+      revalidateTagData(article.slug);
       setCommentCount(totalComments);
     } catch (error) {
       setShowDialog(false);

@@ -70,9 +70,8 @@ export default function CommentsContextProvider({
   const { isLoading: isClientSideLoading } = useSWR(
     "comments",
     async () => {
-      const { comments, totalComments } = await ArticlesAPI.getCommentList(
-        articleId
-      );
+      const { comments, totalComments, lastCommentReached } =
+        await ArticlesAPI.getCommentList(articleId);
 
       const replyPagesPromises = comments.map(async (parentComment) => {
         if (parentComment.replyCount === 0)
@@ -94,8 +93,10 @@ export default function CommentsContextProvider({
       const replyPages = await Promise.all(replyPagesPromises);
 
       setCommentList(comments);
+      setReplyPages(replyPages);
       setReplies(replyPages.flatMap((page) => page.comments));
       setCommentCount(totalComments);
+      setLastCommentReached(lastCommentReached);
     },
     {
       revalidateOnFocus: false,

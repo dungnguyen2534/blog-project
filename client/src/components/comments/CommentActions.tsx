@@ -41,7 +41,7 @@ export default function CommentActions({
     comment.isLoggedInUserLiked || false
   );
 
-  const { cacheRef } = useArticlesLoader();
+  const { articleList, setArticleList } = useArticlesLoader();
   const { prevUrl } = useNavigation();
 
   useEffect(() => {
@@ -76,17 +76,19 @@ export default function CommentActions({
         })
       );
 
-      if (prevUrl) {
-        const articleIndex = cacheRef.current[prevUrl].findIndex(
+      if (prevUrl && articleList.length > 0) {
+        const articleIndex = articleList.findIndex(
           (a) => a._id === article._id
         );
 
         if (articleIndex !== -1) {
-          cacheRef.current[prevUrl][articleIndex].commentCount += 1;
+          const updatedArticleList = [...articleList];
+          updatedArticleList[articleIndex].commentCount += 1;
+          setArticleList(updatedArticleList);
         }
       }
 
-      revalidatePathData(`/articles/${article.slug}`);
+      revalidatePathData("/articles/" + article.slug);
       setNewLocalReplies((prevReplies) => [...prevReplies, newComment]);
       setCommentCount((prevCount) => prevCount + 1);
       setIsReplying(false);

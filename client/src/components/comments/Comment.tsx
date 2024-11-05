@@ -138,7 +138,7 @@ export default function Comment({
           <div className="flex-grow flex flex-col">
             <div
               ref={heightRef}
-              className="flex flex-col gap-[0.85rem] ring-1 ring-neutral-200 dark:ring-neutral-800 bg-white dark:bg-neutral-900 mt-1 rounded-md px-5">
+              className="flex flex-col gap-[0.85rem] main-outline mt-1 rounded-md px-5">
               <CommentOptions
                 article={article}
                 comment={comment}
@@ -162,7 +162,7 @@ export default function Comment({
                     </DialogTrigger>
                   </>
                 ) : (
-                  <DropdownMenuItem>(to be implemented)</DropdownMenuItem>
+                  <DropdownMenuItem>Report</DropdownMenuItem>
                 )}
               </CommentOptions>
 

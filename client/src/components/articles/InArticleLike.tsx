@@ -28,7 +28,7 @@ export default function InArticleLike(props: InArticleLikeProps) {
   }
 
   return (
-    <div className="flex gap-2 items-center justify-center  max-w-prose mx-auto outline outline-1 dark:outline-0 outline-neutral-200 dark:bg-neutral-950 rounded-md p-4 mt-5">
+    <div className="flex gap-2 items-center justify-center  max-w-prose mx-auto main-outline rounded-md p-4 mt-5">
       {/* The id here is because when click the comment button on article entry, it will take to a perfect position to show comments */}
       <span id="comment-section" className="hidden sm:block">
         Do you like this article?

@@ -30,6 +30,7 @@ import {
 } from "@/validation/schema/article";
 import ArticlesAPI from "@/api/article";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 interface ArticleUpdaterProps {
   article: Article;
@@ -50,6 +51,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setFirstPageFetched } = useArticlesLoader();
+  const { setPrevScrollPosition } = useNavigation();
 
   const title = form.watch("title");
   const body = form.watch("body");
@@ -105,6 +107,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
       });
 
       revalidatePathData("/articles/" + article.slug);
+      setPrevScrollPosition(0);
       router.push("/articles/" + slug);
     } catch (error) {
       setIsSubmitting(false);

@@ -27,8 +27,7 @@ export default function Replies({ article, parentCommentId }: RepliesProps) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
-  const { cacheRef } = useArticlesLoader();
-  const { prevUrl } = useNavigation();
+  const { articleList, setArticleList } = useArticlesLoader();
 
   const replyPage = replyPages.find((page) =>
     page.comments.find((c) => c.parentCommentId === parentCommentId)
@@ -64,14 +63,12 @@ export default function Replies({ article, parentCommentId }: RepliesProps) {
       prevReplies.filter((reply) => reply._id !== comment._id)
     );
 
-    if (prevUrl) {
-      const articleIndex = cacheRef.current[prevUrl].findIndex(
-        (a) => a._id === article._id
-      );
+    const articleIndex = articleList.findIndex((a) => a._id === article._id);
 
-      if (articleIndex !== -1) {
-        cacheRef.current[prevUrl][articleIndex].commentCount -= 1;
-      }
+    if (articleIndex !== -1) {
+      const updatedArticleList = [...articleList];
+      updatedArticleList[articleIndex].commentCount -= 1;
+      setArticleList(updatedArticleList);
     }
     revalidatePathData(`/articles/${article.slug}`);
   }

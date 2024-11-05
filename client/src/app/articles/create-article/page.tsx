@@ -25,6 +25,7 @@ import TextInput from "@/components/form/TextInput";
 import useAutoSave from "@/hooks/useAutoSave";
 import EditorGuideButton from "@/components/EditorGuideButton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import useNavigation from "@/hooks/useNavigation";
 
 export default function NewArticlePage() {
   const form = useForm<ArticleBody>({
@@ -41,6 +42,7 @@ export default function NewArticlePage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { setFirstPageFetched } = useArticlesLoader();
+  const { setPrevScrollPosition } = useNavigation();
 
   const title = form.watch("title");
   const body = form.watch("body");
@@ -78,7 +80,7 @@ export default function NewArticlePage() {
 
       setTagsString(autoSavedValue.tags);
     }
-  }, [getAutoSavedValue, clearAutoSavedValue, form]);
+  }, [getAutoSavedValue, form]);
 
   async function onSubmit(values: ArticleBody) {
     let tags: string[] = [];
@@ -113,6 +115,7 @@ export default function NewArticlePage() {
         images,
       });
       clearAutoSavedValue();
+      setPrevScrollPosition(0);
 
       router.push("/articles/" + slug);
     } catch (error) {

@@ -4,7 +4,7 @@ import useAuth from "@/hooks/useAuth";
 import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { Article } from "@/validation/schema/article";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import BookmarkListSkeleton from "./BookmarkListSkeleton";
 import { Button } from "@/components/ui/button";
 import { BsThreeDots } from "react-icons/bs";
@@ -32,38 +32,29 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
     fetchNextPage,
     lastArticleReached,
     pageLoadError,
+    firstPageFetched,
     firstPageLoadError,
     setArticleList,
     isLoading,
     handleArticleListChange,
   } = useArticlesLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
-
-  useEffect(() => {
-    fetchFirstPage(
-      undefined,
-      tag,
-      12,
-      undefined,
-      undefined,
-      undefined,
-      true,
-      searchQuery
-    );
-  }, [fetchFirstPage, tag, searchQuery]);
-
-  const handleFetchFirstPage = useCallback(() => {
-    fetchFirstPage(
-      undefined,
-      tag,
-      12,
-      undefined,
-      undefined,
-      undefined,
-      true,
-      searchQuery
-    );
-  }, [fetchFirstPage, tag, searchQuery]);
+  const handleFetchFirstPage = useCallback(
+    (signal?: AbortSignal) => {
+      fetchFirstPage(
+        signal,
+        undefined,
+        tag,
+        12,
+        undefined,
+        undefined,
+        undefined,
+        true,
+        searchQuery
+      );
+    },
+    [fetchFirstPage, tag, searchQuery]
+  );
 
   const handleFetchNextPage = useCallback(() => {
     fetchNextPage(
@@ -77,6 +68,13 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
       searchQuery
     );
   }, [fetchNextPage, tag, searchQuery]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    handleFetchFirstPage(controller.signal);
+
+    return () => controller.abort();
+  }, [handleFetchFirstPage, tag, searchQuery]);
 
   const articleRef = useCallback(
     (articleEntry: HTMLElement | null) => {
@@ -149,7 +147,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
             <article
               key={article._id}
               ref={index === articleList.length - 1 ? articleRef : null}
-              className="relative bg-white dark:bg-neutral-900 rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 ring-1 ring-[#f4f4f4] dark:ring-neutral-900 overflow-hidden break-words">
+              className="relative  rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 main-outline overflow-hidden break-words">
               <Link href={"/articles/" + article.slug}>
                 <h2 className="text-lg md:text-xl font-bold">
                   {article.title}
@@ -217,7 +215,9 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
         noBookmarks(
           <div className="flex flex-col gap-2">
             Failed to load bookmarks
-            <Button className="w-fit mx-auto" onClick={handleFetchFirstPage}>
+            <Button
+              className="w-fit mx-auto"
+              onClick={() => handleFetchFirstPage()}>
               Try again
             </Button>
           </div>

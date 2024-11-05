@@ -48,8 +48,7 @@ export default function InArticleLikeButton({
   const { showSignIn } = useAuthDialogs();
   const { toast } = useToast();
 
-  const { cacheRef } = useArticlesLoader();
-  const { prevUrl } = useNavigation();
+  const { articleList, setArticleList } = useArticlesLoader();
 
   const handleClick = useCallback(async () => {
     if (!user) {
@@ -78,16 +77,15 @@ export default function InArticleLikeButton({
           await ArticlesAPI.like(article._id, "article");
         }
 
-        if (prevUrl) {
-          const articleIndex = cacheRef.current[prevUrl].findIndex(
-            (a) => a._id === article._id
-          );
+        const articleIndex = articleList.findIndex(
+          (a) => a._id === article._id
+        );
 
-          if (articleIndex !== -1) {
-            cacheRef.current[prevUrl][articleIndex].likeCount = newLikes;
-            cacheRef.current[prevUrl][articleIndex].isLoggedInUserLiked =
-              newLiked;
-          }
+        if (articleIndex !== -1) {
+          const updatedArticleList = [...articleList];
+          updatedArticleList[articleIndex].likeCount = newLikes;
+          updatedArticleList[articleIndex].isLoggedInUserLiked = newLiked;
+          setArticleList(updatedArticleList);
         }
       } catch {
         toast({
@@ -108,8 +106,8 @@ export default function InArticleLikeButton({
     setLiked,
     isLoading,
     setLikes,
-    prevUrl,
-    cacheRef,
+    articleList,
+    setArticleList,
   ]);
 
   return (

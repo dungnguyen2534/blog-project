@@ -2,7 +2,6 @@ import React from "react";
 import FollowedPage from "./FollowedPage";
 import TargetFilter from "./TargetFilter";
 import { notFound } from "next/navigation";
-import ArticlesContextProvider from "@/context/ArticlesContext";
 import ArticleListTabs from "@/components/articles/ArticleListTabs";
 
 interface FollowedArticlesPageProps {

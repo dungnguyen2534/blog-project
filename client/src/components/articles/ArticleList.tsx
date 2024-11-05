@@ -8,7 +8,6 @@ import ArticleListSkeleton from "./ArticleListSkeleton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import useFollowUser from "@/hooks/useFollowUser";
 import { usePathname } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
 
 interface ArticlesListProps {
   author?: User;
@@ -41,35 +40,38 @@ export default function ArticleList({
     lastArticleReached,
     pageLoadError,
     firstPageLoadError,
-    cacheRef,
   } = useArticlesLoader();
 
   // fetcher functions
-  const handleFetchFirstPage = useCallback(() => {
-    fetchFirstPage(author?._id, tag, 12, top, timeSpan, followedTarget);
-  }, [fetchFirstPage, tag, author?._id, top, followedTarget, timeSpan]);
+  const handleFetchFirstPage = useCallback(
+    (signal?: AbortSignal) => {
+      fetchFirstPage(
+        signal,
+        author?._id,
+        tag,
+        12,
+        top,
+        timeSpan,
+        followedTarget
+      );
+    },
+    [fetchFirstPage, tag, author?._id, top, followedTarget, timeSpan]
+  );
 
   const handleFetchNextPage = useCallback(() => {
     fetchNextPage(author?._id, tag, 12, top, timeSpan, followedTarget);
   }, [fetchNextPage, tag, author?._id, top, followedTarget, timeSpan]);
 
-  // use stored data if available when navigating back using browser or the custom navbar back button
-  // for some reason the articleList flash the old data for a second before setting it again, use a ref with saved data fixes that
   const pathname = usePathname();
   useEffect(() => {
-    if (cacheRef.current[pathname] && firstPageFetched) {
-      setArticleList(cacheRef.current[pathname]);
-    }
+    // prevent race condition with AbortController
+    const controller = new AbortController();
     if (!firstPageFetched) {
-      handleFetchFirstPage();
+      handleFetchFirstPage(controller.signal);
     }
-  }, [
-    firstPageFetched,
-    handleFetchFirstPage,
-    cacheRef,
-    pathname,
-    setArticleList,
-  ]);
+
+    return () => controller.abort();
+  }, [firstPageFetched, handleFetchFirstPage, pathname, setArticleList]);
 
   // sync author follow status if there is more than one of the same author on the list
   const { setUsersToFollow } = useFollowUser();
@@ -146,7 +148,7 @@ export default function ArticleList({
       {author && firstPageLoadError && (
         <EmptyArticleList
           text={`Failed to load`}
-          retryFunction={() => fetchFirstPage(author._id, tag, 12)}
+          retryFunction={() => fetchFirstPage(undefined, author._id, tag, 12)}
           className="mt-48"
           hideIcon
         />
