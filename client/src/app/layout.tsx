@@ -12,7 +12,9 @@ import NavigationContextProvider from "@/context/NavigationContext";
 import MiniProfilesContextProvider from "@/context/MiniProfilesContext";
 import ArticlesContextProvider from "@/context/ArticlesContext";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Devflow",

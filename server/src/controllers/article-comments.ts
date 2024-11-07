@@ -346,15 +346,15 @@ export const uploadInCommentImages: RequestHandler = async (req, res, next) => {
     assertIsDefined(authenticatedUser);
     assertIsDefined(image);
 
+    const { width, height } = await sharp(image.buffer).metadata();
+
     const fileName = nanoid();
-    const imagePath =
-      "/uploads/in-comment-images/" +
-      fileName +
-      path.extname(image.originalname);
+    const imagePath = `/uploads/in-comment-images/${fileName}_width=${width}_height=${height}.webp`;
 
     await sharp(image.buffer)
       .resize(1920, undefined, { withoutEnlargement: true })
-      .toFile("./" + imagePath);
+      .webp({ quality: 75 })
+      .toFile(`./${imagePath}`);
 
     await TempImageModel.create({
       imagePath,

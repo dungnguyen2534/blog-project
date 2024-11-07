@@ -282,11 +282,10 @@ export const editUserProfile: RequestHandler<
 
     let profilePicturePath: string | undefined = undefined;
     if (profilePicture) {
-      profilePicturePath =
-        "/uploads/profile-pictures/" + authenticatedUser._id + ".png";
-
+      profilePicturePath = `/uploads/profile-pictures/${authenticatedUser._id}.webp`;
       await sharp(profilePicture.buffer)
         .resize(500, 500, { withoutEnlargement: true })
+        .webp({ quality: 75 })
         .toFile("./" + profilePicturePath);
     }
 

@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "../ui/input";
 import LoadingButton from "../LoadingButton";
-import { useEffect, useRef, useState } from "react";
-import { sanitizeInput } from "@/lib/utils";
+import { useState } from "react";
 
 interface SearchButtonProps {
   className?: string;
@@ -31,7 +30,8 @@ export default function SearchButton({ className }: SearchButtonProps) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className={`relative h-11 w-12 md:h-10 md:w-10 ${className}`}>
+          className={`relative h-11 w-12 md:h-10 md:w-10 ${className}`}
+          aria-label="Search">
           <RiMenuSearchLine
             size={24}
             className="absolute top-[53%] dark:top-[52%] -translate-y-1/2 hidden md:block"

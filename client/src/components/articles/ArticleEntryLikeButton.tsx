@@ -40,13 +40,13 @@ export default function ArticleEntryLikeButton({
   const [likes, setLikes] = useState(article.likeCount);
 
   const { articleList, setArticleList } = useArticlesLoader();
-  const { pathname } = useNavigation();
-
+  const { setPrevScrollPosition } = useNavigation();
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
 
   function handleClick() {
     if (!liked) {
+      setPrevScrollPosition(window.scrollY);
       toast({
         title: "You can like the article after reading it",
       });

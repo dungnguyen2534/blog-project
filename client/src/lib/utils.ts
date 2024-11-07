@@ -111,3 +111,13 @@ export function generateTags(TagsString: string) {
 export function sanitizeInput(input?: string) {
   return input?.replace(/[^a-zA-Z0-9\s]/g, "") || "";
 }
+
+export function extractDimensionsFromPath(imagePath: string) {
+  const regex = /_width=(\d+)_height=(\d+)\.webp$/;
+  const match = regex.exec(imagePath);
+
+  if (match) {
+    return { width: parseInt(match[1], 10), height: parseInt(match[2], 10) };
+  }
+  return { width: 0, height: 0 };
+}

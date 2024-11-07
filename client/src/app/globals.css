@@ -29,7 +29,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --markdown-pre: #222;
+    --markdown-pre: #333;
   }
 
   .dark {
@@ -172,7 +172,7 @@
 }
 
 .rc-md-editor .rc-md-navigation {
-  @apply !bg-neutral-50 dark:!bg-neutral-950 dark:border-b-neutral-700 rounded-tl-md rounded-tr-md;
+  @apply !bg-white dark:!bg-neutral-950 dark:border-b-neutral-700 rounded-tl-md rounded-tr-md;
 }
 
 .rc-md-editor .editor-container {

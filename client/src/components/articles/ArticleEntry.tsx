@@ -120,7 +120,9 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
                 variant="ghost"
                 className="px-3 py-2 -ml-3 gap-1"
                 aria-label={`Comments on ${article.title}`}>
-                <Link href={`/articles/${article.slug}#comment-section`}>
+                <Link
+                  href={`/articles/${article.slug}#comment-section`}
+                  onClick={() => setPrevScrollPosition(window.scrollY)}>
                   <IoChatboxOutline size={22} className="mt-[0.14rem]" />
 
                   {article.commentCount > 0 && (

@@ -10,6 +10,8 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import addClasses from "rehype-class-names";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { extractDimensionsFromPath } from "@/lib/utils";
+import Image from "next/image";
 
 interface MarkdownRendererProps {
   children: string;
@@ -38,12 +40,20 @@ export default function MarkdownRenderer({
         [addClasses, { "h1,h2,h3,h4,h5,h6": "snap-start scroll-mt-20" }],
       ]}
       components={{
-        img: (props) => (
-          <span className="flex justify-center max-w-full m-auto">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img {...props} className="rounded-md" alt={props.alt ?? ""} />
-          </span>
-        ),
+        img: ({ src, alt }) => {
+          if (!src) return null;
+          const { width, height } = extractDimensionsFromPath(src);
+
+          return (
+            <Image
+              src={src}
+              width={width}
+              height={height}
+              className="rounded-md max-w-full m-auto"
+              alt={alt ?? ""}
+            />
+          );
+        },
         code: ({ className, children }) => {
           const match = /language-(\w+)/.exec(className || "");
           return match ? (
