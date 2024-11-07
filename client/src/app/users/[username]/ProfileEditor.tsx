@@ -64,7 +64,8 @@ export default function ProfileEditor({ user }: ProfileEditorProps) {
     if (
       !isDirty ||
       (form.watch("username") === defaultValues.username &&
-        form.watch("about") === defaultValues.about)
+        form.watch("about") === defaultValues.about &&
+        form.watch("profilePicture") === undefined)
     ) {
       setShowDialog(false);
       return;

@@ -228,7 +228,7 @@ export const updateArticle: RequestHandler<
     }
 
     Object.assign(articleToUpdate, {
-      slug: slugify(title),
+      slug: articleToUpdate.slug,
       title,
       body,
       ...(tags && { tags }),
@@ -652,15 +652,15 @@ export const uploadInArticleImages: RequestHandler = async (req, res, next) => {
     assertIsDefined(authenticatedUser);
     assertIsDefined(image);
 
+    const { width, height } = await sharp(image.buffer).metadata();
+
     const fileName = nanoid();
-    const imagePath =
-      "/uploads/in-article-images/" +
-      fileName +
-      path.extname(image.originalname);
+    const imagePath = `/uploads/in-article-images/${fileName}_width=${width}_height=${height}.webp`;
 
     await sharp(image.buffer)
       .resize(1920, undefined, { withoutEnlargement: true })
-      .toFile("./" + imagePath);
+      .webp({ quality: 75 })
+      .toFile(`./${imagePath}`);
 
     // create a temporary image document to compare and delete unused image when create article
     await TempImageModel.create({
