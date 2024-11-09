@@ -107,8 +107,8 @@ const ArticleEntry = forwardRef<HTMLElement, ArticleEntryProps>(
               </p>
             )}
           </Link>
-          <ArticleTags tags={article.tags} />
-          <div className="mt-2 sm:mt-1 flex items-center justify-between font-light text-sm">
+          {article.tags.length > 0 && <ArticleTags tags={article.tags} />}
+          <div className="mt-1 flex items-center justify-between font-light text-sm">
             <div className="flex items-center gap-3">
               <ArticleEntryLikeButton
                 article={article}

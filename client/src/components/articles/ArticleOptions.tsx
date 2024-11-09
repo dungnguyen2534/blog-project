@@ -149,17 +149,15 @@ export default function ArticleOptions({
       await ArticlesAPI.deleteArticle(article._id);
       revalidatePathData("/articles/" + article.slug);
 
-      if (articleEntry) {
-        setArticleList((prevList) => {
-          const articleIndex = prevList.findIndex((p) => p._id === article._id);
-          if (articleIndex !== -1) {
-            const updatedArticleList = [...prevList];
-            updatedArticleList.splice(articleIndex, 1);
-            return updatedArticleList;
-          }
-          return prevList;
-        });
-      }
+      setArticleList((prevList) => {
+        const articleIndex = prevList.findIndex((p) => p._id === article._id);
+        if (articleIndex !== -1) {
+          const updatedArticleList = [...prevList];
+          updatedArticleList.splice(articleIndex, 1);
+          return updatedArticleList;
+        }
+        return prevList;
+      });
 
       if (pathname === "/articles/" + article.slug) {
         prevUrl === "/articles/create-article"

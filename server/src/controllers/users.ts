@@ -151,10 +151,7 @@ export const resetPassword: RequestHandler<
       ? await bcrypt.compare(rawPassword, user.password)
       : false;
     if (matchedOldPassword) {
-      throw createHttpError(
-        409,
-        "New password must be different from the old one"
-      );
+      throw createHttpError(409, "New password must be different");
     }
 
     const OTPCode = await passwordResetToken

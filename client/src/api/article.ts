@@ -6,7 +6,6 @@ import {
   ArticleBody,
   Article,
   ArticlePage,
-  CommentStatus,
 } from "@/validation/schema/article";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 

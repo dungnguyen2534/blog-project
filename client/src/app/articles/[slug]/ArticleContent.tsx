@@ -9,7 +9,6 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import InArticleLike from "@/components/articles/InArticleLike";
 import useSWR from "swr";
 import ArticlesAPI from "@/api/article";
-import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface ArticleContentProps {
   article: Article;
@@ -34,15 +33,18 @@ export default function ArticleContent({ article }: ArticleContentProps) {
 
   return (
     <article>
-      <div className="max-w-prose m-auto flex flex-col gap-3 break-words pb-5 border-b-[1px]">
+      <div className="max-w-prose m-auto flex flex-col gap-2 break-words pb-5 border-b-[1px]">
         <header>
           <NavigateBackButton />
-          <h1 className="text-3xl sm:text-4xl font-black md:mt-1 mb-4">
+          <h1
+            className={`text-3xl sm:text-4xl font-black md:mt-1 mb-3 ${
+              article.tags.length > 0 ? "-mb-2" : ""
+            }`}>
             {article.title}
           </h1>
 
           {article.tags.length > 0 && (
-            <ArticleTags tags={article.tags} className="-mt-4 mb-4" />
+            <ArticleTags tags={article.tags} className="mb-3" />
           )}
 
           <ArticleOptions

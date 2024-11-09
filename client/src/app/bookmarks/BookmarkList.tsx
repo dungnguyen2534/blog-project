@@ -19,6 +19,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { LoaderCircle } from "lucide-react";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import ArticleTags from "@/components/articles/ArticleTags";
+import useNavigation from "@/hooks/useNavigation";
 
 interface BookmarkListProps {
   tag?: string;
@@ -32,7 +33,6 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
     fetchNextPage,
     lastArticleReached,
     pageLoadError,
-    firstPageFetched,
     firstPageLoadError,
     setArticleList,
     isLoading,
@@ -139,6 +139,8 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
     );
   }
 
+  const { setPrevScrollPosition } = useNavigation();
+
   return (
     <div>
       {articleList.length > 0 &&
@@ -148,7 +150,9 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
               key={article._id}
               ref={index === articleList.length - 1 ? articleRef : null}
               className="relative  rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 main-outline overflow-hidden break-words">
-              <Link href={"/articles/" + article.slug}>
+              <Link
+                href={"/articles/" + article.slug}
+                onClick={() => setPrevScrollPosition(window.scrollY)}>
                 <h2 className="text-lg md:text-xl font-bold">
                   {article.title}
                 </h2>

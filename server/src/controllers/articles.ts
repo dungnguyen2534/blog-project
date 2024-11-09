@@ -635,7 +635,7 @@ export const getArticle: RequestHandler = async (req, res, next) => {
 
 export const getSlugs: RequestHandler = async (req, res, next) => {
   try {
-    const result = await ArticleModel.find().select("slug").exec();
+    const result = await ArticleModel.find().select("slug").lean().exec();
     const slugs = result.map((article) => article.slug);
 
     res.status(200).json(slugs);
