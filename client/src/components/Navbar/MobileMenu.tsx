@@ -17,6 +17,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import useAuth from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
+import SearchButton from "./SearchButton";
 
 interface MobileMenuProps {
   username?: string;
@@ -96,17 +97,24 @@ export default function MobileMenu({
               <Link onClick={() => setOpenMenu(false)} href="/bookmarks">
                 Bookmarks
               </Link>
-              <Link
-                className=""
-                href=""
-                onClick={() => setOpenDialog && setOpenDialog(true)}>
+
+              <span
+                onClick={() => setOpenDialog && setOpenDialog(true)}
+                className="cursor-pointer p-3 rounded-md hover:bg-neutral-100 hover:dark:bg-neutral-900 w-full transition-colors text-end">
                 Sign out
-              </Link>
+              </span>
             </>
           ) : (
-            <Link className="" href="/auth?sign-in">
-              Sign in
-            </Link>
+            <>
+              <Link className="" href="/auth?sign-in">
+                Sign in
+              </Link>
+              <SearchButton asChild>
+                <span className="cursor-pointer p-3 rounded-md hover:bg-neutral-100 hover:dark:bg-neutral-900 w-full transition-colors text-end">
+                  Search
+                </span>
+              </SearchButton>
+            </>
           )}
         </div>
       </SheetContent>

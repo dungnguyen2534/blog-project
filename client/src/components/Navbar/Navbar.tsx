@@ -13,6 +13,8 @@ import { Skeleton } from "../ui/skeleton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import SearchButton from "./SearchButton";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import { Button } from "../ui/button";
+import { RiMenuSearchLine, RiSearch2Line } from "react-icons/ri";
 
 export default function Navbar() {
   const { user, isLoadingUser, mutateUser } = useAuth();
@@ -40,6 +42,8 @@ export default function Navbar() {
     "/bookmarks",
     "/tags",
   ].some((path) => pathname.startsWith(path));
+
+  const noUser = !user || isLoadingUser;
 
   return (
     <header className="overflow-hidden h-16 z-50 flex items-center fixed w-[calc(100vw-1px)] top-0 main-color ring-1 ring-[#e7e7e7] dark:ring-neutral-800">
@@ -86,11 +90,31 @@ export default function Navbar() {
           {pathname === "/onboarding" && <ModeToggle className="md:hidden" />}
 
           <div className="flex gap-1">
-            <SearchButton className={isLoadingUser ? "hidden md:flex" : ""} />
+            <SearchButton asChild>
+              <Button
+                variant="ghost"
+                className={`relative h-11 w-12 md:h-10 md:w-10 ${
+                  noUser ? "hidden md:flex" : ""
+                }`}
+                aria-label="Search">
+                <RiMenuSearchLine
+                  size={24}
+                  className="absolute top-[53%] dark:top-[52%] -translate-y-1/2 hidden md:block"
+                />
+                <RiSearch2Line
+                  size={28}
+                  className="absolute top-1/2 -translate-y-1/2 block md:hidden"
+                />
+              </Button>
+            </SearchButton>
             <ModeToggle className="hidden md:flex" />
           </div>
 
-          <Separator className="block w-[1px] h-6 bg-neutral-200 dark:bg-neutral-800 mr-1 md:mr-2" />
+          <Separator
+            className={`block w-[1px] h-6 bg-neutral-200 dark:bg-neutral-800 mr-1 md:mr-2 ${
+              noUser ? "hidden md:block" : ""
+            }`}
+          />
 
           <RxHamburgerMenu
             size={36}
