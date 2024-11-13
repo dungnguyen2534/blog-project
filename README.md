@@ -8,13 +8,13 @@ I built my first fullstack app using NextJS for the frontend and ExpressJS for t
 - **User Profiles**: Users can upload avatars, edit their username, and bio.
 - **Article Management**: Users can create and update articles using a markdown editor.
 - **Comment System**: Fully functional with sub-comments, also using markdown.
-- **Interactions**: Users can like articles and comments, follow other users and tags.
-- **Infinite Scrolling**: Articles load infinitely and can be filtered by latest, top (week/month/year/all-time), and by users/tags followed.
+- **Interactions**: Users can like articles and comments, follow other users and tags, bookmark articles.
+- **Infinite Scrolling**: Articles load infinitely and can be filtered by latest, top (week/month/year/all-time), users/tags followed, and a separate page for bookmarks.
 - **SEO and Speed**: Static loading of article content for better SEO and faster page loading.
 - **Responsive Design**: Built with Tailwind CSS and Shadcn/UI, supporting dark/light modes.
-- **Client-Side Revalidation**: Using SWR for data fetching with customized native fetch.
+- **Client-Side Fetching/Validation**: Using SWR for data fetching with customized native fetch.
 - **Image Optimization**: Users can upload images in both articles/comments, which are resized and converted to WebP for optimal size.
-- **Data Validation**: Validation on both frontend and backend, with rate limiting to prevent spam.
+- **Data Input Validation**: Validation on both frontend and backend, with rate limiting to prevent spam.
 - **Session Management**: Sessions are stored with Redis for fast access.
 - **And many other small details...**
   
