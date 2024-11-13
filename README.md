@@ -1,6 +1,6 @@
 ## My First Fullstack App: A Blog Platform
 
-I built my first fullstack app using NextJS for the frontend and ExpressJS for the backend. It’s a blog app inspired by [DEV.TO](dev.to).
+I built my first fullstack app using NextJS and ExpressJS, a blog platform inspired by [DEV.TO](dev.to).
 
 ### Features:
 
