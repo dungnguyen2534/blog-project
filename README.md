@@ -16,6 +16,6 @@ I built my first fullstack app using NextJS for the frontend and ExpressJS for t
 - **Image Optimization**: Users can upload images in both articles/comments, which are resized and converted to WebP for optimal size.
 - **Data Input Validation**: Validation on both frontend and backend, with rate limiting to prevent spam.
 - **Session Management**: Sessions are stored with Redis for fast access.
-- **And many other small details...**
+- **And many other small features...**
   
 This project isn’t finished and still lacks some features. There might be bad code, bad practices, and hidden bugs, but it’s taken quite a bit of time. I’m still learning, and I want to explore new things, so I’ll leave it for now. I’ll come back later to refactor if needed and add more features.
