@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 import { validateBufferMIMEType } from "validate-image-type";
 import { z } from "zod";
+import { Readable } from "stream";
 
-export const ArticleBodySchema = z.object({
-  title: z.string().min(1).max(150, "Title should be less than 150 characters"),
+export const articleBodySchema = z.object({
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(150, "Title should be less than 150 characters"),
   body: z.string().min(1, "Body is required"),
   tags: z
     .array(z.string())
@@ -22,25 +26,41 @@ export const MongoIdSchema = z.string().refine((id) => {
   return mongoose.Types.ObjectId.isValid(id);
 }, "Invalid ID");
 
-export const CommentBodySchema = z.object({
+export const commentBodySchema = z.object({
+  parentCommentId: MongoIdSchema.optional(),
   body: z.string().min(1, "Comment body is required"),
   images: z.array(z.string()).optional(),
 });
 
-export const ImageSchema = z.custom<Express.Multer.File>(
-  async (file) => {
-    if (!file) return true; // image is not required
-
-    // if there is an image, validate it
+/**
+ * Second layer image validation after multer, check if a file is actually an image. This schema needs parseAsync to validate instead of just parse
+ */
+export const imageSchema = z
+  .object({
+    fieldname: z.string().optional(),
+    originalname: z.string().optional(),
+    encoding: z.string().optional(),
+    mimetype: z.string(),
+    size: z.number().optional(),
+    stream: z.instanceof(Readable).optional(),
+    destination: z.string().optional(),
+    filename: z.string().optional(),
+    path: z.string().optional(),
+    buffer: z.instanceof(Buffer),
+  })
+  .superRefine(async (file, ctx) => {
     const result = await validateBufferMIMEType(file.buffer, {
       allowMimeTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp"],
     });
-    return result.ok;
-  },
-  {
-    message: "Invalid image type",
-  }
-);
+
+    if (!result.ok) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["buffer"],
+        message: "Invalid image data",
+      });
+    }
+  });
 
 export const emailSchema = z.string().email();
 
@@ -70,3 +90,8 @@ export const otpSchema = z
       message: "OTP must be a 6-digit number",
     }
   );
+
+export type ArticleBody = z.infer<typeof articleBodySchema>;
+export type CustomImageType = z.infer<typeof imageSchema>;
+export type MongoId = z.infer<typeof MongoIdSchema>;
+export type CommentBody = z.infer<typeof commentBodySchema>;

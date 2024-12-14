@@ -103,9 +103,9 @@ export default function ArticleOptions({
     timeoutRef.current = setTimeout(async () => {
       try {
         if (isSaved) {
-          await ArticlesAPI.unsaveArticle(article._id);
+          await ArticlesAPI.unBookmarkedArticle(article._id);
         } else {
-          await ArticlesAPI.saveArticle(article._id);
+          await ArticlesAPI.bookmarkArticle(article._id);
         }
 
         const articleIndex = articleList.findIndex(

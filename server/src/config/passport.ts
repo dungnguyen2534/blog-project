@@ -1,6 +1,6 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import User from "../models/user";
+import User from "../models/user.model";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import {
@@ -8,7 +8,7 @@ import {
   VerifyCallback,
 } from "passport-google-oauth20";
 import { Strategy as GithubStrategy, Profile } from "passport-github2";
-import env from "../env";
+import env from "../constant/env";
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {

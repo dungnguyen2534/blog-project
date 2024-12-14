@@ -91,19 +91,23 @@ const ArticlesAPI = {
     });
     return res.payload;
   },
-  async saveArticle(articleId: string) {
-    const res = await http.post(`/articles/${articleId}/save`);
+  async bookmarkArticle(articleId: string) {
+    const res = await http.post(`/articles/bookmark/${articleId}`);
     return res.payload;
   },
-  async getSavedTags(cookie?: RequestCookie) {
-    const res = await http.get<string[]>("/articles/saved-tags", {
+  async unBookmarkedArticle(articleId: string) {
+    const res = await http.delete(`/articles/bookmark/${articleId}`);
+    return res.payload;
+  },
+  async getTagListInBookmarks(cookie?: RequestCookie) {
+    const res = await http.get<string[]>("/articles/bookmark/bookmark-tags", {
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
     });
     return res.payload;
   },
-  async getSavedArticles(
+  async getBookmarkedArticleList(
     signal?: AbortSignal,
     tag?: string,
     searchQuery?: string,
@@ -111,7 +115,7 @@ const ArticlesAPI = {
     cookie?: RequestCookie
   ) {
     const res = await http.get<ArticlePage>(
-      `/articles/saved-articles?${tag ? "&tag=" + tag : ""}${
+      `/articles/bookmark/bookmarked-articles?${tag ? "&tag=" + tag : ""}${
         searchQuery ? "&searchQuery=" + searchQuery : ""
       }${continueAfterId ? "&continueAfterId=" + continueAfterId : ""}`,
       {
@@ -121,10 +125,6 @@ const ArticlesAPI = {
         signal: signal,
       }
     );
-    return res.payload;
-  },
-  async unsaveArticle(articleId: string) {
-    const res = await http.delete(`/articles/${articleId}/unsave`);
     return res.payload;
   },
   async createComment(articleId: string, values: CommentBody) {
@@ -179,13 +179,13 @@ const ArticlesAPI = {
   },
   async like(targetId: string, targetType: "article" | "comment") {
     const res = await http.post<{ totalLikes: number }>(
-      `/${targetType}/${targetId}/like`
+      `/interact/like/${targetType}/${targetId}/`
     );
     return res.payload;
   },
   async unlike(targetId: string, targetType: "article" | "comment") {
     const res = await http.post<{ totalLikes: number }>(
-      `/${targetType}/${targetId}/unlike`
+      `/interact/unlike/${targetType}/${targetId}/`
     );
     return res.payload;
   },

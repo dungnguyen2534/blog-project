@@ -14,7 +14,11 @@ export const ImageUploadFilter = multer({
     ) {
       done(null, true);
     } else {
-      done(new Error("Please upload an image"));
+      const multerError = new multer.MulterError(
+        "LIMIT_UNEXPECTED_FILE",
+        "Invalid image type"
+      );
+      done(multerError);
     }
   },
 });

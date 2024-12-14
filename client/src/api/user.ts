@@ -35,7 +35,7 @@ const UserAPI = {
     return res.payload;
   },
   getUser: async (username: string, cookie?: RequestCookie) => {
-    const res = await http.get<User>("/auth/users/" + username, {
+    const res = await http.get<User>("/users/" + username, {
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
@@ -49,27 +49,29 @@ const UserAPI = {
       formData.append(key, value);
     });
 
-    const res = await http.patch<User>("/auth/me", formData);
+    console.log("in update user func");
+
+    const res = await http.patch<User>("/users/me", formData);
     return res.payload;
   },
   followUser: async (userId: string) => {
     const res = await http.post<{ totalFollowers: number }>(
-      `/auth/users/${userId}/follow`
+      `/users/${userId}/follow`
     );
     return res.payload;
   },
   unFollowUser: async (userId: string) => {
     const res = await http.delete<{ totalFollowers: number }>(
-      `/auth/users/${userId}/unfollow`
+      `/users/${userId}/unfollow`
     );
     return res.payload;
   },
   getFollowers: async () => {
-    const res = await http.get<User[]>(`/auth/users/me/followers`);
+    const res = await http.get<User[]>(`/users/me/followers`);
     return res.payload;
   },
   getFollowing: async () => {
-    const res = await http.get<User[]>(`/auth/users/me/following`);
+    const res = await http.get<User[]>(`/users/me/following`);
     return res.payload;
   },
 };

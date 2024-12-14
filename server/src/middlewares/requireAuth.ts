@@ -1,9 +1,12 @@
 import { RequestHandler } from "express";
 import createHttpError from "http-errors";
+import { UNAUTHORIZED } from "../constant/httpCode";
 
 const requireAuth: RequestHandler = (req, res, next) => {
   if (!req.user) {
-    return next(createHttpError(401, "You are not authorized for this action"));
+    return next(
+      createHttpError(UNAUTHORIZED, "You are not authorized for this action")
+    );
   }
 
   next();

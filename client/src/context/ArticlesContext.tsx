@@ -3,13 +3,7 @@
 import ArticlesAPI from "@/api/article";
 import { Article, ArticlePage } from "@/validation/schema/article";
 import { usePathname } from "next/navigation";
-import {
-  createContext,
-  useCallback,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { createContext, useCallback, useState, useTransition } from "react";
 
 interface ArticlesContextType {
   articleList: Article[];
@@ -114,7 +108,7 @@ export default function ArticlesContextProvider({
             undefined
           );
         } else if (saved) {
-          firstPage = await ArticlesAPI.getSavedArticles(
+          firstPage = await ArticlesAPI.getBookmarkedArticleList(
             signal,
             tag,
             searchQuery
@@ -192,7 +186,7 @@ export default function ArticlesContextProvider({
             `/articles?followedTarget=${followedTarget}&continueAfterId=${continueAfterId}`
           );
         } else if (saved) {
-          nextPage = await ArticlesAPI.getSavedArticles(
+          nextPage = await ArticlesAPI.getBookmarkedArticleList(
             undefined,
             tag,
             searchQuery,

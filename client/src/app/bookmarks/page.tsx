@@ -18,7 +18,7 @@ export default async function BookmarksPage({
 
   let tagList: string[] | undefined;
   try {
-    tagList = (await ArticlesAPI.getSavedTags(userCookie)).map((tag) =>
+    tagList = (await ArticlesAPI.getTagListInBookmarks(userCookie)).map((tag) =>
       tag.slice(1)
     );
   } catch {

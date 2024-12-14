@@ -99,7 +99,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
 
   async function removeBookmark(articleId: string) {
     try {
-      ArticlesAPI.unsaveArticle(articleId);
+      ArticlesAPI.unBookmarkedArticle(articleId);
       setArticleList((prevArticleList) =>
         prevArticleList.filter((article) => article._id !== articleId)
       );

@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer";
-import env from "../env";
+import env from "../constant/env";
 
 const transporter = createTransport({
   host: "smtp-relay.brevo.com",
@@ -15,7 +15,7 @@ export default async function sendVerificationCode(email: string, otp: string) {
     from: "ndunv2503@gmail.com",
     to: email,
     subject: "Your verification code",
-    html: `<p>This is your verification code. It will expire in 10 minutes</p><strong>${otp}</strong>
+    html: `<p>This is your verification code. It will expire in 10 minutes: </p><strong>${otp}</strong>
     `,
   });
 }

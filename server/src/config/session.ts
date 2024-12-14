@@ -1,5 +1,5 @@
 import { SessionOptions } from "express-session";
-import env from "../env";
+import env from "../constant/env";
 import RedisStore from "connect-redis";
 import crypto from "crypto";
 import redisClient from "./redisClient";
@@ -9,7 +9,7 @@ const sessionConfig: SessionOptions = {
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }, // 1 week
-  rolling: true, // reset maxAge on every request
+  rolling: true,
 
   store: new RedisStore({ client: redisClient }),
 
