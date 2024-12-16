@@ -7,9 +7,9 @@ import {
   unSaveArticleHandler,
 } from "../services/bookmark.service";
 import {
-  getSavedArticleListQuerySchema,
-  saveArticleListParamsSchema,
-  unSaveArticleListParamsSchema,
+  getBookmarkArticleListQuerySchema,
+  bookmarkArticleListParamsSchema,
+  unBookmarkArticleListParamsSchema,
 } from "../validation/request/articles.request";
 import { OK } from "../constant/httpCode";
 
@@ -17,7 +17,7 @@ export const bookmarkArticle = catchErrors(async (req, res) => {
   const authenticatedUser = req.user;
   assertIsDefined(authenticatedUser);
 
-  const params = saveArticleListParamsSchema.parse(req.params);
+  const params = bookmarkArticleListParamsSchema.parse(req.params);
 
   await saveArticleHandler(authenticatedUser, params);
   res.sendStatus(OK);
@@ -27,7 +27,7 @@ export const unBookmarkedArticle = catchErrors(async (req, res) => {
   const authenticatedUser = req.user;
   assertIsDefined(authenticatedUser);
 
-  const params = unSaveArticleListParamsSchema.parse(req.params);
+  const params = unBookmarkArticleListParamsSchema.parse(req.params);
 
   await unSaveArticleHandler(authenticatedUser, params);
   res.sendStatus(OK);
@@ -45,7 +45,7 @@ export const getBookmarkedArticleList = catchErrors(async (req, res) => {
   const authenticatedUser = req.user;
   assertIsDefined(authenticatedUser);
 
-  const requestQuery = getSavedArticleListQuerySchema.parse(req.query);
+  const requestQuery = getBookmarkArticleListQuerySchema.parse(req.query);
 
   const savedArticleList = await getBookmarkedArticleListHandler(
     authenticatedUser,

@@ -1,9 +1,9 @@
 import ArticleModel from "../models/article.model";
 import SavedArticleModel from "../models/savedArticle.model";
 import {
-  GetSavedArticleListQuery,
-  SaveArticleListParams,
-  UnSaveArticleListParams,
+  GetBookmarkedArticleListQuery,
+  BookmarkedArticleListParams,
+  UnBookmarkArticleListParams,
 } from "../validation/request/articles.request";
 import UserTagsModel from "../models/userTags.model";
 import LikeModel from "../models/like.model";
@@ -13,7 +13,7 @@ import { BAD_REQUEST, NOT_FOUND } from "../constant/httpCode";
 
 export const saveArticleHandler = async (
   authenticatedUser: Express.User,
-  params: SaveArticleListParams
+  params: BookmarkedArticleListParams
 ) => {
   const { articleId } = params;
 
@@ -58,7 +58,7 @@ export const saveArticleHandler = async (
 
 export const unSaveArticleHandler = async (
   authenticatedUser: Express.User,
-  params: UnSaveArticleListParams
+  params: UnBookmarkArticleListParams
 ) => {
   const { articleId } = params;
 
@@ -110,7 +110,7 @@ export const getTagListInBookmarksHandler = async (
 
 export const getBookmarkedArticleListHandler = async (
   authenticatedUser: Express.User,
-  requestQuery: GetSavedArticleListQuery
+  requestQuery: GetBookmarkedArticleListQuery
 ) => {
   const limit = parseInt(requestQuery.limit || "12");
   const { tag, continueAfterId, searchQuery } = requestQuery;

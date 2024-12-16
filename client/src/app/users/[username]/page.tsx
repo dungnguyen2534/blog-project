@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import Profile from "./Profile";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
-import ArticlesContextProvider from "@/context/ArticlesContext";
 
 const getUser = cache(async (username: string, cookie?: RequestCookie) => {
   try {

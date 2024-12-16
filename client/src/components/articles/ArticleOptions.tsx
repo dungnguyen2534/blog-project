@@ -185,7 +185,7 @@ export default function ArticleOptions({
 
   return (
     <div className="flex justify-between items-center">
-      <ArticleAuthor article={article} articleEntry />
+      <ArticleAuthor author={author} article={article} articleEntry />
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DropdownMenu modal={false}>
           <div

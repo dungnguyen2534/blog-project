@@ -9,6 +9,7 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import InArticleLike from "@/components/articles/InArticleLike";
 import useSWR from "swr";
 import ArticlesAPI from "@/api/article";
+import { User } from "@/validation/schema/user";
 
 interface ArticleContentProps {
   article: Article;
@@ -22,9 +23,11 @@ export default function ArticleContent({ article }: ArticleContentProps) {
     article.isSavedArticle
   );
   const [likes, setLikes] = useState<number>(article.likeCount);
+  const [author, setAuthor] = useState<User>(article.author);
 
   const articleStatus = useSWR("articleStatus", async () => {
     const articleStatus = await ArticlesAPI.getArticle(article.slug);
+    setAuthor(articleStatus.author);
     setIsSaved(articleStatus.isSavedArticle);
     setLiked(articleStatus.isLoggedInUserLiked);
     setLikes(articleStatus.likeCount);
@@ -52,7 +55,7 @@ export default function ArticleContent({ article }: ArticleContentProps) {
             isSaved={isSaved}
             setIsSaved={setIsSaved}
             isLoading={articleStatus.isLoading}
-            author={article.author}
+            author={author}
           />
         </header>
         <MarkdownRenderer>{article.body}</MarkdownRenderer>

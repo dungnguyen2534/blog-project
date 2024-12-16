@@ -120,7 +120,7 @@ export default function ArticleList({
         <>
           {followedTarget ? (
             <>
-              <ArticleListSkeleton skeletonCount={1} />
+              <ArticleListSkeleton skeletonCount={3} />
             </>
           ) : (
             <>

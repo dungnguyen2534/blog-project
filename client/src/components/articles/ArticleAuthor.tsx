@@ -7,15 +7,18 @@ import { formatDate, formatUpdatedDate } from "@/lib/utils";
 import { TooltipTrigger } from "@/components/ui/tooltip";
 import MiniProfile from "../MiniProfile";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
+import { User } from "@/validation/schema/user";
 
 interface ArticleAuthorProps {
   article: Article;
   articleEntry?: boolean;
+  author: User;
 }
 
 export default function ArticleAuthor({
   article,
   articleEntry,
+  author,
 }: ArticleAuthorProps) {
   let articleDate;
   if (!(article.createdAt !== article.updatedAt)) {
@@ -41,9 +44,9 @@ export default function ArticleAuthor({
   }
 
   const { handleArticleListChange } = useArticlesLoader();
-  const { username, profilePicPath } = article.author;
+  const { username, profilePicPath } = author;
   return (
-    <MiniProfile author={article.author} customTrigger>
+    <MiniProfile author={author} customTrigger>
       <div className="relative flex">
         <TooltipTrigger asChild>
           <Link

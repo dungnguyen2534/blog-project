@@ -1,11 +1,10 @@
 import ArticleList from "@/components/articles/ArticleList";
 import ArticleListTabs from "@/components/articles/ArticleListTabs";
-import ArticlesContextProvider from "@/context/ArticlesContext";
 import { IoIosCodeWorking } from "react-icons/io";
 
 export default function Home() {
   return (
-    <main className="container px-0 md:px-8 mt-[4.3rem] md:!mt-20">
+    <main className="container px-0 md:px-8 mt-[4.3rem] md:!mt-[5.3rem]">
       <ArticleListTabs defaultValue="Latest">
         <div className="relative hidden md:flex items-center">
           <h1 className="text-2xl font-semibold">Latest articles</h1>

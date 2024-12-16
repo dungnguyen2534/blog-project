@@ -10,7 +10,7 @@ import {
   ForgotPasswordBodySchema,
 } from "@/validation/schema/user";
 import useAuth from "@/hooks/useAuth";
-import UserAPI from "@/api/user";
+import AuthAPI from "@/api/auth";
 import { ConflictError, NotFoundError } from "@/lib/http-errors";
 import { useToast } from "../ui/use-toast";
 import useCountDown from "@/hooks/useCountDown";
@@ -41,7 +41,7 @@ export default function ForgotPassword({
   async function onSubmit(input: ForgotPasswordBody) {
     setIsLoading(true);
     try {
-      const user = await UserAPI.resetPassword(input);
+      const user = await AuthAPI.resetPassword(input);
       mutateUser(user);
       router.push(previousUrl || "/");
       router.refresh();
@@ -75,7 +75,7 @@ export default function ForgotPassword({
 
     setIsSendingOTP(true);
     try {
-      await UserAPI.getResetPasswordOTP(form.getValues("email"));
+      await AuthAPI.getResetPasswordOTP(form.getValues("email"));
       toast({
         title: "OTP sent!",
         description: "Please check your email",

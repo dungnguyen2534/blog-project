@@ -19,7 +19,6 @@ export default function BookmarkSearch({
   className,
 }: BookmarkSearchProps) {
   const { setIsLoading, setArticleList, isLoading } = useArticlesLoader();
-
   const [searchValue, setSearchValue] = useState(searchQuery || "");
 
   const router = useRouter();
@@ -37,7 +36,7 @@ export default function BookmarkSearch({
           query ? `&searchQuery=${query}` : ""
         }`
       );
-    }, 350);
+    }, 500);
 
     searchQueryRef.current = query;
     return () => {

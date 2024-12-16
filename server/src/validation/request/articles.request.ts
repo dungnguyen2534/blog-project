@@ -31,15 +31,15 @@ export const getTopArticlesQuerySchema = z.object({
   continueAfterId: MongoIdSchema.optional(),
 });
 
-export const saveArticleListParamsSchema = z.object({
+export const bookmarkArticleListParamsSchema = z.object({
   articleId: MongoIdSchema,
 });
 
-export const unSaveArticleListParamsSchema = z.object({
+export const unBookmarkArticleListParamsSchema = z.object({
   articleId: MongoIdSchema,
 });
 
-export const getSavedArticleListQuerySchema = z.object({
+export const getBookmarkArticleListQuerySchema = z.object({
   tag: z.string().optional(),
   limit: z.string().optional(),
   continueAfterId: MongoIdSchema.optional(),
@@ -54,10 +54,12 @@ export type GetTopArticleListParams = z.infer<
   typeof getTopArticlesParamsSchema
 >;
 export type GetTopArticleListQuery = z.infer<typeof getTopArticlesQuerySchema>;
-export type SaveArticleListParams = z.infer<typeof saveArticleListParamsSchema>;
-export type UnSaveArticleListParams = z.infer<
-  typeof unSaveArticleListParamsSchema
+export type BookmarkedArticleListParams = z.infer<
+  typeof bookmarkArticleListParamsSchema
 >;
-export type GetSavedArticleListQuery = z.infer<
-  typeof getSavedArticleListQuerySchema
+export type UnBookmarkArticleListParams = z.infer<
+  typeof unBookmarkArticleListParamsSchema
+>;
+export type GetBookmarkedArticleListQuery = z.infer<
+  typeof getBookmarkArticleListQuerySchema
 >;

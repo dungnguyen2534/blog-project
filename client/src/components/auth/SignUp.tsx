@@ -1,4 +1,4 @@
-import UserAPI from "@/api/user";
+import AuthAPI from "@/api/auth";
 import EmailInput from "../form/EmailInput";
 import FormInput from "../form/FormInput";
 import FormWrapper from "../form/FormWrapper";
@@ -39,7 +39,7 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
   async function onSubmit(input: SignUpBody) {
     setIsLoading(true);
     try {
-      const newUser = await UserAPI.signup(input);
+      const newUser = await AuthAPI.signup(input);
       mutateUser(newUser);
       router.push(previousUrl || "/");
       router.refresh();
@@ -72,7 +72,7 @@ export default function SignUp({ previousUrl, onSignInClick }: SignUp) {
 
     setIsSendingOTP(true);
     try {
-      await UserAPI.getOTP(form.getValues("email"));
+      await AuthAPI.getOTP(form.getValues("email"));
       toast({
         title: "OTP sent!",
         description: "Please check your email",

@@ -149,7 +149,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
             <article
               key={article._id}
               ref={index === articleList.length - 1 ? articleRef : null}
-              className="relative  rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 main-outline overflow-hidden break-words">
+              className="relative bg-white dark:bg-neutral-950  rounded-none md:rounded-md mb-1 md:mb-2 p-3 md:py-2 main-outline overflow-hidden break-words">
               <Link
                 href={"/articles/" + article.slug}
                 onClick={() => setPrevScrollPosition(window.scrollY)}>

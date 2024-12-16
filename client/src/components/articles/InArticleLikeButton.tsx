@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useRef, useEffect, use } from "react";
+import { useCallback, useRef } from "react";
 import { Button } from "../ui/button";
 import { PiHeart, PiHeartFill } from "react-icons/pi";
 import ArticlesAPI from "@/api/article";
@@ -8,9 +8,7 @@ import useAuth from "@/hooks/useAuth";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import { Article } from "@/validation/schema/article";
 import { useToast } from "../ui/use-toast";
-import { SWRResponse } from "swr";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
-import useNavigation from "@/hooks/useNavigation";
 
 interface InArticleLikeButtonProps {
   article: Article;

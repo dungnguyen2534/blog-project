@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import UserAvatar from "../UserAvatar";
-import UserAPI from "@/api/user";
+import AuthAPI from "@/api/auth";
 import { User } from "@/validation/schema/user";
 import { usePathname } from "next/navigation";
 import { useToast } from "../ui/use-toast";
@@ -47,7 +47,7 @@ export default function SignedInView({ user, mutateUser }: SignedInViewProps) {
 
     try {
       await ArticlesAPI.deleteUnusedImages();
-      await UserAPI.signout();
+      await AuthAPI.signout();
       mutateUser(null);
 
       window.location.reload();

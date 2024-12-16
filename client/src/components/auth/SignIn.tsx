@@ -3,7 +3,7 @@ import { SignInBody, SignInBodySchema } from "@/validation/schema/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useToast } from "../ui/use-toast";
-import UserAPI from "@/api/user";
+import AuthAPI from "@/api/auth";
 import { TooManyRequestsError, UnauthorizedError } from "@/lib/http-errors";
 import FormWrapper from "../form/FormWrapper";
 import FormInput from "../form/FormInput";
@@ -37,7 +37,7 @@ export default function SignIn({
     setIsLoading(true);
 
     try {
-      const user = await UserAPI.signin(credentials);
+      const user = await AuthAPI.signin(credentials);
       mutateUser(user);
 
       sessionStorage.clear();

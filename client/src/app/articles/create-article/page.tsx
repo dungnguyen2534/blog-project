@@ -186,7 +186,7 @@ export default function NewArticlePage() {
                 label="Add a short summary:"
                 placeholder="Your article summary"
                 description="This is optional but recommended"
-                className="dark:bg-neutral-900 m-auto w-full"
+                className="dark:bg-neutral-950 m-auto w-full"
                 resizable={false}
                 limit={180}
                 showCharCount
@@ -196,7 +196,6 @@ export default function NewArticlePage() {
                 onChange={(e) => setTagsString(e.target.value)}
                 label="Add some tags so people know what your article is about:"
                 description="Example: #javascript #react #webdev"
-                className="dark:bg-neutral-900"
                 placeholder="Enter your article tags here... (5 tags at most)"
                 defaultValue={tagsString}
               />

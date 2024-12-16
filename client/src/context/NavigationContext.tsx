@@ -27,7 +27,7 @@ export default function NavigationContextProvider({
 
   const [prevUrl, setPrevUrl] = useState<string | undefined>(undefined);
 
-  // when user comment in an article, revalidateTag is used an it makes the page not scroll to previous position, so this is to handle that
+  // when user comment in an article, revalidateTag is used and it makes the page not scroll to previous position, so this is to handle that
   const [prevScrollPosition, setPrevScrollPosition] = useState<number>(0);
 
   useEffect(() => {

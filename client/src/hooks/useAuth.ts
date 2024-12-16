@@ -1,5 +1,5 @@
 import useSWR from "swr";
-import UserAPI from "@/api/user";
+import AuthAPI from "@/api/auth";
 import { UnauthorizedError } from "@/lib/http-errors";
 
 export default function useAuth() {
@@ -7,7 +7,7 @@ export default function useAuth() {
     "authenticated_user",
     async () => {
       try {
-        return await UserAPI.getAuthenticatedUser();
+        return await AuthAPI.getAuthenticatedUser();
       } catch (error) {
         if (error instanceof UnauthorizedError) {
           return null;

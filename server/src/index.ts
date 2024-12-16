@@ -6,17 +6,18 @@ import authRouter from "./routes/auth.route";
 import usersRouter from "./routes/user.route";
 import likesRouter from "./routes/like.route";
 import tagsRouter from "./routes/tag.route";
+import searchRouter from "./routes/search.route";
 import env from "./constant/env";
 import createHttpError from "http-errors";
 import session from "express-session";
 import sessionConfig from "./config/session";
 import passport from "passport";
 import cron from "node-cron";
-import uploadsCleanup from "./utils/uploadsCleanup";
 import "./config/passport";
 import errorHandler from "./middlewares/errorHandler";
 import { NOT_FOUND } from "./constant/httpCode";
 import connectToDatabase from "./config/db";
+import uploadsCleanup from "./utils/uploadsCleanup";
 
 const app = express();
 app.use(express.json());
@@ -58,6 +59,7 @@ app.use("/users", usersRouter);
 app.use("/articles", articlesRouter);
 app.use("/tags", tagsRouter);
 app.use("/interact", likesRouter);
+app.use("/search", searchRouter);
 
 // cleanup uploads
 cron.schedule("0 0 * * *", uploadsCleanup);
