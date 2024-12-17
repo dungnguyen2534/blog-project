@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const quickSearchQuerySchema = z.object({
+export const searchQuerySchema = z.object({
   searchQuery: z.string(),
 });
 
-export type QuickSearchQuery = z.infer<typeof quickSearchQuerySchema>;
+export type searchQuery = z.infer<typeof searchQuerySchema>;

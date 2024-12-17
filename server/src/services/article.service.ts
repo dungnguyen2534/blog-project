@@ -207,7 +207,8 @@ export const updateArticleHandler = async (
     await Promise.all([...addTagPromises, ...removeTagPromises]);
   }
 
-  if (articleToUpdate.title !== title) {
+  const newTitle = articleToUpdate.title !== title;
+  if (newTitle) {
     await SavedArticleModel.updateMany(
       { articleId: articleToUpdate._id },
       { articleTitle: title }
@@ -215,7 +216,7 @@ export const updateArticleHandler = async (
   }
 
   Object.assign(articleToUpdate, {
-    slug: articleToUpdate.slug,
+    slug: newTitle ? slugify(title) : articleToUpdate.slug,
     title,
     body,
     ...(tags && { tags }),

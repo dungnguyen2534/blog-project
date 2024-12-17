@@ -7,6 +7,7 @@ const tagSchema = new Schema({
 });
 
 tagSchema.index({ tagName: 1 });
+tagSchema.index({ articleCount: -1 });
 
 tagSchema.pre("save", function (next) {
   if (this.isModified("tagName")) {

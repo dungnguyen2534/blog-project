@@ -75,7 +75,7 @@ export default function OnboardingPage() {
           limit={20}
         />
         <LoadingButton
-          className="w-full sm:w-fit"
+          className="w-full sm:w-24"
           text="Continue"
           loading={isSubmitting}
           disabled={!isDirty}

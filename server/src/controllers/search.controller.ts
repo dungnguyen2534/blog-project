@@ -1,11 +1,11 @@
 import { OK } from "../constant/httpCode";
-import { quickSearchHandler } from "../services/search.service";
+import { searchHandler } from "../services/search.service";
 import catchErrors from "../utils/catchErrors";
-import { quickSearchQuerySchema } from "../validation/request/search.request";
+import { searchQuerySchema } from "../validation/request/search.request";
 
-export const quickSearch = catchErrors(async (req, res) => {
-  const requestQuery = quickSearchQuerySchema.parse(req.query);
+export const search = catchErrors(async (req, res) => {
+  const requestQuery = searchQuerySchema.parse(req.query);
 
-  const data = await quickSearchHandler(requestQuery);
+  const data = await searchHandler(requestQuery);
   res.status(OK).json(data);
 });
