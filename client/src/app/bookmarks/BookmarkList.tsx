@@ -22,11 +22,10 @@ import ArticleTags from "@/components/articles/ArticleTags";
 import useNavigation from "@/hooks/useNavigation";
 
 interface BookmarkListProps {
-  tag?: string;
   searchQuery: string;
 }
 
-export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
+export default function BookmarkList({ searchQuery }: BookmarkListProps) {
   const {
     articleList,
     fetchFirstPage,
@@ -37,6 +36,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
     setArticleList,
     isLoading,
     handleArticleListChange,
+    noArticlesInReturn,
   } = useArticlesLoader();
   const { user, isLoadingUser, isValidatingUser } = useAuth();
   const handleFetchFirstPage = useCallback(
@@ -44,7 +44,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
       fetchFirstPage(
         signal,
         undefined,
-        tag,
+        undefined,
         12,
         undefined,
         undefined,
@@ -53,13 +53,13 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
         searchQuery
       );
     },
-    [fetchFirstPage, tag, searchQuery]
+    [fetchFirstPage, searchQuery]
   );
 
   const handleFetchNextPage = useCallback(() => {
     fetchNextPage(
       undefined,
-      tag,
+      undefined,
       12,
       undefined,
       undefined,
@@ -67,14 +67,14 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
       true,
       searchQuery
     );
-  }, [fetchNextPage, tag, searchQuery]);
+  }, [fetchNextPage, searchQuery]);
 
   useEffect(() => {
     const controller = new AbortController();
     handleFetchFirstPage(controller.signal);
 
     return () => controller.abort();
-  }, [handleFetchFirstPage, tag, searchQuery]);
+  }, [handleFetchFirstPage, searchQuery]);
 
   const articleRef = useCallback(
     (articleEntry: HTMLElement | null) => {
@@ -194,7 +194,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
         })}
 
       {isLoading &&
-        articleList.length === 0 &&
+        !articleList.length &&
         noBookmarks(
           <LoaderCircle size={24} className="animate-spin mx-auto" />
         )}
@@ -203,12 +203,7 @@ export default function BookmarkList({ tag, searchQuery }: BookmarkListProps) {
         <BookmarkListSkeleton skeletonCount={3} />
       )}
 
-      {user &&
-        !pageLoadError &&
-        !firstPageLoadError &&
-        !isLoading &&
-        articleList.length === 0 &&
-        noBookmarks("No bookmarks found.")}
+      {user && noArticlesInReturn && noBookmarks("No bookmarks found.")}
 
       {!user &&
         !isLoadingUser &&

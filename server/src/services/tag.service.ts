@@ -1,7 +1,7 @@
 import { TagParams, TagQuery } from "../validation/request/tag.request";
 import createHttpError from "http-errors";
 import TagModel from "../models/tag.model";
-import UserTagsModel from "../models/userTags.model";
+import UserTagsModel from "../models/userFollowedTag.model";
 import { CREATED, NOT_FOUND, OK } from "../constant/httpCode";
 
 export const followTagHandler = async (
@@ -56,12 +56,15 @@ export const unFollowTagHandler = async (
       user: authenticatedUser._id,
       followedTags: tagNameWithHash,
     }),
-    TagModel.exists({ tagName: tagNameWithHash }),
+    TagModel.findOne({ tagName: tagNameWithHash }),
   ]);
 
   if (!existingTag) {
     throw createHttpError(NOT_FOUND, "Tag not found");
   }
+
+  const deleteTagCondition =
+    existingTag.followerCount === 1 && existingTag.articleCount === 0;
 
   if (!existingFollower) {
     const tag = await TagModel.findOne({ tagName: tagNameWithHash }).exec();
@@ -72,10 +75,12 @@ export const unFollowTagHandler = async (
         user: authenticatedUser._id,
         $pull: { followedTags: tagNameWithHash },
       }),
-      TagModel.updateOne(
-        { tagName: tagNameWithHash },
-        { $inc: { followerCount: -1 } }
-      ),
+      deleteTagCondition
+        ? TagModel.deleteOne({ tagName: tagNameWithHash })
+        : TagModel.updateOne(
+            { tagName: tagNameWithHash },
+            { $inc: { followerCount: -1 } }
+          ),
     ]);
 
     const tag = await TagModel.findOne({ tagName: tagNameWithHash }).exec();

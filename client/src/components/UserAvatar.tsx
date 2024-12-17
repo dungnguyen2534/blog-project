@@ -7,8 +7,7 @@ interface UserAvatarProps {
   username?: string;
   profilePicUrl?: string;
   className?: string;
-  width?: number;
-  height?: number;
+  size?: number;
   priority?: boolean;
 }
 
@@ -16,8 +15,7 @@ export default function UserAvatar({
   username,
   className,
   profilePicUrl,
-  width,
-  height,
+  size,
   priority,
 }: UserAvatarProps) {
   return (
@@ -26,8 +24,8 @@ export default function UserAvatar({
         <Image
           src={profilePicUrl || ""}
           alt={`${username || "user"} avatar`}
-          width={width || 80}
-          height={height || 80}
+          width={size || 80}
+          height={size || 80}
           priority={priority}
         />
       </AvatarImage>

@@ -19,7 +19,7 @@ import LikeModel from "../models/like.model";
 import UserModel from "../models/user.model";
 import FollowerModel from "../models/follower.model";
 import TagModel from "../models/tag.model";
-import userTagsModel from "../models/userTags.model";
+import userTagsModel from "../models/userFollowedTag.model";
 import SavedArticleModel from "../models/savedArticle.model";
 import { slugify } from "../utils/slugify";
 import assertIsDefined from "../utils/assertIsDefined";
@@ -260,6 +260,7 @@ export const deleteArticleHandler = async (
   const comments = await CommentModel.find({
     articleId: articleToDelete._id,
   }).exec();
+
   if (comments.length > 0) {
     const deletePromises = comments.flatMap((comment) =>
       comment.images.map((commentImagePath) => {

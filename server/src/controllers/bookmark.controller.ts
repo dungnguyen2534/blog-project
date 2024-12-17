@@ -2,9 +2,8 @@ import assertIsDefined from "../utils/assertIsDefined";
 import catchErrors from "../utils/catchErrors";
 import {
   getBookmarkedArticleListHandler,
-  getTagListInBookmarksHandler,
-  saveArticleHandler,
-  unSaveArticleHandler,
+  bookmarkArticleHandler,
+  unBookmarkArticleHandler,
 } from "../services/bookmark.service";
 import {
   getBookmarkArticleListQuerySchema,
@@ -19,7 +18,7 @@ export const bookmarkArticle = catchErrors(async (req, res) => {
 
   const params = bookmarkArticleListParamsSchema.parse(req.params);
 
-  await saveArticleHandler(authenticatedUser, params);
+  await bookmarkArticleHandler(authenticatedUser, params);
   res.sendStatus(OK);
 });
 
@@ -29,16 +28,8 @@ export const unBookmarkedArticle = catchErrors(async (req, res) => {
 
   const params = unBookmarkArticleListParamsSchema.parse(req.params);
 
-  await unSaveArticleHandler(authenticatedUser, params);
+  await unBookmarkArticleHandler(authenticatedUser, params);
   res.sendStatus(OK);
-});
-
-export const getTagListInBookmarks = catchErrors(async (req, res) => {
-  const authenticatedUser = req.user;
-  assertIsDefined(authenticatedUser);
-
-  const { savedTags } = await getTagListInBookmarksHandler(authenticatedUser);
-  res.status(OK).json(savedTags);
 });
 
 export const getBookmarkedArticleList = catchErrors(async (req, res) => {

@@ -67,11 +67,20 @@ export default function ArticleList({
     // prevent race condition with AbortController
     const controller = new AbortController();
     if (!firstPageFetched) {
+      if (author && author.totalArticles === 0) {
+        return;
+      }
       handleFetchFirstPage(controller.signal);
     }
 
     return () => controller.abort();
-  }, [firstPageFetched, handleFetchFirstPage, pathname, setArticleList]);
+  }, [
+    firstPageFetched,
+    handleFetchFirstPage,
+    pathname,
+    setArticleList,
+    author,
+  ]);
 
   // sync author follow status if there is more than one of the same author on the list
   const { setUsersToFollow } = useFollowUser();
@@ -124,14 +133,28 @@ export default function ArticleList({
             </>
           ) : (
             <>
-              <ArticleListSkeleton
-                className="hidden md:flex"
-                skeletonCount={4}
-              />
-              <ArticleListSkeleton
-                className="flex md:hidden"
-                skeletonCount={6}
-              />
+              {author?.totalArticles === 0 ? (
+                <></>
+              ) : (
+                <>
+                  <ArticleListSkeleton
+                    className="hidden md:flex"
+                    skeletonCount={
+                      author?.totalArticles && author.totalArticles < 6
+                        ? author.totalArticles
+                        : 4
+                    }
+                  />
+                  <ArticleListSkeleton
+                    className="flex md:hidden"
+                    skeletonCount={
+                      author?.totalArticles && author.totalArticles < 4
+                        ? author.totalArticles
+                        : 4
+                    }
+                  />
+                </>
+              )}
             </>
           )}
         </>

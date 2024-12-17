@@ -46,8 +46,7 @@ export default function Profile({ user }: ProfileProps) {
             username={user.username}
             profilePicUrl={user.profilePicPath}
             className="h-28 w-28 sm:w-36 sm:h-36"
-            width={144}
-            height={144}
+            size={144}
           />
 
           <div className="flex flex-col gap-2 md:text-center">

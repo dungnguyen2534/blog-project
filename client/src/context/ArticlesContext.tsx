@@ -39,6 +39,7 @@ interface ArticlesContextType {
   firstPageLoadError: boolean;
   handleArticleListChange: (targetPathname: string) => void;
   isChangingArticleList: boolean;
+  noArticlesInReturn: boolean;
 }
 
 export const ArticlesContext = createContext<ArticlesContextType | null>(null);
@@ -52,10 +53,11 @@ export default function ArticlesContextProvider({
 }: ArticlesContextProps) {
   const [articleList, setArticleList] = useState<Article[]>([]);
   const [firstPageFetched, setFirstPageFetched] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [lastArticleReached, setLastArticleReached] = useState(false);
   const [pageLoadError, setPageLoadError] = useState(false);
   const [firstPageLoadError, setFirstPageLoadError] = useState(false);
+  const [noArticlesInReturn, setNoArticlesInReturn] = useState(false);
   const pathname = usePathname();
 
   const continueAfterId = articleList[articleList.length - 1]?._id;
@@ -110,7 +112,6 @@ export default function ArticlesContextProvider({
         } else if (saved) {
           firstPage = await ArticlesAPI.getBookmarkedArticleList(
             signal,
-            tag,
             searchQuery
           );
         } else {
@@ -121,7 +122,12 @@ export default function ArticlesContextProvider({
           );
         }
 
-        setArticleList(firstPage.articles);
+        if (firstPage.articles.length === 0) {
+          setNoArticlesInReturn(true);
+        } else {
+          setArticleList(firstPage.articles);
+        }
+
         setLastArticleReached(firstPage.lastArticleReached);
         setFirstPageFetched(true);
       } catch (error) {
@@ -188,7 +194,6 @@ export default function ArticlesContextProvider({
         } else if (saved) {
           nextPage = await ArticlesAPI.getBookmarkedArticleList(
             undefined,
-            tag,
             searchQuery,
             continueAfterId
           );
@@ -248,6 +253,7 @@ export default function ArticlesContextProvider({
         firstPageLoadError,
         handleArticleListChange,
         isChangingArticleList,
+        noArticlesInReturn,
       }}>
       {children}
     </ArticlesContext.Provider>

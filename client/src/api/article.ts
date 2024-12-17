@@ -109,13 +109,12 @@ const ArticlesAPI = {
   },
   async getBookmarkedArticleList(
     signal?: AbortSignal,
-    tag?: string,
     searchQuery?: string,
     continueAfterId?: string,
     cookie?: RequestCookie
   ) {
     const res = await http.get<ArticlePage>(
-      `/articles/bookmark/bookmarked-articles?${tag ? "&tag=" + tag : ""}${
+      `/articles/bookmark/bookmarked-articles?${
         searchQuery ? "&searchQuery=" + searchQuery : ""
       }${continueAfterId ? "&continueAfterId=" + continueAfterId : ""}`,
       {

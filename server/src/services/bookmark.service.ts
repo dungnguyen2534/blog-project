@@ -1,17 +1,16 @@
 import ArticleModel from "../models/article.model";
-import SavedArticleModel from "../models/savedArticle.model";
+import BookmarkedArticleModel from "../models/savedArticle.model";
 import {
   GetBookmarkedArticleListQuery,
   BookmarkedArticleListParams,
   UnBookmarkArticleListParams,
 } from "../validation/request/articles.request";
-import UserTagsModel from "../models/userTags.model";
 import LikeModel from "../models/like.model";
 import FollowerModel from "../models/follower.model";
 import createHttpError from "http-errors";
 import { BAD_REQUEST, NOT_FOUND } from "../constant/httpCode";
 
-export const saveArticleHandler = async (
+export const bookmarkArticleHandler = async (
   authenticatedUser: Express.User,
   params: BookmarkedArticleListParams
 ) => {
@@ -22,7 +21,7 @@ export const saveArticleHandler = async (
     throw createHttpError(NOT_FOUND, "Article not found");
   }
 
-  const existingSavedArticle = await SavedArticleModel.findOne({
+  const existingSavedArticle = await BookmarkedArticleModel.findOne({
     userId: authenticatedUser._id,
     articleId: articleId,
   });
@@ -31,32 +30,17 @@ export const saveArticleHandler = async (
     throw createHttpError(BAD_REQUEST, "Article already saved");
   }
 
-  const savedArticle = new SavedArticleModel({
+  const savedArticle = new BookmarkedArticleModel({
     userId: authenticatedUser._id,
     articleId: articleId,
     articleTitle: article.title,
     tags: article.tags,
   });
 
-  const savedTags = (
-    await UserTagsModel.findOne({ user: authenticatedUser._id }).exec()
-  )?.savedTags;
-
-  const savedTagsSet = new Set(savedTags);
-  const uniqueTags = article.tags.filter((tag) => !savedTagsSet.has(tag));
-
-  if (uniqueTags.length > 0) {
-    await UserTagsModel.updateOne(
-      { user: authenticatedUser._id },
-      { $push: { savedTags: { $each: uniqueTags } } },
-      { upsert: true }
-    );
-  }
-
   await savedArticle.save();
 };
 
-export const unSaveArticleHandler = async (
+export const unBookmarkArticleHandler = async (
   authenticatedUser: Express.User,
   params: UnBookmarkArticleListParams
 ) => {
@@ -67,7 +51,7 @@ export const unSaveArticleHandler = async (
     throw createHttpError(NOT_FOUND, "Article not found");
   }
 
-  const deleteResult = await SavedArticleModel.deleteOne({
+  const deleteResult = await BookmarkedArticleModel.deleteOne({
     userId: authenticatedUser._id,
     articleId: articleId,
   });
@@ -75,37 +59,6 @@ export const unSaveArticleHandler = async (
   if (deleteResult.deletedCount === 0) {
     throw createHttpError(BAD_REQUEST, "This is not a saved article");
   }
-
-  const savedTags = (
-    await UserTagsModel.findOne({ user: authenticatedUser._id }).exec()
-  )?.savedTags;
-
-  const remainingTags = await Promise.all(
-    savedTags?.map(async (tag) => {
-      const hasTag = await SavedArticleModel.exists({
-        userId: authenticatedUser._id,
-        tags: tag,
-      });
-      return hasTag ? tag : null;
-    }) || []
-  );
-
-  const filteredTags = remainingTags.filter((tag) => tag !== null);
-
-  await UserTagsModel.updateOne(
-    { user: authenticatedUser._id },
-    { $set: { savedTags: filteredTags } }
-  );
-};
-
-export const getTagListInBookmarksHandler = async (
-  authenticatedUser: Express.User
-) => {
-  const savedTags = (
-    await UserTagsModel.findOne({ user: authenticatedUser._id }).exec()
-  )?.savedTags;
-
-  return { savedTags };
 };
 
 export const getBookmarkedArticleListHandler = async (
@@ -115,7 +68,7 @@ export const getBookmarkedArticleListHandler = async (
   const limit = parseInt(requestQuery.limit || "12");
   const { tag, continueAfterId, searchQuery } = requestQuery;
 
-  let query = SavedArticleModel.find({
+  let query = BookmarkedArticleModel.find({
     userId: authenticatedUser._id,
     ...(tag && { tags: "#" + tag }),
     ...(searchQuery && {
@@ -167,7 +120,7 @@ export const getBookmarkedArticleListHandler = async (
           targetId: article._id,
           targetType: "article",
         }),
-        SavedArticleModel.exists({
+        BookmarkedArticleModel.exists({
           userId: authenticatedUser._id,
           articleId: article._id,
         }),

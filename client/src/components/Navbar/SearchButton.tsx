@@ -84,13 +84,13 @@ export default function SearchButton({ children, asChild }: SearchButtonProps) {
         <Tabs
           defaultValue="articles"
           className="flex flex-col flex-grow overflow-hidden -mt-2">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 dark:bg-neutral-900 mb-1">
             <TabsTrigger value="articles">Articles</TabsTrigger>
             <TabsTrigger value="tags">Tags</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
           </TabsList>
 
-          <div className="flex-grow overflow-y-scroll scrollbar-thin">
+          <div className="flex-grow overflow-y-auto scrollbar-thin">
             <TabsContent value="articles" className="space-y-3">
               {noArticles && searchQuery.trim() != "" && !isLoading && (
                 <div>No result for &quot;{searchQuery}&quot;</div>
@@ -104,7 +104,7 @@ export default function SearchButton({ children, asChild }: SearchButtonProps) {
                         onClick={() => closeSearch()}
                         asChild
                         key={article._id}
-                        className="mb-1 text-wrap flex-col items-start justify-start w-fit h-fit"
+                        className="w-full mb-1 text-wrap flex-col items-start justify-start h-fit"
                         variant="outline">
                         <Link href={`/articles/${article.slug}`}>
                           <h3 className="[overflow-wrap:anywhere]">

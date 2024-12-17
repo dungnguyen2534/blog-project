@@ -11,7 +11,7 @@ import crypto from "crypto";
 import sendVerificationCode from "../utils/nodeMailer";
 import passwordResetToken from "../models/passwordResetToken.model";
 import { invalidateSessions } from "../utils/invalidateSessions";
-import userTagsModel from "../models/userTags.model";
+import userTagsModel from "../models/userFollowedTag.model";
 import { BAD_REQUEST, CONFLICT, NOT_FOUND, OK } from "../constant/httpCode";
 
 export const getOTPHandler = async (requestData: EmailVerificationBody) => {

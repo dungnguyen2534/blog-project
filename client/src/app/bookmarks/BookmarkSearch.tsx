@@ -1,5 +1,6 @@
 "use client";
 
+import tag from "@/api/tag";
 import { Input } from "@/components/ui/input";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import { sanitizeInput } from "@/lib/utils";
@@ -8,17 +9,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 interface BookmarkSearchProps {
-  tag?: string;
   searchQuery?: string;
   className?: string;
 }
 
 export default function BookmarkSearch({
-  tag,
   searchQuery,
   className,
 }: BookmarkSearchProps) {
-  const { setIsLoading, setArticleList, isLoading } = useArticlesLoader();
+  const { setIsLoading, setArticleList } = useArticlesLoader();
   const [searchValue, setSearchValue] = useState(searchQuery || "");
 
   const router = useRouter();
@@ -31,11 +30,7 @@ export default function BookmarkSearch({
     if (searchQueryRef.current === query) return;
     timeoutRef.current = setTimeout(() => {
       setIsLoading(true);
-      router.replace(
-        `/bookmarks?${tag ? `tag=${tag}` : ""}${
-          query ? `&searchQuery=${query}` : ""
-        }`
-      );
+      router.replace(`/bookmarks?searchQuery=${query}`);
     }, 500);
 
     searchQueryRef.current = query;
@@ -47,7 +42,6 @@ export default function BookmarkSearch({
   }, [
     searchValue,
     router,
-    tag,
     searchQuery,
     searchQueryRef,
     setIsLoading,
@@ -61,12 +55,6 @@ export default function BookmarkSearch({
         onChange={(e) => setSearchValue(e.target.value)}
         placeholder="Search..."
       />
-
-      {isLoading && (
-        <span className="absolute right-2 top-1/2 -translate-y-1/2 pl-1 bg-white dark:bg-neutral-950">
-          <LoaderCircle size={24} className="animate-spin mx-auto" />
-        </span>
-      )}
     </div>
   );
 }

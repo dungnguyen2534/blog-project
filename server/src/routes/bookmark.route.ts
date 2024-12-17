@@ -14,12 +14,6 @@ router.delete(
 );
 
 router.get(
-  "/bookmark-tags",
-  requireAuth,
-  BookmarksController.getTagListInBookmarks
-);
-
-router.get(
   "/bookmarked-articles",
   requireAuth,
   BookmarksController.getBookmarkedArticleList
