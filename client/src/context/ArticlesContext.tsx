@@ -75,6 +75,8 @@ export default function ArticlesContextProvider({
       saved?: boolean,
       searchQuery?: string
     ) => {
+      setNoArticlesInReturn(false);
+
       if (
         (top && followedTarget) ||
         (top && saved) ||
