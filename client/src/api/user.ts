@@ -9,6 +9,7 @@ const UserAPI = {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
       next: { tags: ["user"] },
+      cache: "no-cache",
     });
     return res.payload;
   },
@@ -17,8 +18,6 @@ const UserAPI = {
     Object.entries(input).forEach(([key, value]) => {
       formData.append(key, value);
     });
-
-    console.log("in update user func");
 
     const res = await http.patch<User>("/users/me", formData);
     return res.payload;

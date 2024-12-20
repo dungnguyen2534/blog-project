@@ -26,6 +26,8 @@ import useAutoSave from "@/hooks/useAutoSave";
 import EditorGuideButton from "@/components/EditorGuideButton";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import useNavigation from "@/hooks/useNavigation";
+import { revalidatePathData } from "@/lib/revalidate";
+import useAuth from "@/hooks/useAuth";
 
 export default function NewArticlePage() {
   const form = useForm<ArticleBody>({
@@ -38,6 +40,7 @@ export default function NewArticlePage() {
     },
   });
 
+  const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,9 +117,17 @@ export default function NewArticlePage() {
         tags,
         images,
       });
+
+      form.reset({
+        title: "",
+        summary: "",
+        body: "",
+        images: [],
+      });
       clearAutoSavedValue();
       setPrevScrollPosition(0);
 
+      revalidatePathData("/users/" + user?.username);
       router.push("/articles/" + slug);
     } catch (error) {
       setIsSubmitting(false);

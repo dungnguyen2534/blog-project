@@ -20,6 +20,7 @@ import useMobileDeviceDetecter from "@/hooks/useMobileDeviceDetecter";
 import { revalidatePathData } from "@/lib/revalidate";
 import useArticlesLoader from "@/hooks/useArticlesLoader";
 import useNavigation from "@/hooks/useNavigation";
+import { extractImageUrls } from "@/lib/utils";
 
 interface CommentActionsProps {
   comment: CommentType;
@@ -56,9 +57,12 @@ export default function CommentActions({
   const [isReplying, setIsReplying] = useState(false);
 
   async function reply(comment: CommentBody) {
+    const images = extractImageUrls(comment.body);
+
     try {
       const newComment = await ArticlesAPI.createComment(article._id, {
         ...comment,
+        images,
         parentCommentId,
       });
 

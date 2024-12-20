@@ -104,7 +104,8 @@
         prose-pre:m-0 
         prose-code:text-base
         prose-blockquote:!my-6
-        prose-blockquote:text-base;
+        prose-blockquote:text-base
+        prose-img:!my-2;
   }
 
   .markdown blockquote p {
@@ -291,6 +292,10 @@
   @apply text-base;
 }
 
+.editor-container .custom-html-style img {
+  @apply my-2;
+}
+
 .editor-container .custom-html-style code:not(pre code) {
   @apply text-base !bg-neutral-200 dark:!bg-neutral-700 rounded-md p-1;
 }
@@ -313,7 +318,7 @@
 }
 
 .editor-container .custom-html-style .markdown > pre:has(> code) {
-  @apply my-4 !py-0;
+  @apply my-4 p-4;
 }
 
 .editor-container .custom-html-style .markdown > pre:has(> pre) {

@@ -6,6 +6,8 @@ import { useToast } from "./ui/use-toast";
 import TagsAPI from "@/api/tag";
 import useAuthDialogs from "@/hooks/useAuthDialogs";
 import useAuth from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
+import { revalidatePathData } from "@/lib/revalidate";
 
 interface FollowTagButtonProps {
   tagName: string;
@@ -36,6 +38,7 @@ export default function FollowTagButton({
 
   const { user } = useAuth();
   const { showSignIn } = useAuthDialogs();
+  const pathname = usePathname();
 
   const [isFollowing, setIsFollowing] = useState(isLoggedInUserFollowing);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -65,6 +68,8 @@ export default function FollowTagButton({
         } else {
           await TagsAPI.followTag(tagName);
         }
+
+        revalidatePathData(pathname);
       } catch {
         toast({
           title: "An error occurred",
@@ -82,6 +87,7 @@ export default function FollowTagButton({
     tagName,
     showSignIn,
     user,
+    pathname,
   ]);
 
   return (

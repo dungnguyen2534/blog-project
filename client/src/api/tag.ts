@@ -16,6 +16,7 @@ const TagsAPI = {
       headers: {
         cookie: cookie ? `${cookie.name}=${cookie.value}` : "",
       },
+      cache: "no-cache",
     });
     return res.payload;
   },

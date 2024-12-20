@@ -21,21 +21,23 @@ import { FORBIDDEN, NOT_FOUND } from "../constant/httpCode";
 export const createCommentHandler = async (
   authenticatedUser: Express.User,
   requestParams: CreateCommentParams,
-  commentData: CommentBody
+  requestBody: CommentBody
 ) => {
-  const { parentCommentId, body, images = [] } = commentData;
+  const { parentCommentId, body, images } = requestBody;
   const { articleId } = requestParams;
 
-  let imagesPath;
-  if (images.length > 0) {
-    imagesPath = images.map((url: string) => new URL(url).pathname);
-    await TempImageModel.updateMany(
-      {
-        userId: authenticatedUser._id,
-        imagePath: { $in: imagesPath },
-      },
-      { $set: { temporary: false } }
-    );
+  let imagePaths: string[] | undefined;
+  if (images) {
+    if (images.length > 0) {
+      imagePaths = images.map((url: string) => new URL(url).pathname);
+      await TempImageModel.updateMany(
+        {
+          userId: authenticatedUser._id,
+          imagePath: { $in: imagePaths },
+        },
+        { $set: { temporary: false } }
+      );
+    }
   }
 
   const unusedImages = await TempImageModel.find({
@@ -44,15 +46,17 @@ export const createCommentHandler = async (
   });
 
   if (unusedImages.length > 0) {
-    const unusedImagesPath = unusedImages.map((image) => image.imagePath);
+    const unusedImagePaths = unusedImages.map((image) => image.imagePath);
 
-    const deletePromises = unusedImagesPath.map(async (imagePath) => {
-      const imagesPathToDelete = path.join(__dirname, "../..", imagePath);
-      return fs.promises.unlink(imagesPathToDelete);
+    const deletePromises = unusedImagePaths.map((imagePath) => {
+      const imagePathToDelete = path.join(__dirname, "../..", imagePath);
+      return fs.promises.unlink(imagePathToDelete);
     });
 
     await Promise.all(deletePromises);
-    await TempImageModel.deleteMany({ imagePath: { $in: unusedImagesPath } });
+    await TempImageModel.deleteMany({
+      imagePath: { $in: unusedImagePaths },
+    });
   }
 
   const newComment = await CommentModel.create({
@@ -62,7 +66,7 @@ export const createCommentHandler = async (
     body,
     likeCount: 0,
     replyCount: 0,
-    images: imagesPath,
+    images: imagePaths,
   });
 
   const updateParentComment = parentCommentId

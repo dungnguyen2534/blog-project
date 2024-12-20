@@ -107,7 +107,10 @@ export const getTagInfoHandler = async (
 
     return {
       statusCode: OK,
-      tag: { ...tag.toObject(), isLoggedInUserFollowing },
+      tag: {
+        ...tag.toObject(),
+        isLoggedInUserFollowing: !!isLoggedInUserFollowing,
+      },
     };
   } else {
     return { statusCode: OK, tag };

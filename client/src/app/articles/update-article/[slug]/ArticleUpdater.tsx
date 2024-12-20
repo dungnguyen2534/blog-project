@@ -173,7 +173,7 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
                 name="summary"
                 placeholder="Your article summary here..."
                 description="This is optional but recommended"
-                className="dark:bg-neutral-900 m-auto w-full"
+                className="m-auto w-full"
                 resizable={false}
                 limit={180}
                 showCharCount
@@ -183,7 +183,6 @@ export default function ArticleUpdater({ article }: ArticleUpdaterProps) {
                 onChange={(e) => setTagsString(e.target.value)}
                 label="Your article tags:"
                 description="Example: #javascript #react #webdev"
-                className="dark:bg-neutral-900"
                 placeholder="Enter your article tags here... (5 tags at most)"
                 defaultValue={tagsString}
               />
