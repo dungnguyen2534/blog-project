@@ -49,7 +49,7 @@ export default function BookmarkSearch({
   ]);
 
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className={`relative w-full md:w-1/2 ${className}`}>
       <Input
         value={searchValue}
         onChange={(e) => setSearchValue(e.target.value)}

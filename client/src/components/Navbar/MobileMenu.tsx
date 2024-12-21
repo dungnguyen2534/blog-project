@@ -18,6 +18,7 @@ import useAuth from "@/hooks/useAuth";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
 import SearchButton from "./SearchButton";
+import useArticlesLoader from "@/hooks/useArticlesLoader";
 
 interface MobileMenuProps {
   username?: string;
@@ -28,6 +29,7 @@ export default function MobileMenu({
   username,
   setOpenDialog,
 }: MobileMenuProps) {
+  const { handleArticleListChange } = useArticlesLoader();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -90,11 +92,19 @@ export default function MobileMenu({
               </Link>
               <hr className="my-5" />
               <Link
-                onClick={() => setOpenMenu(false)}
+                onClick={() => {
+                  setOpenMenu(false);
+                  handleArticleListChange("/users/" + username);
+                }}
                 href={`/users/${username}`}>
                 Personal Profile
               </Link>
-              <Link onClick={() => setOpenMenu(false)} href="/bookmarks">
+              <Link
+                onClick={() => {
+                  setOpenMenu(false);
+                  handleArticleListChange("/bookmarks");
+                }}
+                href="/bookmarks">
                 Bookmarks
               </Link>
 

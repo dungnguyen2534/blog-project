@@ -143,7 +143,8 @@ export default function BookmarkList({ searchQuery }: BookmarkListProps) {
 
   return (
     <div>
-      {articleList.length > 0 &&
+      {!noArticlesInReturn &&
+        articleList.length > 0 &&
         articleList.map((article, index) => {
           return (
             <article
@@ -203,7 +204,10 @@ export default function BookmarkList({ searchQuery }: BookmarkListProps) {
         <BookmarkListSkeleton skeletonCount={3} />
       )}
 
-      {user && noArticlesInReturn && noBookmarks("No bookmarks found.")}
+      {user &&
+        noArticlesInReturn &&
+        !isLoading &&
+        noBookmarks("No bookmarks found.")}
 
       {!user &&
         !isLoadingUser &&

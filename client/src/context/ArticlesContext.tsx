@@ -126,6 +126,7 @@ export default function ArticlesContextProvider({
 
         if (firstPage.articles.length === 0) {
           setNoArticlesInReturn(true);
+          setArticleList([]);
         } else {
           setArticleList(firstPage.articles);
         }
